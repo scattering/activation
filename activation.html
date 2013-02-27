@@ -25,11 +25,8 @@
     <script type="text/javascript" src="/static/lib/ajaxCSRFfix.js"></script>
 
 
-
-
-
-
     <script type="text/javascript">
+        CUTOFF = 0.;
         $(document).ready(function() {
             $("#id-activationForm").submit(function(event){
                 event.preventDefault();
@@ -40,47 +37,54 @@
                         flux: $('input:text[id=id_flux]').val(),
                         mass: $('input:text[id=id_mass]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
-                        rest: [0,1,24,360,$('input:text[id=id_time_off]').val()],
+                        rest: [0,1,24,360,parseFloat($('input:text[id=id_time_off]').val())],
                         abundance: $('input:text[id=id_abundance]').val()
                     },
                     success: function(ldata){
                         console.log(ldata);
-                        var result;
-                        if (typeof(ldata)!=="string") {
-                            result=ldata.activation;
-                        }
-                        else{
-                            result=$.parseJSON(ldata).activation;
-                        }
+                        if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
+                        var result = ldata.activation;
+                        var sample = ldata.sample;
                         result.total.splice(0,0,"total activity","","",""); //for a final column
                         result.activity.push(result.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","daughter","reaction","half life","activity (0 hrs)","activity ( 1hr)", "activity (24 hrs)", "activity (15 days)", result.rest[4]+" (hours)"]
+                        data.headers=["element","daughter","reaction","half life","activity (0 hrs)","activity (1 hr)", "activity (24 hrs)", "activity (15 days)", result.rest[4]+" (hours)"]
                         data.rows=[]
                         for (var i=0; i < result.activity.length; i++){
-                            data.rows.push(result.activity[i]);
-                        }
-
-                        //add headers to table
-                        var row = '<tr class="header">';
-                        for (var i in data.headers) {
-                            row += '<th style=""><a href="#" class="sort"><span>' + data.headers[i] + '</span></a></th>';
-                        }
-                        row += '</tr>'
-                        $(row).appendTo('table[id=results_table]');  //add to the dom
-                        row = '';
-                        for (var i in data.rows) {
-                            row += '<tr id="' + i + '">';
-                            for (var j=0; j <data.rows[i].length; j++){
-                                row += '<td>' + data.rows[i][j] + '</td>';
+                            active = false;
+                            for (var j=4; j < result.activity[i].length; j++){
+                                active = active || (result.activity[i][j] >= CUTOFF);
                             }
-                            row += '</tr>';
+                            if (active) data.rows.push(result.activity[i]);
                         }
 
+                        var content = '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
+                        if (data.rows.length > 0) {
+                            //add headers to table
+                            content += '<table border=1>\n';
+                            content += ' <tr class="header">';
+                            for (var i in data.headers) {
+                                content += '<th style=""><a href="#" class="sort"><span>' + data.headers[i] + '</span></a></th>';
+                            }
+                            content += '</tr>\n'
+                            for (var i in data.rows) {
+                                content += ' <tr id="' + i + '">';
+                                for (var j=0; j <data.rows[i].length; j++){
+                                    if (j>=4 && data.rows[i][j] < CUTOFF) { 
+                                        content += '<td>---</td>';
+                                    } else {
+                                        content += '<td>' + data.rows[i][j] + '</td>';
+                                    }
+                                }
+                                content += '</tr>\n';
+                            }
+                            content += '</table>\n';
+                       } else {
+                            content += '<p>No activation above '+CUTOFF+' uCi</p>';
+                       }
 
-                        $(row).appendTo('table[id=results_table]'); //add to the dom
-                        //$(row).appendTo('table.data');
+                        $(content).prependTo('div[id=results]'); //add to the dom
                     }
                 });
             });
@@ -100,11 +104,11 @@
             <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='cgmJug2PAM5TlxMPTcM2Q3nFmFR24giG' /> </div>
             <div id="div_id_chemical_formula" class="control-group">
                <label for="id_chemical_formula" class="control-label requiredField">Chemical Formula<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" maxlength="80" value="H2O" /> </div>
+               <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" maxlength="80" value="Co" /> </div>
             </div>
             <div id="div_id_mass" class="control-group">
                <label for="id_mass" class="control-label requiredField">Mass (g)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" /></div>
+               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="10" /></div>
             </div>
             <div id="div_id_time_on" class="control-group">
                <label for="id_time_on" class="control-label requiredField">Time on Beam (hours)<span class="asteriskField">*</span></label>
@@ -127,7 +131,7 @@
 
     </div>
     <div id="results">
-        <table id="results_table" border=1> </table>
+        <!-- <table id="results_table" border=1> </table> -->
     </div>
 
 </div>
