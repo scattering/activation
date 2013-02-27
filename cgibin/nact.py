@@ -17,6 +17,7 @@ respond = json_response
     
 def cgi_call():
     form = cgi.FieldStorage()
+    print >>sys.stderr, form
     try:
         chem = formula(form.getfirst('sample'))
 
@@ -38,7 +39,8 @@ def cgi_call():
             # if density is given, assume it is for natural abundance
             chem.natural_density = density
 
-        rest_times = [float(v) for v in form.getfirst('rest','0,1,24,360').split(',')]
+        rest_times = [float(v) for v in form.getlist('rest[]')]
+        if not rest_times: rest_times = [0,1,24,360]
 
         wavelength = float(form.getfirst('wavelength','1'))
 
