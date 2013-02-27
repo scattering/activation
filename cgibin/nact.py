@@ -17,7 +17,7 @@ respond = json_response
     
 def cgi_call():
     form = cgi.FieldStorage()
-    print >>sys.stderr, form
+    #print >>sys.stderr, form
     try:
         chem = formula(form.getfirst('sample'))
 
