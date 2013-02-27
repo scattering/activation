@@ -49,7 +49,7 @@
                         result.activity.push(result.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","daughter","reaction","half life","activity (0 hrs)","activity (1 hr)", "activity (24 hrs)", "activity (15 days)", result.rest[4]+" (hours)"]
+                        data.headers=["element","daughter","reaction","half life","activity (0 hrs)","activity (1 hr)", "activity (24 hrs)", "activity (15 days)", "activity ("+result.rest[4]+" hours)"]
                         data.rows=[]
                         for (var i=0; i < result.activity.length; i++){
                             active = false;
@@ -116,7 +116,7 @@
             </div>
             <div id="div_id_time_off" class="control-group">
                <label for="id_time_off" class="control-label requiredField">Time off Beam (hours)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="200" /> </div>
+               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" /> </div>
             </div>
             <div id="div_id_flux" class="control-group">
                <label for="id_flux" class="control-label requiredField">Instrument Flux (n/cm^2/s)<span class="asteriskField">*</span></label>
