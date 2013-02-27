@@ -2,7 +2,6 @@
 <head>
     <title>Neutron Activation Calculator</title>
 
-
     <style type="text/css">
         body { font-size: 0.9em; }
         label { font-weight: inherit; }
@@ -21,15 +20,13 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
-
-
-    <script type="text/javascript" src="/static/lib/ajaxCSRFfix.js"></script>
+    <script src="/static/lib/ajaxCSRFfix.js" type="text/javascript"></script>
 
 
     <script type="text/javascript">
         CUTOFF = 0.;
         function format_value(v) {
-            return (v<CUTOFF ? '---' : ''+v);
+            return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
         $(document).ready(function() {
             $("#id-activationForm").submit(function(event){
@@ -40,6 +37,9 @@
                     data: {sample: $('input:text[id=id_chemical_formula]').val(),
                         flux: $('input:text[id=id_flux]').val(),
                         mass: $('input:text[id=id_mass]').val(),
+                        density: $('input:text[id=id_density]').val(),
+                        thickness: $('input:text[id=id_thickness]').val(),
+                        wavelength: $('input:text[id=id_wavelength]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
                         rest: [0,1,24,360,parseFloat($('input:text[id=id_time_off]').val())],
                         abundance: $('input:text[id=id_abundance]').val()
@@ -49,6 +49,7 @@
                         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
                         var result = ldata.activation;
                         var sample = ldata.sample;
+                        var scat = ldata.scattering;
                         //result.total.splice(0,0,"total activity","","",""); //for a final column
                         //result.activity.push(result.total);
                         var data={}
@@ -65,7 +66,27 @@
                         var show_total = false;
                         for (var j=0; j < result.total.length; j++) show_total = show_total || (result.total[j] >= CUTOFF);
 
-                        var content = '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
+                        var content = '';
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
+                        content += '<p>Transmission is '+(100-scat.absorption).toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
+                        content += '<table border=1>\n <tr>';
+                        content += '<th rowspan="2">Wavelength (&Aring;)</th>';
+                        content += '<th rowspan="2">1/e penetration depth (cm)</th>';
+                        content += '<th colspan="3">Scattering length density (1e-6/&Aring;^3)</th>';
+                        content += '<th colspan="3">Scattering cross section (1/cm)</th>';
+                        content += '</tr>\n <tr>';
+                        content += '<th>real</th><th>imag</th><th>incoh</th><th>coh</th><th>abs</th><th>incoh</th>';
+                        content += '</tr>\n <tr>';
+                        content += '<td>'+scat.wavelength.toFixed(2)
+                                   +'</td><td>'+scat.sld.real.toFixed(2)
+                                   +'</td><td>'+scat.sld.imag.toFixed(2)
+                                   +'</td><td>'+scat.sld.incoh.toFixed(2)
+                                   +'</td><td>'+scat.xs.coh.toFixed(2)
+                                   +'</td><td>'+scat.xs.abs.toFixed(2)
+                                   +'</td><td>'+scat.xs.incoh.toFixed(2)
+                                   +'</td><td>'+scat.penetration.toFixed(2)
+                                   +'</td>';
+                        content += '</tr>\n</table>';
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
@@ -128,12 +149,27 @@
                     /> </div>
             </div>
             <div id="div_id_mass" class="control-group">
-               <label for="id_mass" class="control-label requiredField">Mass (g)</label>
+               <label for="id_mass" class="control-label">Mass (g)</label>
                <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
                     title="Sample mass.  Activation scales linearly with mass." /></div>
             </div>
+            <div id="div_id_density" class="control-group">
+               <label for="id_density" class="control-label">Density (g/cm^3)</label>
+               <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" 
+                    title="Sample density for calculating absorption and scattering length density." /></div>
+            </div>
+            <div id="div_id_thickness" class="control-group">
+               <label for="id_thickness" class="control-label">Thickness (cm)</label>
+               <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" 
+                    title="Sample thickness for computing total scattering." /></div>
+            </div>
+            <div id="div_id_wavelength" class="control-group">
+               <label for="id_wavelength" class="control-label">Wavelength (&Aring;)</label>
+               <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" 
+                    title="Neutron wavelength; add units (meV, m/s or Ang) to use energy, velocity or wavelength." /></div>
+            </div>
             <div id="div_id_time_on" class="control-group">
-               <label for="id_time_on" class="control-label requiredField">Time on beam (hours)</label>
+               <label for="id_time_on" class="control-label">Time on beam (hours)</label>
                <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" 
                     title="Sample exposure time." /> </div>
             </div>
@@ -165,7 +201,7 @@ EOD
             <div id="div_id_abundance" class="control-group">
                <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
                <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" 
-                    title="IAEA Report 273: Handbook of Nuclear Activation Data (1987)&#10;NIST Isotopic Composition of the Elements, 2001"
+                    title="Isotopic abundance for activation calculation uses either IAEA Report 273: Handbook of Nuclear Activation Data, 1987, or NIST Isotopic Composition of the Elements, 2001; sld and absorption calculations use NIST abundance."
                /> </div>
             </div>
             <div class="form-actions"><input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" /> </div>

@@ -2,7 +2,8 @@
 
 import cgi
 import json
-from periodictable import elements, activation, formula, neutron_scattering, xray_sld
+from math import exp
+from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
 import sys
 
 def json_response(result):
@@ -42,7 +43,18 @@ def cgi_call():
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
 
-        wavelength = float(form.getfirst('wavelength','1'))
+        thickness = float(form.getfirst('thickness', '1'))
+
+        wavelength_str = form.getfirst('wavelength','1').strip()
+        if wavelength_str.endswith('meV'):
+             wavelength = nsf.neutron_wavelength(float(wavelength_str[:-3]))
+        elif wavelength_str.endswith('m/s'):
+             wavelength = nsf.neutron_wavelength_from_velocity(float(wavelength_str[:-3]))
+        elif wavelength_str.endswith('Ang'):
+             wavelength = float(wavelength_str[:-3])
+        else:
+             wavelength = float(wavelength_str)
+        print >>sys.stderr,wavelength_str
 
         xray_source = form.getfirst('xray','Cu')
         try:
@@ -82,6 +94,7 @@ def cgi_call():
            'formula': str(chem),
            'mass': mass,
            'density': chem.density,
+           'thickness': thickness,
            'natural_density': chem.natural_density
         },
         'activation': {
@@ -98,6 +111,7 @@ def cgi_call():
            'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
            'xs': {'coh': xs[0], 'abs': xs[1], 'incoh': xs[2]},
            'penetration': penetration,
+           'absorption': 100*exp(-thickness/penetration),
         },
         'xray_scattering': {
            'wavelength': xray_wavelength,
