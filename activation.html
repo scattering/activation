@@ -9,6 +9,7 @@
         .hidden { overflow: hidden; }
         .colborder { margin-bottom: -100%; padding-bottom: 100%; }
         caption, td, th { padding-top: 0, padding-bottom: 0; }
+        table { empty-cells: hide; }
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
@@ -27,6 +28,9 @@
 
     <script type="text/javascript">
         CUTOFF = 0.;
+        function format_value(v) {
+            return (v<CUTOFF ? '---' : ''+v);
+        }
         $(document).ready(function() {
             $("#id-activationForm").submit(function(event){
                 event.preventDefault();
@@ -45,24 +49,27 @@
                         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
                         var result = ldata.activation;
                         var sample = ldata.sample;
-                        result.total.splice(0,0,"total activity","","",""); //for a final column
-                        result.activity.push(result.total);
+                        //result.total.splice(0,0,"total activity","","",""); //for a final column
+                        //result.activity.push(result.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","daughter","reaction","half life","activity (0 hrs)","activity (1 hr)", "activity (24 hrs)", "activity (15 days)", "activity ("+result.rest[4]+" hours)"]
+                        data.headers=["element","daughter","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", result.rest[4]+" hours"]
                         data.rows=[]
                         for (var i=0; i < result.activity.length; i++){
-                            active = false;
+                            var active = false;
                             for (var j=4; j < result.activity[i].length; j++){
                                 active = active || (result.activity[i][j] >= CUTOFF);
                             }
                             if (active) data.rows.push(result.activity[i]);
                         }
+                        var show_total = false;
+                        for (var j=0; j < result.total.length; j++) show_total = show_total || (result.total[j] >= CUTOFF);
 
                         var content = '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
-                        if (data.rows.length > 0) {
+                        if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
+                            content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity (uCi)</th></tr>\n';
                             content += ' <tr class="header">';
                             for (var i in data.headers) {
                                 content += '<th style=""><a href="#" class="sort"><span>' + data.headers[i] + '</span></a></th>';
@@ -71,14 +78,19 @@
                             for (var i in data.rows) {
                                 content += ' <tr id="' + i + '">';
                                 for (var j=0; j <data.rows[i].length; j++){
-                                    if (j>=4 && data.rows[i][j] < CUTOFF) { 
-                                        content += '<td>---</td>';
+                                    if (j>=4) {
+                                        content += '<td>'+format_value(data.rows[i][j])+'</td>';
                                     } else {
                                         content += '<td>' + data.rows[i][j] + '</td>';
                                     }
                                 }
                                 content += '</tr>\n';
                             }
+                            content += ' <tr class="header"><th colspan="4">total activity</th>';
+                            for (var j=0; j < result.total.length; j++) {
+                                content += '<td>'+format_value(result.total[j])+'</td>';
+                            }
+                            content += ' </tr>\n';
                             content += '</table>\n';
                        } else {
                             content += '<p>No activation above '+CUTOFF+' uCi</p>';
@@ -96,6 +108,13 @@
 
 </head>
 <body>
+<!---
+<?php
+  include("/var/www/include/navigation.inc");
+  include("/var/www/include/utility.inc");
+?>
+-->
+
 <div class="container">
    
     <div id="activation_form">
@@ -103,37 +122,78 @@
         <form  id="id-activationForm" class="blueForms" method="post" >
             <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='cgmJug2PAM5TlxMPTcM2Q3nFmFR24giG' /> </div>
             <div id="div_id_chemical_formula" class="control-group">
-               <label for="id_chemical_formula" class="control-label requiredField">Chemical Formula<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" maxlength="80" value="Co" /> </div>
+               <label for="id_chemical_formula" class="control-label requiredField">Chemical Formula</label>
+               <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" 
+                    title="Sample formula such as CaCO3(H2O)6, or with 13-C at 10%, CaC[12]0.9C[13]0.1O3+6H2O"
+                    /> </div>
             </div>
             <div id="div_id_mass" class="control-group">
-               <label for="id_mass" class="control-label requiredField">Mass (g)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="10" /></div>
+               <label for="id_mass" class="control-label requiredField">Mass (g)</label>
+               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
+                    title="Sample mass.  Activation scales linearly with mass." /></div>
             </div>
             <div id="div_id_time_on" class="control-group">
-               <label for="id_time_on" class="control-label requiredField">Time on Beam (hours)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" /> </div>
+               <label for="id_time_on" class="control-label requiredField">Time on beam (hours)</label>
+               <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" 
+                    title="Sample exposure time." /> </div>
             </div>
             <div id="div_id_time_off" class="control-group">
-               <label for="id_time_off" class="control-label requiredField">Time off Beam (hours)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" /> </div>
+               <label for="id_time_off" class="control-label requiredField">Time off beam (hours)</label>
+               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" 
+                    title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated" /> </div>
             </div>
             <div id="div_id_flux" class="control-group">
-               <label for="id_flux" class="control-label requiredField">Instrument Flux (n/cm^2/s)<span class="asteriskField">*</span></label>
-              <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="100000" /> </div>
+               <label for="id_flux" class="control-label requiredField">Instrument flux (n/cm^2/s)
+<!--
+<?php
+$ip = $_SERVER['REMOTE_ADDR'];
+$visitor = @getHostByAddr($ip);
+$fromNCNR = strtolower(substr($visitor, -14)) == ".ncnr.nist.gov";
+if ($fromNCNR) {
+    echo <<<EOD 
+-->
+ (see <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument flux table</a>)
+<!--
+EOD
+}
+?>
+-->
+               </label>
+               <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" 
+                    title="Thermal beam flux at sample" /> </div>
             </div>
             <div id="div_id_abundance" class="control-group">
-               <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)<span class="asteriskField">*</span></label>
-               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" /> </div>
+               <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
+               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" 
+                    title="IAEA Report 273: Handbook of Nuclear Activation Data (1987)&#10;NIST Isotopic Composition of the Elements, 2001"
+               /> </div>
             </div>
             <div class="form-actions"><input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" /> </div>
         </form>
 
     </div>
+    <p>
+    This form estimates the expected levels of neutron activation for a sample.  If an element is used in the chemical formula instead of a
+    a specific isotope, then natural abundance is assumed.  This form is offered for estimation purposes. NCNR does not keep records of 
+    samples evaluated with this form.
+    </p><p>
+    Note that use of this form is not a substitute for consulting with a Health Physicist. All samples must be cleared by a NIST Health 
+    Physics before removal from the NCNR.
+    </p>
+
     <div id="results">
         <!-- <table id="results_table" border=1> </table> -->
     </div>
 
+</div> 
+<hr>
+<div class="footer">
+  <div style="float:left;"><p>Paul Kienzle (<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</p></div>
+  <div style="float:right;"><p>
+<!--
+<?php lastmod(); ?>
+-->
+  </p></div>
 </div>
 </body>
 </html>
