@@ -12,6 +12,7 @@
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
+        .error { color: red; }
     </style>
 
 
@@ -47,6 +48,14 @@
                     success: function(ldata){
                         console.log(ldata);
                         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
+                        if (!ldata.success) {
+                           var keys = Object.keys(ldata.detail);
+                           keys.sort();
+                           for (i = keys.length-1; i >= 0; i--) {
+                               $('<p class="error">Error ' +keys[i]+': '+ldata.detail[keys[i]]+'</p>').prependTo('div[id=results]');
+                           }
+                           return;
+                        }
                         var result = ldata.activation;
                         var sample = ldata.sample;
                         var scat = ldata.scattering;
@@ -68,7 +77,7 @@
 
                         var content = '';
                         content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
-                        content += '<p>Transmission is '+(100-scat.absorption).toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
+                        content += '<p>Transmission is '+scat.transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
                         content += '<table border=1>\n <tr>';
                         content += '<th rowspan="2">Wavelength (&Aring;)</th>';
                         content += '<th rowspan="2">1/e penetration depth (cm)</th>';
@@ -117,7 +126,7 @@
                             content += '<p>No activation above '+CUTOFF+' uCi</p>';
                        }
 
-                        $(content).prependTo('div[id=results]'); //add to the dom
+                       $(content).prependTo('div[id=results]'); //add to the dom
                     }
                 });
             });
