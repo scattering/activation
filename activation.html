@@ -27,13 +27,17 @@
 
 
     <script type="text/javascript">
+        // Parse environment variables "activation.html?cutoff=...&abundance=..."
         function getURLParameter(name) {
             return decodeURIComponent(
                 (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
              );
         }
         CUTOFF = getURLParameter('cutoff');
-        if (!CUTOFF) CUTOFF=1.;
+        if (CUTOFF==='null') CUTOFF = 1.;
+        ABUNDANCE = getURLParameter('abundance');
+        if (ABUNDANCE==='null') ABUNDANCE = "NIST";
+
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
@@ -51,7 +55,8 @@
                         wavelength: $('input:text[id=id_wavelength]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
                         rest: [0,1,24,360,parseFloat($('input:text[id=id_time_off]').val())],
-                        abundance: $('input:text[id=id_abundance]').val()
+                        //abundance: $('input:text[id=id_abundance]').val()
+                        abundance: ABUNDANCE
                     },
                     success: function(ldata){
                         console.log(ldata);
@@ -217,12 +222,14 @@ EOD
                     title="Thermal beam flux at sample" /> </div>
             </div>
             <br class="clearBoth" />
+<!--
             <div id="div_id_abundance" class="control-group">
                <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
                <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" 
                     title="Isotopic abundance for activation calculation uses either IAEA Report 273: Handbook of Nuclear Activation Data, 1987, or NIST Isotopic Composition of the Elements, 2001; sld and absorption calculations use NIST abundance."
                /> </div>
             </div>
+-->
             <div class="form-actions"><input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" /> </div>
         </form>
 

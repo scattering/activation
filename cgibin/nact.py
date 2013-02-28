@@ -74,6 +74,7 @@ def cgi_call():
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
 
+    # Fill in defaults
     if density == 0:
         # default to a density of 1
         if chem.density is None: chem.density = 1
@@ -82,7 +83,6 @@ def cgi_call():
         chem.natural_density = density
 
     # Run calculations
-
     try:
         env = activation.ActivationEnvironment(fluence=fluence,fast_ratio=fast_ratio, Cd_ratio=Cd_ratio)
         sample = activation.Sample(chem, mass=mass)
@@ -98,7 +98,7 @@ def cgi_call():
     except Exception, exc: errors['scattering'] = str(exc)
 
     try: xsld = xray_sld(chem, wavelength=wavelength) 
-    except Exception, exc: errors['scattering'] = str(exc)
+    except Exception, exc: errors['xray scattering'] = str(exc)
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
 
