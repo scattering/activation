@@ -27,7 +27,13 @@
 
 
     <script type="text/javascript">
-        CUTOFF = 1.;
+        function getURLParameter(name) {
+            return decodeURIComponent(
+                (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
+             );
+        }
+        CUTOFF = getURLParameter('cutoff');
+        if (!CUTOFF) CUTOFF=1.;
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
