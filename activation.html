@@ -13,6 +13,8 @@
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
         .error { color: red; }
+        div.inline { float:left; }
+        .clearBoth { clear:both; }
     </style>
 
 
@@ -25,7 +27,7 @@
 
 
     <script type="text/javascript">
-        CUTOFF = 0.;
+        CUTOFF = 1.;
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
@@ -63,7 +65,7 @@
                         //result.activity.push(result.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","daughter","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", result.rest[4]+" hours"]
+                        data.headers=["element","daughter","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", result.rest[4]+" hrs"]
                         data.rows=[]
                         for (var i=0; i < result.activity.length; i++){
                             var active = false;
@@ -76,12 +78,12 @@
                         for (var j=0; j < result.total.length; j++) show_total = show_total || (result.total[j] >= CUTOFF);
 
                         var content = '';
-                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' h</h3>\n';
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' hrs at '+result.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
                         content += '<p>Transmission is '+scat.transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
                         content += '<table border=1>\n <tr>';
                         content += '<th rowspan="2">Wavelength (&Aring;)</th>';
                         content += '<th rowspan="2">1/e penetration depth (cm)</th>';
-                        content += '<th colspan="3">Scattering length density (1e-6/&Aring;^3)</th>';
+                        content += '<th colspan="3">Scattering length density (10<sup>-6</sup>/&Aring;<sup>3</sup>)</th>';
                         content += '<th colspan="3">Scattering cross section (1/cm)</th>';
                         content += '</tr>\n <tr>';
                         content += '<th>real</th><th>imag</th><th>incoh</th><th>coh</th><th>abs</th><th>incoh</th>';
@@ -102,7 +104,7 @@
                             content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity (uCi)</th></tr>\n';
                             content += ' <tr class="header">';
                             for (var i in data.headers) {
-                                content += '<th style=""><a href="#" class="sort"><span>' + data.headers[i] + '</span></a></th>';
+                                content += '<th>' + data.headers[i] + '</th>';
                             }
                             content += '</tr>\n'
                             for (var i in data.rows) {
@@ -151,44 +153,45 @@
 
         <form  id="id-activationForm" class="blueForms" method="post" >
             <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='cgmJug2PAM5TlxMPTcM2Q3nFmFR24giG' /> </div>
-            <div id="div_id_chemical_formula" class="control-group">
+            <div id="div_id_chemical_formula" class="control-group inline">
                <label for="id_chemical_formula" class="control-label requiredField">Chemical Formula</label>
                <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" 
                     title="Sample formula such as CaCO3(H2O)6, or with 13-C at 10%, CaC[12]0.9C[13]0.1O3+6H2O"
                     /> </div>
             </div>
-            <div id="div_id_mass" class="control-group">
+            <div id="div_id_mass" class="control-group inline">
                <label for="id_mass" class="control-label">Mass (g)</label>
                <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
                     title="Sample mass.  Activation scales linearly with mass." /></div>
             </div>
-            <div id="div_id_density" class="control-group">
-               <label for="id_density" class="control-label">Density (g/cm^3)</label>
+            <div id="div_id_density" class="control-group inline">
+               <label for="id_density" class="control-label">Density (g/cm<sup>3</sup>)</label>
                <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" 
                     title="Sample density for calculating absorption and scattering length density." /></div>
             </div>
-            <div id="div_id_thickness" class="control-group">
+            <div id="div_id_thickness" class="control-group inline">
                <label for="id_thickness" class="control-label">Thickness (cm)</label>
                <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" 
                     title="Sample thickness for computing total scattering." /></div>
             </div>
-            <div id="div_id_wavelength" class="control-group">
+            <br class="clearBoth" />
+            <div id="div_id_wavelength" class="control-group inline">
                <label for="id_wavelength" class="control-label">Wavelength (&Aring;)</label>
                <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" 
                     title="Neutron wavelength; add units (meV, m/s or Ang) to use energy, velocity or wavelength." /></div>
             </div>
-            <div id="div_id_time_on" class="control-group">
-               <label for="id_time_on" class="control-label">Time on beam (hours)</label>
+            <div id="div_id_time_on" class="control-group inline">
+               <label for="id_time_on" class="control-label">Time on beam (hrs)</label>
                <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" 
                     title="Sample exposure time." /> </div>
             </div>
-            <div id="div_id_time_off" class="control-group">
-               <label for="id_time_off" class="control-label requiredField">Time off beam (hours)</label>
+            <div id="div_id_time_off" class="control-group inline">
+               <label for="id_time_off" class="control-label requiredField">Time off beam (hrs)</label>
                <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" 
                     title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated" /> </div>
             </div>
-            <div id="div_id_flux" class="control-group">
-               <label for="id_flux" class="control-label requiredField">Instrument flux (n/cm^2/s)
+            <div id="div_id_flux" class="control-group inline">
+               <label for="id_flux" class="control-label requiredField">Instrument flux (n/cm<sup>2</sup>/s)
 <!--
 <?php
 $ip = $_SERVER['REMOTE_ADDR'];
@@ -207,6 +210,7 @@ EOD
                <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" 
                     title="Thermal beam flux at sample" /> </div>
             </div>
+            <br class="clearBoth" />
             <div id="div_id_abundance" class="control-group">
                <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
                <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" 
