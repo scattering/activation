@@ -105,31 +105,35 @@ def cgi_call():
     return { 
         'success': True,
         'sample': {
-           'formula': str(chem),
-           'mass': mass,
-           'density': chem.density,
-           'thickness': thickness,
-           'natural_density': chem.natural_density
+            'formula': str(chem),
+            'mass': mass,
+            'density': chem.density,
+            'thickness': thickness,
+            'natural_density': chem.natural_density
         },
         'activation': {
-          'flux': fluence,
-          'fast': fast_ratio,
-          'Cd': Cd_ratio,
-          'exposure': exposure,
-          'rest': rest_times,
-          'activity': rows, 
-          'total': total,
+            'flux': fluence,
+            'fast': fast_ratio,
+            'Cd': Cd_ratio,
+            'exposure': exposure,
+            'rest': rest_times,
+            'activity': rows, 
+            'total': total,
         },
         'scattering': {
-           'wavelength': wavelength,
-           'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
-           'xs': {'coh': xs[0], 'abs': xs[1], 'incoh': xs[2]},
-           'penetration': penetration,
-           'transmission': 100*exp(-thickness/penetration),
+            'neutron': {
+                'wavelength': wavelength,
+                'energy': nsf.neutron_energy(wavelength),
+                'velocity': nsf.VELOCITY_FACTOR/wavelength,
+            },
+            'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
+            'xs': {'coh': xs[0], 'abs': xs[1], 'incoh': xs[2]},
+            'penetration': penetration,
+            'transmission': 100*exp(-thickness/penetration),
         },
         'xray_scattering': {
-           'wavelength': xray_wavelength,
-           'sld': {'real': xsld[0], 'imag': xsld[1]},
+            'wavelength': xray_wavelength,
+            'sld': {'real': xsld[0], 'imag': xsld[1]},
         },
     }
 

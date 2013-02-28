@@ -34,7 +34,7 @@
              );
         }
         CUTOFF = getURLParameter('cutoff');
-        if (CUTOFF==='null') CUTOFF = 1.;
+        if (CUTOFF==='null') CUTOFF = 0.0001;
         ABUNDANCE = getURLParameter('abundance');
         if (ABUNDANCE==='null') ABUNDANCE = "NIST";
 
@@ -64,9 +64,12 @@
                         if (!ldata.success) {
                            var keys = Object.keys(ldata.detail);
                            keys.sort();
+                           var content = '<div class="result error"><hr />\n';
                            for (i = keys.length-1; i >= 0; i--) {
-                               $('<p class="error">Error ' +keys[i]+': '+ldata.detail[keys[i]]+'</p>').prependTo('div[id=results]');
+                               content += '<p class="error">Error ' +keys[i]+': '+ldata.detail[keys[i]]+'</p>\n';
                            }
+                           content += '</div>\n';
+                           $(content).prependTo('div[id=results]');
                            return;
                         }
                         var result = ldata.activation;
@@ -88,7 +91,7 @@
                         var show_total = false;
                         for (var j=0; j < result.total.length; j++) show_total = show_total || (result.total[j] >= CUTOFF);
 
-                        var content = '';
+                        var content = '<div clas="result"><hr>\n';
                         content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' hrs at '+result.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
                         content += '<p>Transmission is '+scat.transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
                         content += '<table border=1>\n <tr>';
@@ -99,20 +102,20 @@
                         content += '</tr>\n <tr>';
                         content += '<th>real</th><th>imag</th><th>incoh</th><th>coh</th><th>abs</th><th>incoh</th>';
                         content += '</tr>\n <tr>';
-                        content += '<td>'+scat.wavelength.toFixed(2)
-                                   +'</td><td>'+scat.sld.real.toFixed(2)
-                                   +'</td><td>'+scat.sld.imag.toFixed(2)
-                                   +'</td><td>'+scat.sld.incoh.toFixed(2)
-                                   +'</td><td>'+scat.xs.coh.toFixed(2)
-                                   +'</td><td>'+scat.xs.abs.toFixed(2)
-                                   +'</td><td>'+scat.xs.incoh.toFixed(2)
-                                   +'</td><td>'+scat.penetration.toFixed(2)
+                        content += '<td>'+scat.neutron.wavelength.toFixed(3)
+                                   +'</td><td>'+scat.penetration.toFixed(3)
+                                   +'</td><td>'+scat.sld.real.toFixed(3)
+                                   +'</td><td>'+scat.sld.imag.toFixed(3)
+                                   +'</td><td>'+scat.sld.incoh.toFixed(3)
+                                   +'</td><td>'+scat.xs.coh.toFixed(3)
+                                   +'</td><td>'+scat.xs.abs.toFixed(3)
+                                   +'</td><td>'+scat.xs.incoh.toFixed(3)
                                    +'</td>';
                         content += '</tr>\n</table>';
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
-                            content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity (uCi)</th></tr>\n';
+                            content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity'+(CUTOFF>0?' above '+CUTOFF:'')+' (uCi)</th></tr>\n';
                             content += ' <tr class="header">';
                             for (var i in data.headers) {
                                 content += '<th>' + data.headers[i] + '</th>';
@@ -138,6 +141,7 @@
                        } else {
                             content += '<p>No activation above '+CUTOFF+' uCi</p>';
                        }
+                       content += '</div>\n';
 
                        $(content).prependTo('div[id=results]'); //add to the dom
                     }
