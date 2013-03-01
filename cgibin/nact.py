@@ -6,6 +6,8 @@ from math import exp
 from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
 import sys
 
+#import nsf_sears
+
 def json_response(result):
     jsonstr = json.dumps(result)
     #print >>sys.stderr, jsonstr
@@ -40,6 +42,8 @@ def cgi_call():
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
     except Exception, exc: errors['rest'] = str(exc)
+    try: decay_level = float(form.getfirst('activity','0.001'))
+    except Exception, exc: errors['activity'] = str(exc)
     try: thickness = float(form.getfirst('thickness', '1'))
     except Exception, exc: errors['thickness'] = str(exc)
     try:
@@ -87,6 +91,7 @@ def cgi_call():
         env = activation.ActivationEnvironment(fluence=fluence,fast_ratio=fast_ratio, Cd_ratio=Cd_ratio)
         sample = activation.Sample(chem, mass=mass)
         sample.calculate_activation(env,exposure=exposure,rest_times=rest_times,abundance=abundance)
+        decay_time = sample.decay_time(decay_level)
         total = [0]*len(sample.rest_times)
         rows = []
         for el,activity_el in activation._sorted_activity(sample.activity.items()):
@@ -94,6 +99,7 @@ def cgi_call():
             rows.append([el.isotope,el.daughter,el.reaction,el.Thalf_str]+activity_el)
     except Exception, exc: errors['activation'] = str(exc)
 
+    #nsf_sears.replace_neutron_data()
     try: sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
     except Exception, exc: errors['scattering'] = str(exc)
 
@@ -119,6 +125,8 @@ def cgi_call():
             'rest': rest_times,
             'activity': rows, 
             'total': total,
+            'decay_level': decay_level,
+            'decay_time': decay_time,
         },
         'scattering': {
             'neutron': {

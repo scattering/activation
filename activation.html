@@ -35,6 +35,8 @@
         }
         CUTOFF = getURLParameter('cutoff');
         if (CUTOFF==='null') CUTOFF = 0.0001;
+        DECAY = getURLParameter('decay');
+        if (DECAY ==='null') DECAY = 0.0001;
         ABUNDANCE = getURLParameter('abundance');
         if (ABUNDANCE==='null') ABUNDANCE = "NIST";
 
@@ -55,6 +57,7 @@
                         wavelength: $('input:text[id=id_wavelength]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
                         rest: [0,1,24,360,parseFloat($('input:text[id=id_time_off]').val())],
+                        activity: DECAY,
                         //abundance: $('input:text[id=id_abundance]').val()
                         abundance: ABUNDANCE
                     },
@@ -72,28 +75,39 @@
                            $(content).prependTo('div[id=results]');
                            return;
                         }
-                        var result = ldata.activation;
+                        var act = ldata.activation;
                         var sample = ldata.sample;
                         var scat = ldata.scattering;
-                        //result.total.splice(0,0,"total activity","","",""); //for a final column
-                        //result.activity.push(result.total);
+                        //var penetration = 1/(scat.xs.abs+scat.xs.incoh);
+                        //var transmission = 100*Math.exp(-sample.thickness/penetration);
+                        //act.total.splice(0,0,"total activity","","",""); //for a final column
+                        //act.activity.push(act.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","daughter","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", result.rest[4]+" hrs"]
+                        data.headers=["element","daughter","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", act.rest[4]+" hrs"]
                         data.rows=[]
-                        for (var i=0; i < result.activity.length; i++){
+                        for (var i=0; i < act.activity.length; i++){
                             var active = false;
-                            for (var j=4; j < result.activity[i].length; j++){
-                                active = active || (result.activity[i][j] >= CUTOFF);
+                            for (var j=4; j < act.activity[i].length; j++){
+                                active = active || (act.activity[i][j] >= CUTOFF);
                             }
-                            if (active) data.rows.push(result.activity[i]);
+                            if (active) data.rows.push(act.activity[i]);
                         }
                         var show_total = false;
-                        for (var j=0; j < result.total.length; j++) show_total = show_total || (result.total[j] >= CUTOFF);
+                        for (var j=0; j < act.total.length; j++) show_total = show_total || (act.total[j] >= CUTOFF);
 
                         var content = '<div clas="result"><hr>\n';
-                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+result.exposure+' hrs at '+result.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
                         content += '<p>Transmission is '+scat.transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
+                        if (act.decay_time > 0) {
+                            var timestr = '';
+                            if (act.decay_time > 365.2524*24) timestr = (act.decay_time/365.2524/24).toPrecision(2)+' years';
+                            else if (act.decay_time > 48) timestr = (act.decay_time/24).toPrecision(2)+' days';
+                            else if (act.decay_time > 2) timestr = act.decay_time.toPrecision(2)+' hours';
+                            else if (act.decay_time > 2/60.) timestr = (act.decay_time*60).toPrecision(2)+' minutes';
+                            else timestr = (act.decay_time*3600).toPrecision(2)+' seconds';
+                            content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+timestr+'.</p>\n';
+                        }
                         content += '<table border=1>\n <tr>';
                         content += '<th rowspan="2">Wavelength (&Aring;)</th>';
                         content += '<th rowspan="2">1/e penetration depth (cm)</th>';
@@ -115,7 +129,7 @@
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
-                            content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity'+(CUTOFF>0?' above '+CUTOFF:'')+' (uCi)</th></tr>\n';
+                            content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity'+(CUTOFF>0?' above '+CUTOFF:'')+' (&mu;Ci)</th></tr>\n';
                             content += ' <tr class="header">';
                             for (var i in data.headers) {
                                 content += '<th>' + data.headers[i] + '</th>';
@@ -133,13 +147,13 @@
                                 content += '</tr>\n';
                             }
                             content += ' <tr class="header"><th colspan="4">total activity</th>';
-                            for (var j=0; j < result.total.length; j++) {
-                                content += '<td>'+format_value(result.total[j])+'</td>';
+                            for (var j=0; j < act.total.length; j++) {
+                                content += '<td>'+format_value(act.total[j])+'</td>';
                             }
                             content += ' </tr>\n';
                             content += '</table>\n';
                        } else {
-                            content += '<p>No activation above '+CUTOFF+' uCi</p>';
+                            content += '<p>No activation above '+CUTOFF+' &mu;Ci</p>';
                        }
                        content += '</div>\n';
 
@@ -245,6 +259,8 @@ EOD
     </p><p>
     Note that use of this form is not a substitute for consulting with a Health Physicist. All samples must be cleared by a NIST Health 
     Physics before removal from the NCNR.
+    </p><p>
+    Neutron scattering calculations are performed by the <a href="http://www.reflectometry.org/danse/docs/elements/api/nsf.html#periodictable.nsf.neutron_scattering">periodictable</a> package.
     </p>
 
     <div id="results">
