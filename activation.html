@@ -78,8 +78,12 @@
                         var act = ldata.activation;
                         var sample = ldata.sample;
                         var scat = ldata.scattering;
-                        //var penetration = 1/(scat.xs.abs+scat.xs.incoh);
-                        //var transmission = 100*Math.exp(-sample.thickness/penetration);
+                        // Drop coherent cross section from penetration depth calculation.
+                        // An alternative formulation, based on total scattering b, would be
+                        // penetration = 1/(1/scat.penetration - scat.xs.coh), which perhaps
+                        // takes diffuse coherent scattering into account [Glinka 2011].
+                        var penetration = 1 /(scat.xs.abs+scat.xs.incoh);
+                        var transmission = 100*Math.exp(-sample.thickness/penetration);
                         //act.total.splice(0,0,"total activity","","",""); //for a final column
                         //act.activity.push(act.total);
                         var data={}
@@ -98,7 +102,7 @@
 
                         var content = '<div clas="result"><hr>\n';
                         content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
-                        content += '<p>Transmission is '+scat.transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
+                        content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
                         if (act.decay_time > 0) {
                             var timestr = '';
                             if (act.decay_time > 365.2524*24) timestr = (act.decay_time/365.2524/24).toPrecision(2)+' years';
@@ -108,23 +112,27 @@
                             else timestr = (act.decay_time*3600).toPrecision(2)+' seconds';
                             content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+timestr+'.</p>\n';
                         }
+                        content += "<p>Neutron: "
+                                + scat.neutron.wavelength.toFixed(3) + " &Aring;"
+                                + " = "+scat.neutron.energy.toFixed(1) + " meV"
+                                + " = "+scat.neutron.velocity.toFixed(0) + " m/s</p>";
                         content += '<table border=1>\n <tr>';
-                        content += '<th rowspan="2">Wavelength (&Aring;)</th>';
-                        content += '<th rowspan="2">1/e penetration depth (cm)</th>';
-                        content += '<th colspan="3">Scattering length density (10<sup>-6</sup>/&Aring;<sup>3</sup>)</th>';
-                        content += '<th colspan="3">Scattering cross section (1/cm)</th>';
+                        content += '<th colspan="2">1/e penetration depth (cm)</th>';
+                        content += '<th colspan="2">Scattering length density (10<sup>-6</sup>/&Aring;<sup>3</sup>)</th>';
+                        content += '<th colspan="2">Scattering cross section (1/cm)</th>';
                         content += '</tr>\n <tr>';
-                        content += '<th>real</th><th>imag</th><th>incoh</th><th>coh</th><th>abs</th><th>incoh</th>';
+                        content += '<th>abs</th><td>'+(1/scat.xs.abs).toFixed(3)+'</td>';
+                        content += '<th>real</th><td>'+scat.sld.real.toFixed(3)+'</td>';
+                        content += '<th>coh</th><td>'+scat.xs.coh.toFixed(3)+'</td>';
                         content += '</tr>\n <tr>';
-                        content += '<td>'+scat.neutron.wavelength.toFixed(3)
-                                   +'</td><td>'+scat.penetration.toFixed(3)
-                                   +'</td><td>'+scat.sld.real.toFixed(3)
-                                   +'</td><td>'+scat.sld.imag.toFixed(3)
-                                   +'</td><td>'+scat.sld.incoh.toFixed(3)
-                                   +'</td><td>'+scat.xs.coh.toFixed(3)
-                                   +'</td><td>'+scat.xs.abs.toFixed(3)
-                                   +'</td><td>'+scat.xs.incoh.toFixed(3)
-                                   +'</td>';
+                        content += '<th>abs+incoh</th><td>'+(1/(scat.xs.incoh+scat.xs.abs)).toFixed(3)+'</td>';
+                        content += '<th>imag</th><td>'+scat.sld.imag.toFixed(3)+'</td>';
+                        content += '<th>abs</th><td>'+scat.xs.abs.toFixed(3)+'</td>';
+                        content += '</tr>\n <tr>';
+                        content += '<th>abs+incoh+coh</th><td>'+scat.penetration.toFixed(3)+'</td>';
+                        content += '<th>incoh</th><td>'+scat.sld.incoh.toFixed(3)+'</td>';
+                        content += '<th>incoh</th><td>'+scat.xs.incoh.toFixed(3)+'</td>';
+                        content += '</tr>\n <tr>';
                         content += '</tr>\n</table>';
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
