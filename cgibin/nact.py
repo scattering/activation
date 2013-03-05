@@ -3,8 +3,12 @@
 import cgi
 import json
 from math import exp
-from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
 import sys
+import traceback
+
+from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
+
+DEBUG=True
 
 #import nsf_sears
 
@@ -24,28 +28,33 @@ def cgi_call():
     
     # Parse inputs
     errors = {};
+    def capture(name):
+        if DEBUG:
+            errors[name] = traceback.format_exc()
+        else:
+            errors[name] = str(sys.exec_info()[1])
     try: chem = formula(form.getfirst('sample'))
-    except Exception, exc: errors['sample'] = str(exc)
+    except: capture('sample')
     try: fluence = float(form.getfirst('flux',100000))
-    except Exception, exc: errors['flux'] = str(exc)
+    except: capture('flux')
     try: fast_ratio = float(form.getfirst('fast','0'))
-    except Exception, exc: errors['fast'] = str(exc)
+    except: capture('fast')
     try: Cd_ratio = float(form.getfirst('Cd','0'))
-    except Exception, exc: errors['Cd'] = str(exc)
+    except: capture('Cd')
     try: exposure = float(form.getfirst('exposure','1'))
-    except Exception, exc: errors['exposure'] = str(exc)
+    except: capture('exposure')
     try: mass = float(form.getfirst('mass','1'))
-    except Exception, exc: errors['mass'] = str(exc)
+    except: capture('mass')
     try: density = float(form.getfirst('density','0'))
-    except Exception, exc: errors['density'] = str(exc)
+    except: capture('density')
     try: 
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
-    except Exception, exc: errors['rest'] = str(exc)
+    except: capture('rest')
     try: decay_level = float(form.getfirst('activity','0.001'))
-    except Exception, exc: errors['activity'] = str(exc)
+    except: capture('activity')
     try: thickness = float(form.getfirst('thickness', '1'))
-    except Exception, exc: errors['thickness'] = str(exc)
+    except: capture('thickness')
     try:
         wavelength_str = form.getfirst('wavelength','1').strip()
         if wavelength_str.endswith('meV'):
@@ -57,14 +66,14 @@ def cgi_call():
         else:
              wavelength = float(wavelength_str)
         #print >>sys.stderr,wavelength_str
-    except Exception, exc: errors['wavelength'] = str(exc)
+    except: capture('wavelength')
     try:
         xray_source = form.getfirst('xray','Cu')
         try:
             xray_wavelength = elements.symbol(xray_source).K_alpha
         except ValueError:
             xray_wavelength = float(xray_source)
-    except Exception, exc: errors['xray'] = str(exc)
+    except: capture('xray')
     try:
         abundance_source = form.getfirst('abundance','NIST')
         if abundance_source == "NIST":
@@ -73,7 +82,7 @@ def cgi_call():
             abundance = activation.IAEA1987_isotopic_abundance
         else:
             raise ValueError("abundance should be NIST or IAEA")
-    except Exception, exc: errors['abundance'] = str(exc)
+    except: capture('abundance')
         
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
@@ -97,14 +106,17 @@ def cgi_call():
         for el,activity_el in activation._sorted_activity(sample.activity.items()):
             total = [t+a for t,a in zip(total,activity_el)]
             rows.append([el.isotope,el.daughter,el.reaction,el.Thalf_str]+activity_el)
-    except Exception, exc: errors['activation'] = str(exc)
+    except: capture('activation')
 
     #nsf_sears.replace_neutron_data()
     try: sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
-    except Exception, exc: errors['scattering'] = str(exc)
+    except: capture('scattering')
+    if sld is None:
+        missing = (str(el) for el in chem.atoms if not el.neutron.has_sld())
+        errors['scattering'] = 'Neutron cross sections unavailable for '+", ".join(missing)
 
     try: xsld = xray_sld(chem, wavelength=wavelength) 
-    except Exception, exc: errors['xray scattering'] = str(exc)
+    except: capture('xrayscattering')
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
 
