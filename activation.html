@@ -9,6 +9,7 @@
         .colborder { margin-bottom: -100%; padding-bottom: 100%; }
         caption, td, th { padding-top: 0, padding-bottom: 0; }
         table { empty-cells: hide; }
+        th { vertical-align: baseline; }
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
@@ -62,7 +63,7 @@
                         abundance: ABUNDANCE
                     },
                     success: function(ldata){
-                        console.log(ldata);
+                        //console.log(ldata);
                         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
                         if (!ldata.success) {
                            var keys = Object.keys(ldata.detail);
@@ -124,7 +125,7 @@
                         content += '<th>incoh</th><td>'+scat.xs.incoh.toFixed(3)+'</td>';
                         content += '</tr>\n <tr>';
                         content += '</tr>\n</table>';
-                        content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample.</p>\n';
+                        content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample (after absorption and incoherent scattering).</p>\n';
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
@@ -177,12 +178,10 @@
 
 </head>
 <body>
-<!---
 <?php
   include("/var/www/include/navigation.inc");
   include("/var/www/include/utility.inc");
 ?>
--->
 
 <div class="container">
    
@@ -229,20 +228,7 @@
             </div>
             <div id="div_id_flux" class="control-group inline">
                <label for="id_flux" class="control-label requiredField">Instrument flux (n/cm<sup>2</sup>/s)
-<!--
-<?php
-$ip = $_SERVER['REMOTE_ADDR'];
-$visitor = @getHostByAddr($ip);
-$fromNCNR = strtolower(substr($visitor, -14)) == ".ncnr.nist.gov";
-if ($fromNCNR) {
-    echo <<<EOD 
--->
  (see <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument flux table</a>)
-<!--
-EOD
-}
-?>
--->
                </label>
                <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" 
                     title="Thermal beam flux at sample" /> </div>
@@ -271,18 +257,14 @@ EOD
     Neutron scattering calculations are performed by the <a href="http://www.reflectometry.org/danse/docs/elements/api/nsf.html#periodictable.nsf.neutron_scattering">periodictable</a> package.
     </p>
 
-    <div id="results">
-        <!-- <table id="results_table" border=1> </table> -->
-    </div>
+    <div id="results"> </div>
 
 </div> 
 <hr>
 <div class="footer">
   <div style="float:left;"><p>Paul Kienzle (<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</p></div>
   <div style="float:right;"><p>
-<!--
 <?php lastmod(); ?>
--->
   </p></div>
 </div>
 </body>
