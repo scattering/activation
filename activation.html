@@ -3,12 +3,12 @@
     <title>Neutron Activation Calculator</title>
 
     <style type="text/css">
-        body { font-size: 0.9em; }
+        // body { font-size: 0.9em; }
         label { font-weight: inherit; }
         .hidden { overflow: hidden; }
         .colborder { margin-bottom: -100%; padding-bottom: 100%; }
-        caption, td, th { padding-top: 0, padding-bottom: 0; }
-        table { empty-cells: hide; }
+        caption, td, th { padding: 0 0.5em 0 0.5em; }
+        table { margin: 0; padding: 0; border-spacing: 0; border-color: lightgray; }
         th { vertical-align: baseline; }
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
@@ -16,18 +16,22 @@
         .error { color: red; }
         div.inline { float:left; }
         .clearBoth { clear:both; }
+        div.control-group { margin-left: 0.5em; vertical-align: bottom; }
+        // div.control-group { height: 3ex; width: 15em; }
+        p.disclaimer { color: darkred; font-size:1.2em; }
     </style>
 
-
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/start/jquery-ui.css" type="text/css" rel="Stylesheet" />
-
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
     <script src="/static/lib/ajaxCSRFfix.js" type="text/javascript"></script>
 
-
     <script type="text/javascript">
+// IE doesn't seem to support keys
+if(!Object.keys) Object.keys = function(o){  
+ if (o !== Object(o))  throw new TypeError('Object.keys called on non-object');  
+ var ret=[],p;  
+ for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);  
+ return ret;  
+}
         // Parse environment variables "activation.html?cutoff=...&abundance=..."
         function getURLParameter(name) {
             return decodeURIComponent(
@@ -89,7 +93,7 @@
                         //act.activity.push(act.total);
                         var data={}
                         //construct headers
-                        data.headers=["element","product","reaction","half life","0 hrs","1 hr", "24 hrs", "15 days", act.rest[4]+" hrs"]
+                        data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", act.rest[4]+" hrs"]
                         data.rows=[]
                         for (var i=0; i < act.activity.length; i++){
                             var active = false;
@@ -102,30 +106,25 @@
                         for (var j=0; j < act.total.length; j++) show_total = show_total || (act.total[j] >= CUTOFF);
 
                         var content = '<div clas="result"><hr>\n';
+
+                        // Title
                         content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
-                        content += "<p>Source neutrons: "
-                                + scat.neutron.wavelength.toFixed(3) + " &Aring;"
-                                + " = "+scat.neutron.energy.toFixed(1) + " meV"
-                                + " = "+scat.neutron.velocity.toFixed(0) + " m/s</p>";
-                        content += '<table border=1>\n <tr>';
-                        content += '<th colspan="2">1/e penetration depth (cm)</th>';
-                        content += '<th colspan="2">Scattering length density (10<sup>-6</sup>/&Aring;<sup>3</sup>)</th>';
-                        content += '<th colspan="2">Scattering cross section (1/cm)</th>';
-                        content += '</tr>\n <tr>';
-                        content += '<th>abs</th><td>'+(1/scat.xs.abs).toFixed(3)+'</td>';
-                        content += '<th>real</th><td>'+scat.sld.real.toFixed(3)+'</td>';
-                        content += '<th>coh</th><td>'+scat.xs.coh.toFixed(3)+'</td>';
-                        content += '</tr>\n <tr>';
-                        content += '<th>abs+incoh</th><td>'+(1/(scat.xs.incoh+scat.xs.abs)).toFixed(3)+'</td>';
-                        content += '<th>imag</th><td>'+scat.sld.imag.toFixed(3)+'</td>';
-                        content += '<th>abs</th><td>'+scat.xs.abs.toFixed(3)+'</td>';
-                        content += '</tr>\n <tr>';
-                        content += '<th>abs+incoh+coh</th><td>'+scat.penetration.toFixed(3)+'</td>';
-                        content += '<th>incoh</th><td>'+scat.sld.incoh.toFixed(3)+'</td>';
-                        content += '<th>incoh</th><td>'+scat.xs.incoh.toFixed(3)+'</td>';
-                        content += '</tr>\n <tr>';
-                        content += '</tr>\n</table>';
-                        content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample (after absorption and incoherent scattering).</p>\n';
+
+                        // Disclaimer
+                        content += '<p class="disclaimer">Estimated activation only. All samples must be cleared by a NIST Health Physics before removal from the NCNR.</p>';
+
+                        // Decay time
+                        if (act.decay_time > 0) {
+                            var timestr = '';
+                            if (act.decay_time > 365.2524*24) timestr = (act.decay_time/365.2524/24).toFixed(1)+' years';
+                            else if (act.decay_time > 48) timestr = (act.decay_time/24).toFixed(1)+' days';
+                            else if (act.decay_time > 2) timestr = act.decay_time.toFixed(1)+' hours';
+                            else if (act.decay_time > 2/60.) timestr = (act.decay_time*60).toFixed(1)+' minutes';
+                            else timestr = (act.decay_time*3600).toPrecision(3)+' seconds';
+                            content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+timestr+'.</p>\n';
+                        }
+
+                        // Activation table
                         if (data.rows.length > 0 || show_total) {
                             //add headers to table
                             content += '<table border=1>\n';
@@ -152,21 +151,43 @@
                             }
                             content += ' </tr>\n';
                             content += '</table>\n';
-                       } else {
+                        } else {
                             content += '<p>No activation above '+CUTOFF+' &mu;Ci</p>';
-                       }
-                        if (act.decay_time > 0) {
-                            var timestr = '';
-                            if (act.decay_time > 365.2524*24) timestr = (act.decay_time/365.2524/24).toPrecision(2)+' years';
-                            else if (act.decay_time > 48) timestr = (act.decay_time/24).toPrecision(2)+' days';
-                            else if (act.decay_time > 2) timestr = act.decay_time.toPrecision(2)+' hours';
-                            else if (act.decay_time > 2/60.) timestr = (act.decay_time*60).toPrecision(2)+' minutes';
-                            else timestr = (act.decay_time*3600).toPrecision(2)+' seconds';
-                            content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+timestr+'.</p>\n';
                         }
-                       content += '</div>\n';
 
-                       $(content).prependTo('div[id=results]'); //add to the dom
+                        // Source neutrons
+                        content += "<p>Source neutrons: "
+                                + scat.neutron.wavelength.toFixed(3) + " &Aring;"
+                                + " = "+scat.neutron.energy.toFixed(1) + " meV"
+                                + " = "+scat.neutron.velocity.toFixed(0) + " m/s</p>";
+
+                        // Neutron scattering
+                        content += '<table border=1>\n <tr>';
+                        content += '<th colspan="2">1/e penetration depth<br />(cm)</th>';
+                        content += '<th colspan="2">Scattering length density<br />(10<sup>-6</sup>/&Aring;<sup>3</sup>)</th>';
+                        content += '<th colspan="2">Scattering cross section<br />(1/cm)</th>';
+                        content += '</tr>\n <tr>';
+                        content += '<th>abs</th><td>'+(1/scat.xs.abs).toFixed(3)+'</td>';
+                        content += '<th>real</th><td>'+scat.sld.real.toFixed(3)+'</td>';
+                        content += '<th>coh</th><td>'+scat.xs.coh.toFixed(3)+'</td>';
+                        content += '</tr>\n <tr>';
+                        content += '<th>abs+incoh</th><td>'+(1/(scat.xs.incoh+scat.xs.abs)).toFixed(3)+'</td>';
+                        content += '<th>imag</th><td>'+scat.sld.imag.toFixed(3)+'</td>';
+                        content += '<th>abs</th><td>'+scat.xs.abs.toFixed(3)+'</td>';
+                        content += '</tr>\n <tr>';
+                        content += '<th>abs+incoh+coh</th><td>'+scat.penetration.toFixed(3)+'</td>';
+                        content += '<th>incoh</th><td>'+scat.sld.incoh.toFixed(3)+'</td>';
+                        content += '<th>incoh</th><td>'+scat.xs.incoh.toFixed(3)+'</td>';
+                        content += '</tr>\n <tr>';
+                        content += '</tr>\n</table>';
+
+                        // Neutron transmission
+                        content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample (after absorption and incoherent scattering).</p>\n';
+
+                        // End of div
+                        content += '</div>\n';
+
+                        $(content).prependTo('div[id=results]'); //add to the dom
                     }
                 });
             });
@@ -189,51 +210,58 @@
 
         <form  id="id-activationForm" class="blueForms" method="post" >
             <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='cgmJug2PAM5TlxMPTcM2Q3nFmFR24giG' /> </div>
-            <div id="div_id_chemical_formula" class="control-group inline">
-               <label for="id_chemical_formula" class="control-label requiredField">Chemical Formula</label>
+            <table><tr><td>
+               <label for="id_chemical_formula" class="control-label requiredField">Chemical formula</label>
+            </td><td rowspan="2"> Natural abundance: <br />With 10% 13-C: </td>
+            </td><td rowspan="2">CaCO3 + (H2O)6<br />CaC[12]0.9 C[13]0.1 O3 + 6H2O
+            </td></tr><tr><td>
                <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" 
                     title="Sample formula such as CaCO3(H2O)6, or with 13-C at 10%, CaC[12]0.9C[13]0.1O3+6H2O"
                     /> </div>
-            </div>
-            <div id="div_id_mass" class="control-group inline">
-               <label for="id_mass" class="control-label">Mass (g)</label>
+            </td></tr></table>
+            
+            <h3>Neutron Activation (optional)</h3>
+            <table><tr><td>
+               <label for="id_mass" class="control-label">Mass<br />(g)</label>
+            </td><td>
+               <label for="id_time_on" class="control-label">Time on beam<br />(hrs)</label>
+            </td><td>
+               <label for="id_time_off" class="control-label requiredField">Time off beam<br />(hrs)</label>
+            </td><td>
+               <label for="id_flux" class="control-label requiredField">
+               <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br />(n/cm<sup>2</sup>/s)
+               </label>
+            </td></tr><tr><td>
                <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
                     title="Sample mass.  Activation scales linearly with mass." /></div>
-            </div>
-            <div id="div_id_density" class="control-group inline">
-               <label for="id_density" class="control-label">Density (g/cm<sup>3</sup>)</label>
-               <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" 
-                    title="Sample density for calculating absorption and scattering length density." /></div>
-            </div>
-            <div id="div_id_thickness" class="control-group inline">
-               <label for="id_thickness" class="control-label">Thickness (cm)</label>
-               <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" 
-                    title="Sample thickness for computing total scattering." /></div>
-            </div>
-            <br class="clearBoth" />
-            <div id="div_id_wavelength" class="control-group inline">
-               <label for="id_wavelength" class="control-label">Wavelength (&Aring;)</label>
-               <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" 
-                    title="Neutron wavelength; add units (meV, m/s or Ang) to use energy, velocity or wavelength." /></div>
-            </div>
-            <div id="div_id_time_on" class="control-group inline">
-               <label for="id_time_on" class="control-label">Time on beam (hrs)</label>
+            </td><td>
                <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" 
                     title="Sample exposure time." /> </div>
-            </div>
-            <div id="div_id_time_off" class="control-group inline">
-               <label for="id_time_off" class="control-label requiredField">Time off beam (hrs)</label>
+            </td><td>
                <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" 
                     title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated" /> </div>
-            </div>
-            <div id="div_id_flux" class="control-group inline">
-               <label for="id_flux" class="control-label requiredField">Instrument flux (n/cm<sup>2</sup>/s)
- (see <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument flux table</a>)
-               </label>
+            </td><td>
                <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" 
                     title="Thermal beam flux at sample" /> </div>
-            </div>
-            <br class="clearBoth" />
+            </td></tr></table>
+            
+            <h3>Neutron Scattering (optional)</h3>
+            <table><tr><td>
+               <label for="id_wavelength" class="control-label">Source neutrons<br />(meV, m/s or Ang)</label>
+            </td><td>
+               <label for="id_density" class="control-label">Density<br /> (g/cm<sup>3</sup>)</label>
+            </td><td>
+               <label for="id_thickness" class="control-label">Thickness<br /> (cm)</label>
+            </td></tr><tr><td>
+               <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" 
+                    title="Neutron source." /></div>
+            </td><td>
+               <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" 
+                    title="Sample density for calculating absorption and scattering length density." /></div>
+            </td><td>
+               <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" 
+                    title="Sample thickness for computing total scattering." /></div>
+            </td></tr></table>
 <!--
             <div id="div_id_abundance" class="control-group">
                <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
@@ -242,19 +270,12 @@
                /> </div>
             </div>
 -->
-            <div class="form-actions"><input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" /> </div>
+            <div class="form-actions"><input type="submit" name="submit" value="Calculate" class="btn btn-primary" id="submit-id-submit" /> </div>
         </form>
 
     </div>
     <p>
-    This form estimates the expected levels of neutron activation for a sample.  If an element is used in the chemical formula instead of a
-    a specific isotope, then natural abundance is assumed.  This form is offered for estimation purposes. NCNR does not keep records of 
-    samples evaluated with this form.
-    </p><p>
-    Note that use of this form is not a substitute for consulting with a Health Physicist. All samples must be cleared by a NIST Health 
-    Physics before removal from the NCNR.
-    </p><p>
-    Neutron scattering calculations are performed by the <a href="http://www.reflectometry.org/danse/docs/elements/api/nsf.html#periodictable.nsf.neutron_scattering">periodictable</a> package.
+    Neutron scattering and activation calculations are performed by the <a href="http://www.reflectometry.org/danse/docs/elements/api/nsf.html#periodictable.nsf.neutron_scattering">periodictable</a> package.  NIST does not keep records of samples evaluated with this form.
     </p>
 
     <div id="results"> </div>

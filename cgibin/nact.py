@@ -8,7 +8,8 @@ import traceback
 
 from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
 
-DEBUG=True
+#DEBUG=True
+DEBUG=False
 
 #import nsf_sears
 
@@ -32,7 +33,7 @@ def cgi_call():
         if DEBUG:
             errors[name] = traceback.format_exc()
         else:
-            errors[name] = str(sys.exec_info()[1])
+            errors[name] = str(sys.exc_info()[1])
     try: chem = formula(form.getfirst('sample'))
     except: capture('sample')
     try: fluence = float(form.getfirst('flux',100000))
@@ -105,7 +106,7 @@ def cgi_call():
         rows = []
         for el,activity_el in activation._sorted_activity(sample.activity.items()):
             total = [t+a for t,a in zip(total,activity_el)]
-            rows.append([el.isotope,el.daughter,el.reaction,el.Thalf_str]+activity_el)
+            rows.append([el.isotope,el.reaction,el.daughter,el.Thalf_str]+activity_el)
     except: capture('activation')
 
     #nsf_sears.replace_neutron_data()
