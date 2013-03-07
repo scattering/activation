@@ -53,7 +53,7 @@ if(!Object.keys) Object.keys = function(o){
                 event.preventDefault();
                 $.ajax({
                     type:"POST",
-                    url:"http://sparkle.ncnr.nist.gov:8000/cgibin/nact.py",
+                    url:"/cgi-bin/nact.py",
                     data: {sample: $('input:text[id=id_chemical_formula]').val(),
                         flux: $('input:text[id=id_flux]').val(),
                         mass: $('input:text[id=id_mass]').val(),
