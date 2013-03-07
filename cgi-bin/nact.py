@@ -6,12 +6,52 @@ from math import exp
 import sys
 import traceback
 
-from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf
+from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf, util
 
 #DEBUG=True
 DEBUG=False
 
 #import nsf_sears
+
+
+# Crystal structures:
+#
+# cubic:         a = b = c and alpha = beta = gamma = 90.0 degrees.
+# tetragonal:    a = b and alpha = beta = gamma = 90.0 degrees.
+# orthorhombic:  alpha = beta = gamma = 90.0 degrees.
+# monoclinic:    alpha = gamma = 90.0 degrees.
+# triclinic:     no restrictions on a, b, c, alpha, beta or gamma.
+# hexagonal:     a = b,  alpha = beta = 90.0 degrees and gamma = 120.0
+# rhombohedral:  a = b = c ; alpha=beta=gamma<120  (trigonal)
+# octahedral:    a = b = c, alpha = beta = gamma = 109.4712206344907
+# RHDO (Rhombic Dodecahedron):
+#                a = b = c, alpha = gamma = 60.0 and beta = 90.0
+#
+# Density:
+#   a:value  => cubic
+#   a:value c:value => tetragonal
+#   a:value b:value c:value => orthorhombic
+#   a:value b:value c:value beta:value => monoclinic
+#   a:value b:value c:value alpha:value beta:value gamma:value => triclinic
+#   a:value c:value gamma:value => hexagonal
+#   a:value alpha:value => rhomboherdral (triagonal)
+#   a:value alpha:acos(-1/3) => octahedral
+#
+#   a:value => a=b=c=value
+#   alpha:value => alpha=beta=gamma=value
+#   beta:value => alpha=gamma=90
+# 
+
+def parse_density(value_str):
+    if ':' in value_str:
+        pairs = (vi.split(':') for vi in value_str.split())
+        kw = dict((k,float(v)) for k,v in pairs)
+        if 'alpha' in kw:
+            if not 'beta' in kw: kw['beta'] = kw['alpha']
+            if not 'gamma' in kw: kw['gamma'] = kw['alpha']
+        return {'volume': util.cell_volume(**kw)*1e-24}
+    else:
+        return float(value_str)
 
 def json_response(result):
     jsonstr = json.dumps(result)
@@ -29,33 +69,33 @@ def cgi_call():
     
     # Parse inputs
     errors = {};
-    def capture(name):
+    def error(name):
         if DEBUG:
             errors[name] = traceback.format_exc()
         else:
             errors[name] = str(sys.exc_info()[1])
     try: chem = formula(form.getfirst('sample'))
-    except: capture('sample')
+    except: error('sample')
     try: fluence = float(form.getfirst('flux',100000))
-    except: capture('flux')
+    except: error('flux')
     try: fast_ratio = float(form.getfirst('fast','0'))
-    except: capture('fast')
+    except: error('fast')
     try: Cd_ratio = float(form.getfirst('Cd','0'))
-    except: capture('Cd')
+    except: error('Cd')
     try: exposure = float(form.getfirst('exposure','1'))
-    except: capture('exposure')
+    except: error('exposure')
     try: mass = float(form.getfirst('mass','1'))
-    except: capture('mass')
-    try: density = float(form.getfirst('density','0'))
-    except: capture('density')
+    except: error('mass')
+    try: density = parse_density(form.getfirst('density','0'))
+    except: error('density')
     try: 
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
-    except: capture('rest')
+    except: error('rest')
     try: decay_level = float(form.getfirst('activity','0.001'))
-    except: capture('activity')
+    except: error('activity')
     try: thickness = float(form.getfirst('thickness', '1'))
-    except: capture('thickness')
+    except: error('thickness')
     try:
         wavelength_str = form.getfirst('wavelength','1').strip()
         if wavelength_str.endswith('meV'):
@@ -67,14 +107,14 @@ def cgi_call():
         else:
              wavelength = float(wavelength_str)
         #print >>sys.stderr,wavelength_str
-    except: capture('wavelength')
+    except: error('wavelength')
     try:
         xray_source = form.getfirst('xray','Cu')
         try:
             xray_wavelength = elements.symbol(xray_source).K_alpha
         except ValueError:
             xray_wavelength = float(xray_source)
-    except: capture('xray')
+    except: error('xray')
     try:
         abundance_source = form.getfirst('abundance','NIST')
         if abundance_source == "NIST":
@@ -83,7 +123,7 @@ def cgi_call():
             abundance = activation.IAEA1987_isotopic_abundance
         else:
             raise ValueError("abundance should be NIST or IAEA")
-    except: capture('abundance')
+    except: error('abundance')
         
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
@@ -92,6 +132,8 @@ def cgi_call():
     if density == 0:
         # default to a density of 1
         if chem.density is None: chem.density = 1
+    elif type(density) is dict:
+        chem.density = chem.molecular_mass/density['volume']
     else:
         # if density is given, assume it is for natural abundance
         chem.natural_density = density
@@ -107,17 +149,17 @@ def cgi_call():
         for el,activity_el in activation._sorted_activity(sample.activity.items()):
             total = [t+a for t,a in zip(total,activity_el)]
             rows.append([el.isotope,el.reaction,el.daughter,el.Thalf_str]+activity_el)
-    except: capture('activation')
+    except: error('activation')
 
     #nsf_sears.replace_neutron_data()
     try: sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
-    except: capture('scattering')
+    except: error('scattering')
     if sld is None:
         missing = (str(el) for el in chem.atoms if not el.neutron.has_sld())
         errors['scattering'] = 'Neutron cross sections unavailable for '+", ".join(missing)
 
     try: xsld = xray_sld(chem, wavelength=wavelength) 
-    except: capture('xrayscattering')
+    except: error('xrayscattering')
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
 

@@ -161,6 +161,12 @@ if(!Object.keys) Object.keys = function(o){
                                 + " = "+scat.neutron.energy.toFixed(1) + " meV"
                                 + " = "+scat.neutron.velocity.toFixed(0) + " m/s</p>";
 
+                        // Mass density 
+                        var density_str = $('input:text[id=id_density]').val();
+                        content += "<p>Mass density: "+sample.density.toFixed(2)+" g/cm<sup>3</sup>";
+                        if (density_str.indexOf(':') !== -1) content += " from lattice "+density_str;
+                        content += "</p>";
+
                         // Neutron scattering
                         content += '<table border=1>\n <tr>';
                         content += '<th colspan="2">1/e penetration depth<br />(cm)</th>';
@@ -249,7 +255,7 @@ if(!Object.keys) Object.keys = function(o){
             <table><tr><td>
                <label for="id_wavelength" class="control-label">Source neutrons<br />(meV, m/s or Ang)</label>
             </td><td>
-               <label for="id_density" class="control-label">Density<br /> (g/cm<sup>3</sup>)</label>
+               <label for="id_density" class="control-label">Density<br /> (g/cm<sup>3</sup> or lattice)</label>
             </td><td>
                <label for="id_thickness" class="control-label">Thickness<br /> (cm)</label>
             </td></tr><tr><td>
@@ -257,7 +263,7 @@ if(!Object.keys) Object.keys = function(o){
                     title="Neutron source." /></div>
             </td><td>
                <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" 
-                    title="Sample density for calculating absorption and scattering length density." /></div>
+                    title="Sample density float or a:val b:val c:val (&Aring;) alpha:val beta:val gamma:val (&deg;)." /></div>
             </td><td>
                <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" 
                     title="Sample thickness for computing total scattering." /></div>
