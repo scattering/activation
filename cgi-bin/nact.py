@@ -62,6 +62,12 @@ def json_response(result):
     print
     print jsonstr
 respond = json_response
+
+def error():
+    if DEBUG:
+        return traceback.format_exc()
+    else:
+        return str(sys.exc_info()[1])
     
 def cgi_call():
     form = cgi.FieldStorage()
@@ -69,33 +75,28 @@ def cgi_call():
     
     # Parse inputs
     errors = {};
-    def error(name):
-        if DEBUG:
-            errors[name] = traceback.format_exc()
-        else:
-            errors[name] = str(sys.exc_info()[1])
     try: chem = formula(form.getfirst('sample'))
-    except: error('sample')
+    except: errors['sample'] = error()
     try: fluence = float(form.getfirst('flux',100000))
-    except: error('flux')
+    except: errors['flux'] = error()
     try: fast_ratio = float(form.getfirst('fast','0'))
-    except: error('fast')
+    except: errors['fast'] = error()
     try: Cd_ratio = float(form.getfirst('Cd','0'))
-    except: error('Cd')
+    except: errors['Cd'] = error()
     try: exposure = float(form.getfirst('exposure','1'))
-    except: error('exposure')
+    except: errors['exposure'] = error()
     try: mass = float(form.getfirst('mass','1'))
-    except: error('mass')
+    except: errors['mass'] = error()
     try: density = parse_density(form.getfirst('density','0'))
-    except: error('density')
+    except: errors['density'] = errors()
     try: 
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
-    except: error('rest')
+    except: errors['rest'] = error()
     try: decay_level = float(form.getfirst('activity','0.001'))
-    except: error('activity')
+    except: errors['activity'] = error()
     try: thickness = float(form.getfirst('thickness', '1'))
-    except: error('thickness')
+    except: errors['thickness'] = error()
     try:
         wavelength_str = form.getfirst('wavelength','1').strip()
         if wavelength_str.endswith('meV'):
@@ -107,14 +108,14 @@ def cgi_call():
         else:
              wavelength = float(wavelength_str)
         #print >>sys.stderr,wavelength_str
-    except: error('wavelength')
+    except: errors['wavelength'] = error()
     try:
         xray_source = form.getfirst('xray','Cu')
         try:
             xray_wavelength = elements.symbol(xray_source).K_alpha
         except ValueError:
             xray_wavelength = float(xray_source)
-    except: error('xray')
+    except: errors['xray'] = error()
     try:
         abundance_source = form.getfirst('abundance','NIST')
         if abundance_source == "NIST":
@@ -123,7 +124,7 @@ def cgi_call():
             abundance = activation.IAEA1987_isotopic_abundance
         else:
             raise ValueError("abundance should be NIST or IAEA")
-    except: error('abundance')
+    except: errors['abundance'] = error()
         
 
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
@@ -138,6 +139,15 @@ def cgi_call():
         # if density is given, assume it is for natural abundance
         chem.natural_density = density
 
+    result = {'success': True}
+    result['sample'] = {
+            'formula': str(chem),
+            'mass': mass,
+            'density': chem.density,
+            'thickness': thickness,
+            'natural_density': chem.natural_density,
+        }
+        
     # Run calculations
     try:
         env = activation.ActivationEnvironment(fluence=fluence,fast_ratio=fast_ratio, Cd_ratio=Cd_ratio)
@@ -149,30 +159,7 @@ def cgi_call():
         for el,activity_el in activation._sorted_activity(sample.activity.items()):
             total = [t+a for t,a in zip(total,activity_el)]
             rows.append([el.isotope,el.reaction,el.daughter,el.Thalf_str]+activity_el)
-    except: error('activation')
-
-    #nsf_sears.replace_neutron_data()
-    try: sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
-    except: error('scattering')
-    if sld is None:
-        missing = (str(el) for el in chem.atoms if not el.neutron.has_sld())
-        errors['scattering'] = 'Neutron cross sections unavailable for '+", ".join(missing)
-
-    try: xsld = xray_sld(chem, wavelength=wavelength) 
-    except: error('xrayscattering')
-
-    if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
-
-    return { 
-        'success': True,
-        'sample': {
-            'formula': str(chem),
-            'mass': mass,
-            'density': chem.density,
-            'thickness': thickness,
-            'natural_density': chem.natural_density
-        },
-        'activation': {
+        result['activation'] = {
             'flux': fluence,
             'fast': fast_ratio,
             'Cd': Cd_ratio,
@@ -182,23 +169,44 @@ def cgi_call():
             'total': total,
             'decay_level': decay_level,
             'decay_time': decay_time,
-        },
-        'scattering': {
+        }
+    except:
+        result['activation'] = {"error": error()}
+        
+    #nsf_sears.replace_neutron_data()
+    try: 
+        sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
+        result['scattering'] = {
             'neutron': {
                 'wavelength': wavelength,
                 'energy': nsf.neutron_energy(wavelength),
                 'velocity': nsf.VELOCITY_FACTOR/wavelength,
             },
-            'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
             'xs': {'coh': xs[0], 'abs': xs[1], 'incoh': xs[2]},
+            'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
             'penetration': penetration,
             'transmission': 100*exp(-thickness/penetration),
-        },
-        'xray_scattering': {
+        }
+        
+    except:
+        missing = [str(el) for el in chem.atoms if not el.neutron.has_sld()]
+        if any(missing):
+            msg = "missing neutron cross sections for "+", ".join(missing)
+        else:
+            msg = error()
+        result['scattering'] = {'error': msg }
+
+
+    try: 
+        xsld = xray_sld(chem, wavelength=wavelength) 
+        result['xray_scattering'] = {
             'wavelength': xray_wavelength,
             'sld': {'real': xsld[0], 'imag': xsld[1]},
         },
-    }
+    except: 
+        result['xrayscattering'] = {'error': error()}
+
+    return result
 
 
 if __name__ == "__main__":

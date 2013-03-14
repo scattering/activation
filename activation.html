@@ -83,14 +83,14 @@ if(!Object.keys) Object.keys = function(o){
                         var act = ldata.activation;
                         var sample = ldata.sample;
                         var scat = ldata.scattering;
-                        // Drop coherent cross section from penetration depth calculation.
-                        // An alternative formulation, based on total scattering b, would be
-                        // penetration = 1/(1/scat.penetration - scat.xs.coh), which perhaps
-                        // takes diffuse coherent scattering into account [Glinka 2011].
-                        var penetration = 1 /(scat.xs.abs+scat.xs.incoh);
-                        var transmission = 100*Math.exp(-sample.thickness/penetration);
-                        //act.total.splice(0,0,"total activity","","",""); //for a final column
-                        //act.activity.push(act.total);
+                        var content = '<div clas="result"><hr>\n';
+
+                        // Title
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
+
+                    if ("error" in act) {
+                        content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
+                    } else {
                         var data={}
                         //construct headers
                         data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", act.rest[4]+" hrs"]
@@ -104,11 +104,6 @@ if(!Object.keys) Object.keys = function(o){
                         }
                         var show_total = false;
                         for (var j=0; j < act.total.length; j++) show_total = show_total || (act.total[j] >= CUTOFF);
-
-                        var content = '<div clas="result"><hr>\n';
-
-                        // Title
-                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
 
                         // Disclaimer
                         content += '<p class="disclaimer">Estimated activation only. All samples must be cleared by NIST Health Physics before removal from the NCNR.</p>';
@@ -154,6 +149,18 @@ if(!Object.keys) Object.keys = function(o){
                         } else {
                             content += '<p>No activation above '+CUTOFF+' &mu;Ci</p>';
                         }
+                    }
+
+
+                    if ("error" in scat) {
+                        content += '<p>neutron scattering calculation failed with</p><pre>\n'+scat.error+'</pre>\n';
+                    } else {
+                        // Drop coherent cross section from penetration depth calculation.
+                        // An alternative formulation, based on total scattering b, would be
+                        // penetration = 1/(1/scat.penetration - scat.xs.coh), which perhaps
+                        // takes diffuse coherent scattering into account [Glinka 2011].
+                        var penetration = 1 /(scat.xs.abs+scat.xs.incoh);
+                        var transmission = 100*Math.exp(-sample.thickness/penetration);
 
                         // Source neutrons
                         content += "<p>Source neutrons: "
@@ -189,6 +196,7 @@ if(!Object.keys) Object.keys = function(o){
 
                         // Neutron transmission
                         content += '<p>Transmission is '+transmission.toFixed(2)+'% for '+sample.thickness+' cm of sample (after absorption and incoherent scattering).</p>\n';
+                   }
 
                         // End of div
                         content += '</div>\n';
