@@ -46,9 +46,19 @@ def parse_density(value_str):
     if ':' in value_str:
         pairs = (vi.split(':') for vi in value_str.split())
         kw = dict((k,float(v)) for k,v in pairs)
+        #print >>sys.stderr,kw
+        if 'b/a' in kw:
+            if 'a' not in kw: raise ValueError("lattice constant b/a requires a")
+            kw['b'] = kw['b/a']*kw['a']
+            del kw['b/a']
+        if 'c/a' in kw:
+            if 'a' not in kw: raise ValueError("lattice constant c/a requires a")
+            kw['c'] = kw['c/a']*kw['a']
+            del kw['c/a']
         if 'alpha' in kw:
             if not 'beta' in kw: kw['beta'] = kw['alpha']
             if not 'gamma' in kw: kw['gamma'] = kw['alpha']
+        #print >>sys.stderr,kw
         return {'volume': util.cell_volume(**kw)*1e-24}
     else:
         return float(value_str)
