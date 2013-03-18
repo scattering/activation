@@ -52,7 +52,7 @@ def parse_density(value_str):
     # Be generous, and allow a: a= or just a, and commas or semicolons between parts
     # This will allow poor grammar such as "a,1 : c,2"
     parts = re.split(" *[,;=: ] *", value_str.strip())
-    print >>sys.stderr,parts
+    #print >>sys.stderr,parts
     key = [v.lower() for v in parts[::2]]
     try:
         val = [float(v) for v in parts[1::2]]
