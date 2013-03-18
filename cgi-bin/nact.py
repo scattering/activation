@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cgi
+import re
 import json
 from math import exp
 import sys
@@ -43,25 +44,40 @@ DEBUG=False
 # 
 
 def parse_density(value_str):
-    if ':' in value_str:
-        pairs = (vi.split(':') for vi in value_str.split())
-        kw = dict((k,float(v)) for k,v in pairs)
-        #print >>sys.stderr,kw
-        if 'b/a' in kw:
-            if 'a' not in kw: raise ValueError("lattice constant b/a requires a")
-            kw['b'] = kw['b/a']*kw['a']
-            del kw['b/a']
-        if 'c/a' in kw:
-            if 'a' not in kw: raise ValueError("lattice constant c/a requires a")
-            kw['c'] = kw['c/a']*kw['a']
-            del kw['c/a']
-        if 'alpha' in kw:
-            if not 'beta' in kw: kw['beta'] = kw['alpha']
-            if not 'gamma' in kw: kw['gamma'] = kw['alpha']
-        #print >>sys.stderr,kw
-        return {'volume': util.cell_volume(**kw)*1e-24}
-    else:
+    try:
         return float(value_str)
+    except ValueError:
+        pass
+
+    # Be generous, and allow a: a= or just a, and commas or semicolons between parts
+    # This will allow poor grammar such as "a,1 : c,2"
+    parts = re.split(" *[,;=: ] *", value_str.strip())
+    print >>sys.stderr,parts
+    key = [v.lower() for v in parts[::2]]
+    try:
+        val = [float(v) for v in parts[1::2]]
+    except ValueError:
+        raise ValueError("Expected key value pairs for lattice consants")  
+    if len(key) != len(val):
+        raise ValueError("Expected key value pairs for lattice consants")  
+    if any(k not in set(('a','b','c','b/a','c/a','alpha','beta','gamma'))
+           for k in key):
+        raise ValueError("Lattice contants are a, b or b/a, c or c/a, alpha, beta, gamma")
+    kw = dict(zip(key,val))
+    
+    if 'b/a' in kw:
+        if 'a' not in kw: raise ValueError("Lattice constant b/a requires a value for a")
+        kw['b'] = kw['b/a']*kw['a']
+        del kw['b/a']
+    if 'c/a' in kw:
+        if 'a' not in kw: raise ValueError("Lattice constant c/a requires a value for a")
+        kw['c'] = kw['c/a']*kw['a']
+        del kw['c/a']
+    if 'alpha' in kw:
+        if not 'beta' in kw: kw['beta'] = kw['alpha']
+        if not 'gamma' in kw: kw['gamma'] = kw['alpha']
+    #print >>sys.stderr,kw
+    return {'volume': util.cell_volume(**kw)*1e-24}
 
 def json_response(result):
     jsonstr = json.dumps(result)
@@ -98,7 +114,7 @@ def cgi_call():
     try: mass = float(form.getfirst('mass','1'))
     except: errors['mass'] = error()
     try: density = parse_density(form.getfirst('density','0'))
-    except: errors['density'] = errors()
+    except: errors['density'] = error()
     try: 
         rest_times = [float(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
