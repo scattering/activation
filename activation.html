@@ -57,6 +57,8 @@ if(!Object.keys) Object.keys = function(o){
                     url:"/cgi-bin/nact.py",
                     data: {sample: $('input:text[id=id_chemical_formula]').val(),
                         flux: $('input:text[id=id_flux]').val(),
+                        fast: $('input:text[id=id_fast_ratio]').val(),
+                        Cd: $('input:text[id=id_Cd_ratio]').val(),
                         mass: $('input:text[id=id_mass]').val(),
                         density: $('input:text[id=id_density]').val(),
                         thickness: $('input:text[id=id_thickness]').val(),
@@ -241,11 +243,7 @@ if(!Object.keys) Object.keys = function(o){
             </td><td>
                <label for="id_time_on" class="control-label">Time on beam<br />(hrs)</label>
             </td><td>
-               <label for="id_time_off" class="control-label requiredField">Time off beam<br />(hrs)</label>
-            </td><td>
-               <label for="id_flux" class="control-label requiredField">
-               <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br />(n/cm<sup>2</sup>/s)
-               </label>
+               <label for="id_time_off" class="control-label">Time off beam<br />(hrs)</label>
             </td></tr><tr><td>
                <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
                     title="Sample mass.  Activation scales linearly with mass." /></div>
@@ -255,9 +253,23 @@ if(!Object.keys) Object.keys = function(o){
             </td><td>
                <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" 
                     title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated" /> </div>
+            </td></tr><tr><td>
+               <label for="id_flux" class="control-label requiredField">
+               <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br />(n/cm<sup>2</sup>/s)
+               </label>
             </td><td>
+               <label for="id_Cd_ratio" class="control-label">Cd ratio<br /></label>
+            </td><td>
+               <label for="id_fast_ratio" class="control-label">Thermal/fast<br />neutron ratio</label>
+            </td></tr><tr><td>
                <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" 
                     title="Thermal beam flux at sample" /> </div>
+            </td><td>
+               <div class="controls"><input id="id_Cd_ratio" type="text" class="textinput textInput" name="Cd_ratio" value="0" 
+                    title="Cd ratio, or 0 if no epithermal neutrons." /> </div>
+            </td><td>
+               <div class="controls"><input id="id_fast_ratio" type="text" class="textinput textInput" name="fast_ratio" value="0" 
+                    title="Thermal/fast neutron ratio, or 0 if no fast neutrons." /> </div>
             </td></tr></table>
             
             <h3>Neutron Scattering (optional)</h3>
