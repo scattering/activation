@@ -1,10 +1,12 @@
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>Neutron Activation Calculator</title>
     <link rel="shortcut icon" href="favicon.ico" />
 
     <style type="text/css">
-        // body { font-size: 0.9em; }
+        /* body { font-size: 0.9em; } */
+        .disabled { opacity: 0.3; }
         label { font-weight: inherit; }
         .hidden { overflow: hidden; }
         .colborder { margin-bottom: -100%; padding-bottom: 100%; }
@@ -18,7 +20,7 @@
         div.inline { float:left; }
         .clearBoth { clear:both; }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
-        // div.control-group { height: 3ex; width: 15em; }
+        /* div.control-group { height: 3ex; width: 15em; } */
         p.disclaimer { color: darkred; font-size:1.2em; }
     </style>
 
@@ -39,17 +41,23 @@ if(!Object.keys) Object.keys = function(o){
                 (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
              );
         }
-        CUTOFF = getURLParameter('cutoff');
-        if (CUTOFF==='null') CUTOFF = 0.0001;
-        DECAY = getURLParameter('decay');
-        if (DECAY ==='null') DECAY = 0.0001;
-        ABUNDANCE = getURLParameter('abundance');
-        if (ABUNDANCE==='null') ABUNDANCE = "NIST";
-
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
         $(document).ready(function() {
+            CUTOFF = getURLParameter('cutoff');
+            if (CUTOFF==='null') CUTOFF = 0.0001;
+            DECAY = getURLParameter('decay');
+            if (DECAY ==='null') DECAY = 0.0001;
+            ABUNDANCE = getURLParameter('abundance');
+            if (ABUNDANCE==='null') ABUNDANCE = "NIST";
+
+            // Enable forms; they are disabled by default so that noscript users
+            // can't do anything.
+            $('.container').removeClass("disabled");
+            $('#id_chemical_formula').removeAttr("disabled");
+            $('#id_submit').removeAttr("disabled");
+
             $("#id-activationForm").submit(function(event){
                 event.preventDefault();
                 $.ajax({
@@ -221,7 +229,12 @@ if(!Object.keys) Object.keys = function(o){
   include("/var/www/include/utility.inc");
 ?>
 
-<div class="container">
+<noscript>
+<h3>Enable javascript to run the activation calculator.</h3>
+<hr />
+</noscript>
+
+<div class="container disabled">
    
     <div id="activation_form">
 
@@ -233,7 +246,7 @@ if(!Object.keys) Object.keys = function(o){
             </td><td rowspan="2">CaCO3 + (H2O)6<br />CaC[12]0.9 C[13]0.1 O3 + 6H2O
             </td></tr><tr><td>
                <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" 
-                    title="Sample formula such as CaCO3(H2O)6, or with 13-C at 10%, CaC[12]0.9C[13]0.1O3+6H2O"
+                    title="Sample formula such as CaCO3(H2O)6, or with 13-C at 10%, CaC[12]0.9C[13]0.1O3+6H2O" disabled
                     /> </div>
             </td></tr></table>
             
@@ -297,7 +310,7 @@ if(!Object.keys) Object.keys = function(o){
                /> </div>
             </div>
 -->
-            <div class="form-actions"><input type="submit" name="submit" value="Calculate" class="btn btn-primary" id="submit-id-submit" /> </div>
+            <div class="form-actions"><input type="submit" name="submit" value="Calculate" class="btn btn-primary" id="id_submit" disabled /> </div>
         </form>
 
     </div>
