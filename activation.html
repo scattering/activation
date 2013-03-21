@@ -44,6 +44,13 @@ if(!Object.keys) Object.keys = function(o){
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
+        function format_time(v) {
+            if (v >= 365.2425*24) return (v/365.2425/24).toFixed(1)+' yrs';
+            else if (v >= 48) return (v/24).toFixed(1)+' days';
+            else if (v >= 2) return v.toFixed(1)+' hrs';
+            else if (v >= 2/60.) return (v*60).toFixed(1)+' min';
+            else return (v*3600).toPrecision(3)+' sec';
+        }
         $(document).ready(function() {
             CUTOFF = getURLParameter('cutoff');
             if (CUTOFF==='null') CUTOFF = 0.0001;
@@ -72,7 +79,7 @@ if(!Object.keys) Object.keys = function(o){
                         thickness: $('input:text[id=id_thickness]').val(),
                         wavelength: $('input:text[id=id_wavelength]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
-                        rest: [0,1,24,360,parseFloat($('input:text[id=id_time_off]').val())],
+                        rest: [0,1,24,360,$('input:text[id=id_time_off]').val()],
                         activity: DECAY,
                         //abundance: $('input:text[id=id_abundance]').val()
                         abundance: ABUNDANCE
@@ -97,14 +104,14 @@ if(!Object.keys) Object.keys = function(o){
                         var content = '<div clas="result"><hr>\n';
 
                         // Title
-                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+act.exposure+' hrs at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
 
                     if ("error" in act) {
                         content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
                     } else {
                         var data={}
                         //construct headers
-                        data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", act.rest[4]+" hrs"]
+                        data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", format_time(act.rest[4])]
                         data.rows=[]
                         for (var i=0; i < act.activity.length; i++){
                             var active = false;
@@ -121,13 +128,8 @@ if(!Object.keys) Object.keys = function(o){
 
                         // Decay time
                         if (act.decay_time > 0) {
-                            var timestr = '';
-                            if (act.decay_time > 365.2524*24) timestr = (act.decay_time/365.2524/24).toFixed(1)+' years';
-                            else if (act.decay_time > 48) timestr = (act.decay_time/24).toFixed(1)+' days';
-                            else if (act.decay_time > 2) timestr = act.decay_time.toFixed(1)+' hours';
-                            else if (act.decay_time > 2/60.) timestr = (act.decay_time*60).toFixed(1)+' minutes';
-                            else timestr = (act.decay_time*3600).toPrecision(3)+' seconds';
-                            content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+timestr+'.</p>\n';
+
+                            content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+format_time(act.decay_time)+'.</p>\n';
                         }
 
                         // Activation table
@@ -254,17 +256,17 @@ if(!Object.keys) Object.keys = function(o){
             <table><tr><td>
                <label for="id_mass" class="control-label">Mass<br />(g)</label>
             </td><td>
-               <label for="id_time_on" class="control-label">Time on beam<br />(hrs)</label>
+               <label for="id_time_on" class="control-label">Time on beam<br />(h m s d w y)</label>
             </td><td>
-               <label for="id_time_off" class="control-label">Time off beam<br />(hrs)</label>
+               <label for="id_time_off" class="control-label">Time off beam<br />(h m s d w y)</label>
             </td></tr><tr><td>
                <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" 
                     title="Sample mass.  Activation scales linearly with mass." /></div>
             </td><td>
                <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" 
-                    title="Sample exposure time." /> </div>
+                    title="Sample exposure time in hours, minutes, seconds, days, weeks or years." /> </div>
             </td><td>
-               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="120" 
+               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="1 y" 
                     title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated" /> </div>
             </td></tr><tr><td>
                <label for="id_flux" class="control-label requiredField">

@@ -95,9 +95,30 @@ def error():
     else:
         return str(sys.exc_info()[1])
     
+HOUR_SCALE = {
+    'h': 1,
+    'm': 1./60,
+    's': 1./3600,
+    'd': 24,
+    'w': 24*7,
+    'y': 365.2425*24,
+}
+
+def parse_hours(s):
+    try:
+        s = s.strip()
+        if s[-1] in 'hmsdwy':
+            value,units = float(s[:-1]),s[-1]
+        else:
+            value,units = float(s),'h'
+        return value*HOUR_SCALE[units] 
+    except:
+        raise ValueError("expected time as value and units (h,m,s,d,w,y)")
+
 def cgi_call():
     form = cgi.FieldStorage()
     #print >>sys.stderr, form
+    #print >>sys.stderr, "sample",form.getfirst('sample')
     
     # Parse inputs
     errors = {};
@@ -109,14 +130,15 @@ def cgi_call():
     except: errors['fast'] = error()
     try: Cd_ratio = float(form.getfirst('Cd','0'))
     except: errors['Cd'] = error()
-    try: exposure = float(form.getfirst('exposure','1'))
+    try: exposure = parse_hours(form.getfirst('exposure','1'))
     except: errors['exposure'] = error()
     try: mass = float(form.getfirst('mass','1'))
     except: errors['mass'] = error()
     try: density = parse_density(form.getfirst('density','0'))
     except: errors['density'] = error()
     try: 
-        rest_times = [float(v) for v in form.getlist('rest[]')]
+        #print >>sys.stderr,form.getlist('rest[]')
+        rest_times = [parse_hours(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
     except: errors['rest'] = error()
     try: decay_level = float(form.getfirst('activity','0.001'))
