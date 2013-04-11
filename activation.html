@@ -225,74 +225,13 @@ if(!Object.keys) Object.keys = function(o){
 </head>
 <body>
 
+<?php
+  include("/var/www/include/navigation.inc");
+  include("/var/www/include/utility.inc");
+?>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
- <tbody><tr align="center" valign="bottom">
-  <td background="./Neutron Activation Calculator_files/ncnr_banner_tile_2.png">
-   <table width="90%" border="0" cellpadding="0" cellspacing="0" height="66">
-    <tbody><tr valign="middle">
-     <td align="left">
-<a href="http://www.ncnr.nist.gov/resources/activation.html#MainContent"><img src="./Neutron Activation Calculator_files/Hidden.gif" width="1" height="1" alt="skip to main content" align="left" border="0"></a>
-      <img src="./Neutron Activation Calculator_files/ncnr_banner_title_2.gif" alt="NIST Center for Neutron Research" ismap="" border="0" usemap="#ncnrmap">
-      <map name="ncnrmap">
-       <area shape="rect" coords="0,19,355,40" href="http://www.ncnr.nist.gov/" alt="NIST Center for Neutron Research">
-      </map>
-     </td>
-     <td align="right">
-      <a href="http://www.nist.gov/">
-       <img src="./Neutron Activation Calculator_files/ncnr_banner_nist_name.gif" alt="National Institute of Standards and Technology" border="0">
-      </a>
-     </td>
-    </tr>
-   </tbody></table>
-  </td>
- </tr>
-</tbody></table>
-
-
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tbody><tr align="center">
-
-
-   
-   <td bgcolor="#ccccff">
-        <a href="http://www.ncnr.nist.gov/index.html">
-        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Home
-        </b></font></a></td>
- 
-      
-   <td bgcolor="#ccccff">
-        <a href="http://www.ncnr.nist.gov/instruments/index.html">
-        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Instruments
-        </b></font></a></td>
- 
-      
-   <td bgcolor="#ccccff">
-        <a href="http://www.ncnr.nist.gov/programs/index.html">
-        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Science
-        </b></font></a></td>
- 
-      
-   <td bgcolor="#ccccff">
-        <a href="http://www.ncnr.nist.gov/experiments.html">
-        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Experiments
-        </b></font></a></td>
- 
-      
-   <td bgcolor="#ccccff">
-        <a href="http://www.ncnr.nist.gov/sitemap.html">
-        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>SiteMap
-        </b></font></a></td>
- 
-      
-   </tr>
-
-</tbody></table>
-<a name="MainContent"></a>
-   
 <noscript>
-&lt;h3&gt;Enable javascript to run the activation calculator.&lt;/h3&gt;
-&lt;hr /&gt;
+<h3>Enable javascript to run the activation calculator.</h3><hr />
 </noscript>
 
 <div class="container">
@@ -382,7 +321,6 @@ if(!Object.keys) Object.keys = function(o){
 <hr>
 <div class="footer">
   <div style="float:left;"><p>Paul Kienzle (<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</p></div>
-  <div style="float:right;"><p>
-Last modified 09-April-2013 by website owner: NCNR (attn: Paul Kienzle)  </p></div>
+  <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
 

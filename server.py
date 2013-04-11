@@ -12,7 +12,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 server = ThreadedHTTPServer
 handler = CGIHTTPServer.CGIHTTPRequestHandler
-server_address = ("", 8000)
+server_address = ("", 8008)
 handler.cgi_directories = ["/cgi-bin"]
  
 httpd = server(server_address, handler)
