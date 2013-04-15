@@ -257,42 +257,74 @@ if(!Object.keys) Object.keys = function(o){
             </td></tr></tbody></table>
             
             <h3>Neutron Activation</h3>
-            <table><tbody><tr><td>
+            <table><tbody><tr>
+              <td rowspan="2">
                <label for="id_mass" class="control-label">Mass<br>(g)</label>
-            </td><td>
-               <label for="id_time_on" class="control-label">Time on beam<br>(h m s d w y)</label>
-            </td><td>
-               <label for="id_time_off" class="control-label">Time off beam<br>(h m s d w y)</label>
-            </td></tr><tr><td>
-               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" title="Sample mass.  Activation scales linearly with mass."></div>
-            </td><td>
-               <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" title="Sample exposure time in hours, minutes, seconds, days, weeks or years."> </div>
-            </td><td>
-               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="1 y" title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated"> </div>
-            </td></tr><tr><td>
+              </td>
+              <td rowspan="2">
                <label for="id_flux" class="control-label requiredField">
-               <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br>(n/cm<sup>2</sup>/s)
+                 <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br>(n/cm<sup>2</sup>/s)
                </label>
-            </td><td>
-               <label for="id_Cd_ratio" class="control-label">Cd ratio (only used for sample inside the reactor)<br></label>
-            </td><td>
-               <label for="id_fast_ratio" class="control-label">Thermal/fast<br>neutron ratio (only used for sample inside the reactor)</label>
-            </td></tr><tr><td>
+              </td>
+              <td colspan="2" align="center">For samples in the reactor</td>
+            </tr>
+
+            <tr>
+              <td valign="top">
+               <label for="id_Cd_ratio" class="control-label">Cd ratio</label>
+              </td>
+              <td>
+               <label for="id_fast_ratio" class="control-label">Thermal/fast ratio</label>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" title="Sample mass.  Activation scales linearly with mass."></div>
+              </td>
+              <td>
                <div class="controls"><input id="id_flux" type="text" class="textinput textInput" name="flux" value="1e8" title="Thermal beam flux at sample"> </div>
-            </td><td>
+              </td>
+              <td>
                <div class="controls"><input id="id_Cd_ratio" type="text" class="textinput textInput" name="Cd_ratio" value="0" title="Cd ratio, or 0 if no epithermal neutrons."> </div>
-            </td><td>
+              </td>
+              <td>
                <div class="controls"><input id="id_fast_ratio" type="text" class="textinput textInput" name="fast_ratio" value="0" title="Thermal/fast neutron ratio, or 0 if no fast neutrons."> </div>
-            </td></tr></tbody></table>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+               <label for="id_time_on" class="control-label">Time on beam<br>(h m s d w y)</label>
+              </td>
+              <td>
+               <label for="id_time_off" class="control-label">Time off beam<br>(h m s d w y)</label>
+              </td>
+              <td colspan="2" />
+            </tr>
+
+            <tr>
+
+              <td>
+               <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" title="Sample exposure time in hours, minutes, seconds, days, weeks or years."> </div>
+              </td>
+              <td>
+               <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="1 y" title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated"> </div>
+              </td>
+              <td colspan="2" />
+            </tr></tbody></table>
             
             <h3>Transmission (includes  absorption and incoherent scattering cross sections)</h3>
             <table><tbody><tr><td>
-               <label for="id_wavelength" class="control-label">Source neutrons<br>(meV, m/s or Ang)</label>
+               <label for="id_wavelength" class="control-label">Source neutrons<br>(Ang, meV or m/s)</label>
             </td><td>
                <label for="id_density" class="control-label">Density<br> (g/cm<sup>3</sup> or lattice)</label>
             </td><td>
                <label for="id_thickness" class="control-label">Thickness<br> (cm)</label>
-            </td></tr><tr><td>
+            </td></tr>
+
+            <tr><td>
                <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" title="Neutron source."></div>
             </td><td>
                <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" title="Sample density float or a:val b:val c:val (Å) alpha:val beta:val gamma:val (°)."></div>
