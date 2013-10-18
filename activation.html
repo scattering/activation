@@ -192,11 +192,11 @@ if(!Object.keys) Object.keys = function(o){
                         content += '<th colspan="2">Scattering cross section<br />(1/cm)</th>';
                         content += '</tr>\n <tr>';
                         content += '<th>abs</th><td>'+(1/scat.xs.abs).toFixed(3)+'</td>';
-                        content += '<th>real</th><td>'+scat.sld.real.toFixed(3)+'</td>';
+                        content += "<th>real</th><td>"+scat.sld.real.toFixed(3)+'</td>';
                         content += '<th>coh</th><td>'+scat.xs.coh.toFixed(3)+'</td>';
                         content += '</tr>\n <tr>';
                         content += '<th>abs+incoh</th><td>'+(1/(scat.xs.incoh+scat.xs.abs)).toFixed(3)+'</td>';
-                        content += '<th>imag</th><td>'+scat.sld.imag.toFixed(3)+'</td>';
+                        content += "<th>imag</th><td>"+(-scat.sld.imag.toFixed(3))+'</td>';
                         content += '<th>abs</th><td>'+scat.xs.abs.toFixed(3)+'</td>';
                         content += '</tr>\n <tr>';
                         content += '<th>abs+incoh+coh</th><td>'+scat.penetration.toFixed(3)+'</td>';
@@ -327,7 +327,7 @@ if(!Object.keys) Object.keys = function(o){
             <tr><td>
                <div class="controls"><input id="id_wavelength" type="text" class="textinput textInput" name="wavelength" value="1 Ang" title="Neutron source."></div>
             </td><td>
-               <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="1" title="Sample density float or a:val b:val c:val (Å) alpha:val beta:val gamma:val (°)."></div>
+               <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="" title="Sample density float or a:val b:val c:val (Å) alpha:val beta:val gamma:val (°)."></div>
             </td><td>
                <div class="controls"><input id="id_thickness" type="text" class="textinput textInput" name="thickness" value="1" title="Sample thickness for computing total scattering."></div>
             </td></tr></tbody></table>
