@@ -42,20 +42,24 @@ if(!Object.keys) Object.keys = function(o){
         function format_value(v) {
             return (v<CUTOFF ? '---' : ''+v.toPrecision(4));
         }
+        function nice_number(v) {
+            if (Math.abs(Math.round(v)-v) < 0.001) return Math.round(v);
+            else return v.toFixed(1);
+        }
         function format_time(v) {
-            if (v >= 365.2425*24) return (v/365.2425/24).toFixed(1)+' yrs';
-            else if (v >= 48) return (v/24).toFixed(1)+' days';
-            else if (v >= 2) return v.toFixed(1)+' hrs';
-            else if (v >= 2/60.) return (v*60).toFixed(1)+' min';
+            if (v >= 365.2425*24) return nice_number(v/365.2425/24)+' yrs';
+            else if (v >= 48 || v == 24) return nice_number(v/24)+' days';
+            else if (v >= 2 || v == 1) return nice_number(v)+' hrs';
+            else if (v >= 2/60. | v == 1/60.) return nice_number(v*60)+' min';
             else return (v*3600).toPrecision(3)+' sec';
         }
         $(document).ready(function() {
             CUTOFF = getURLParameter('cutoff');
             if (CUTOFF==='null') CUTOFF = 0.0001;
-            DECAY = getURLParameter('decay');
-            if (DECAY ==='null') DECAY = 0.0001;
+            DECAY_LEVEL = getURLParameter('decay');
+            if (DECAY_LEVEL ==='null') DECAY_LEVEL = CUTOFF;
             ABUNDANCE = getURLParameter('abundance');
-            if (ABUNDANCE==='null') ABUNDANCE = "NIST";
+            if (ABUNDANCE==='null') ABUNDANCE = "IAEA";
 
             // Enable forms; they are disabled by default so that noscript users
             // can't do anything.
@@ -78,12 +82,12 @@ if(!Object.keys) Object.keys = function(o){
                         wavelength: $('input:text[id=id_wavelength]').val(),
                         exposure: $('input:text[id=id_time_on]').val(),
                         rest: [0,1,24,360,$('input:text[id=id_time_off]').val()],
-                        activity: DECAY,
+                        decay: DECAY_LEVEL,
                         //abundance: $('input:text[id=id_abundance]').val()
                         abundance: ABUNDANCE
                     },
                     success: function(ldata){
-                        //console.log(ldata);
+                        console.log(ldata);
                         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
                         if (!ldata.success) {
                            var keys = Object.keys(ldata.detail);
@@ -101,22 +105,26 @@ if(!Object.keys) Object.keys = function(o){
                         var scat = ldata.scattering;
                         var content = '<div clas="result"><hr>\n';
 
-                        // Title
-                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
-
                     if ("error" in act) {
+                        // Restricted title
+                        content += '<h3>'+sample.formula+'</h3>\n';
                         content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
                     } else {
+                        // Full title
+                        content += '<h3>'+sample.mass+' g of '+sample.formula+' for '+format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
+
                         var data={}
                         //construct headers
                         data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", format_time(act.rest[4])]
                         data.rows=[]
                         for (var i=0; i < act.activity.length; i++){
-                            var active = false;
-                            for (var j=4; j < act.activity[i].length; j++){
-                                active = active || (act.activity[i][j] >= CUTOFF);
+                            var active = false, row=act.activity[i];
+                            var columns = [row.isotope, row.reaction, row.product, row.halflife];
+                            for (var j=0; j < row.levels.length; j++){
+                                active = active || (row.levels[j] >= CUTOFF);
+                                columns.push(row.levels[j])
                             }
-                            if (active) data.rows.push(act.activity[i]);
+                            if (active) data.rows.push(columns);
                         }
                         var show_total = false;
                         for (var j=0; j < act.total.length; j++) show_total = show_total || (act.total[j] >= CUTOFF);
@@ -259,14 +267,14 @@ if(!Object.keys) Object.keys = function(o){
             <h3>Neutron Activation</h3>
             <table><tbody><tr>
               <td rowspan="2">
-               <label for="id_mass" class="control-label">Mass<br>(g)</label>
+               <label for="id_mass" class="control-label">Mass<br>(g, kg, mg or ug)</label>
               </td>
               <td rowspan="2">
                <label for="id_flux" class="control-label requiredField">
                  <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">Flux</a><br>(n/cm<sup>2</sup>/s)
                </label>
               </td>
-              <td colspan="2" align="center">For samples in the reactor</td>
+              <td colspan="2" align="center">For rabbit system</td>
             </tr>
 
             <tr>

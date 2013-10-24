@@ -132,7 +132,18 @@ def cgi_call():
     except: errors['Cd'] = error()
     try: exposure = parse_hours(form.getfirst('exposure','1'))
     except: errors['exposure'] = error()
-    try: mass = float(form.getfirst('mass','1'))
+    try: 
+        mass_str = form.getfirst('mass','1')
+        if mass_str.endswith('kg'):
+           mass = 1000*float(mass_str[:-2])
+        elif mass_str.endswith('mg'):
+           mass = 0.001*float(mass_str[:-2])
+        elif mass_str.endswith('ug'):
+           mass = 1e-6*float(mass_str[:-2])
+        elif mass_str.endswith('g'):
+           mass = 1e-6*float(mass_str[:-1])
+        else:
+           mass = float(mass_str)
     except: errors['mass'] = error()
     try: density = parse_density(form.getfirst('density','0'))
     except: errors['density'] = error()
@@ -141,8 +152,8 @@ def cgi_call():
         rest_times = [parse_hours(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
     except: errors['rest'] = error()
-    try: decay_level = float(form.getfirst('activity','0.001'))
-    except: errors['activity'] = error()
+    try: decay_level = float(form.getfirst('decay','0.001'))
+    except: errors['decay'] = error()
     try: thickness = float(form.getfirst('thickness', '1'))
     except: errors['thickness'] = error()
     try:
@@ -158,14 +169,20 @@ def cgi_call():
         #print >>sys.stderr,wavelength_str
     except: errors['wavelength'] = error()
     try:
-        xray_source = form.getfirst('xray','Cu')
-        try:
+        xray_source = form.getfirst('xray','Cu Ka').strip()
+        if xray_source.endswith('Ka'):
+            xray_wavelength = elements.symbol(xray_source[:-2].strip()).K_alpha
+        elif xray_source.endswith('keV'):
+            xray_wavelength = xsf.xray_wavelength(float(xray_source[:-3]))
+        elif xray_source.endswith('Ang'):
+            xray_wavelength = float(xray_source[:-3])
+        elif xray_source[0].isalpha():
             xray_wavelength = elements.symbol(xray_source).K_alpha
-        except ValueError:
+        else:
             xray_wavelength = float(xray_source)
     except: errors['xray'] = error()
     try:
-        abundance_source = form.getfirst('abundance','NIST')
+        abundance_source = form.getfirst('abundance','IAEA')
         if abundance_source == "NIST":
             abundance = activation.NIST2001_isotopic_abundance
         elif abundance_source == "IAEA":
@@ -204,9 +221,10 @@ def cgi_call():
         decay_time = sample.decay_time(decay_level)
         total = [0]*len(sample.rest_times)
         rows = []
-        for el,activity_el in activation._sorted_activity(sample.activity.items()):
+        for el,activity_el in activation.sorted_activity(sample.activity.items()):
             total = [t+a for t,a in zip(total,activity_el)]
-            rows.append([el.isotope,el.reaction,el.daughter,el.Thalf_str]+activity_el)
+            rows.append({'isotope':el.isotope,'reaction':el.reaction,'product':el.daughter,
+                         'halflife':el.Thalf_str,'comments':el.comments,'levels':activity_el})
         result['activation'] = {
             'flux': fluence,
             'fast': fast_ratio,
@@ -218,6 +236,7 @@ def cgi_call():
             'decay_level': decay_level,
             'decay_time': decay_time,
         }
+        #print >>sys.stderr,result
     except:
         result['activation'] = {"error": error()}
         
