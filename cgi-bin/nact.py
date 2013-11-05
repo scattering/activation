@@ -7,7 +7,7 @@ from math import exp
 import sys
 import traceback
 
-from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf, util
+from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf, util, xsf
 
 #DEBUG=True
 DEBUG=False
@@ -44,8 +44,15 @@ DEBUG=False
 # 
 
 def parse_density(value_str):
+    if value_str == '':
+        return 'default', 0
+    if value_str.endswith('A3'):
+        return 'volume', float(value_str[:-2])*1e-24
+    if value_str.endswith('i'):
+        return 'isotope', float(value_str[:-1])
     try:
-        return float(value_str)
+        value = float(value_str)
+        return ('natural', value) if value > 0 else ('default',0)
     except ValueError:
         pass
 
@@ -77,11 +84,11 @@ def parse_density(value_str):
         if not 'beta' in kw: kw['beta'] = kw['alpha']
         if not 'gamma' in kw: kw['gamma'] = kw['alpha']
     #print >>sys.stderr,kw
-    return {'volume': util.cell_volume(**kw)*1e-24}
+    return 'volume', util.cell_volume(**kw)*1e-24
 
 def json_response(result):
     jsonstr = json.dumps(result)
-    #print >>sys.stderr, jsonstr
+    #print >>sys.stderr, jsonstr #, result
     print "Content-Type: application/json; charset=UTF-8"
     print "Access-Control-Allow-Origin: *"
     print "Content-Length: %d"%(len(jsonstr)+1)
@@ -122,6 +129,9 @@ def cgi_call():
     
     # Parse inputs
     errors = {};
+    calculate = form.getfirst('calculate','all')
+    if calculate not in ('scattering','activation','all'):
+        errors['calculate'] = "calculate should be one of 'scattering', 'activation' or 'all'"
     try: chem = formula(form.getfirst('sample'))
     except: errors['sample'] = error()
     try: fluence = float(form.getfirst('flux',100000))
@@ -145,7 +155,7 @@ def cgi_call():
         else:
            mass = float(mass_str)
     except: errors['mass'] = error()
-    try: density = parse_density(form.getfirst('density','0'))
+    try: density_type,density_value = parse_density(form.getfirst('density','0'))
     except: errors['density'] = error()
     try: 
         #print >>sys.stderr,form.getlist('rest[]')
@@ -195,14 +205,19 @@ def cgi_call():
     if errors: return {'success':False, 'error':'invalid request', 'detail':errors}
 
     # Fill in defaults
-    if density == 0:
+    #print >>sys.stderr,density_type,density_value,chem.density
+    if density_type == 'default' or density_value == 0:
         # default to a density of 1
         if chem.density is None: chem.density = 1
-    elif type(density) is dict:
-        chem.density = chem.molecular_mass/density['volume']
-    else:
+    elif density_type == 'volume':
+        chem.density = chem.molecular_mass/density_value
+    elif density_type == 'natural':
         # if density is given, assume it is for natural abundance
-        chem.natural_density = density
+        chem.natural_density = density_value
+    elif density_type == 'isotope':
+        chem.density = density_value
+    else:
+        raise ValueError("unknown density type %r"%density_type)
 
     result = {'success': True}
     result['sample'] = {
@@ -214,7 +229,8 @@ def cgi_call():
         }
         
     # Run calculations
-    try:
+    if calculate in ('activation', 'all'):
+      try:
         env = activation.ActivationEnvironment(fluence=fluence,fast_ratio=fast_ratio, Cd_ratio=Cd_ratio)
         sample = activation.Sample(chem, mass=mass)
         sample.calculate_activation(env,exposure=exposure,rest_times=rest_times,abundance=abundance)
@@ -237,11 +253,12 @@ def cgi_call():
             'decay_time': decay_time,
         }
         #print >>sys.stderr,result
-    except:
+      except:
         result['activation'] = {"error": error()}
         
     #nsf_sears.replace_neutron_data()
-    try: 
+    if calculate in ('scattering', 'all'):
+      try: 
         sld,xs,penetration = neutron_scattering(chem, wavelength=wavelength)
         result['scattering'] = {
             'neutron': {
@@ -255,7 +272,7 @@ def cgi_call():
             'transmission': 100*exp(-thickness/penetration),
         }
         
-    except:
+      except:
         missing = [str(el) for el in chem.atoms if not el.neutron.has_sld()]
         if any(missing):
             msg = "missing neutron cross sections for "+", ".join(missing)
@@ -264,17 +281,26 @@ def cgi_call():
         result['scattering'] = {'error': msg }
 
 
-    try: 
-        xsld = xray_sld(chem, wavelength=wavelength) 
+      try: 
+        xsld = xray_sld(chem, wavelength=xray_wavelength) 
         result['xray_scattering'] = {
-            'wavelength': xray_wavelength,
+            'xray': {
+                'wavelength': xray_wavelength,
+                'energy': xsf.xray_energy(xray_wavelength),
+            },
             'sld': {'real': xsld[0], 'imag': xsld[1]},
-        },
-    except: 
-        result['xrayscattering'] = {'error': error()}
+        }
+      except: 
+        result['xray_scattering'] = {'error': error()}
 
     return result
 
 
 if __name__ == "__main__":
-    respond(cgi_call())
+    try: response = cgi_call()
+    except: response = {
+        'success':False, 
+        'error': 'unexpected exception', 
+        'detail':{'query': error()},
+    }
+    respond(response)
