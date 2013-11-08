@@ -1,0 +1,114 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Neutron Activation Calculator</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="resonance-theme/style.css" rel="stylesheet" type="text/css">
+
+    <style type="text/css">
+        p { margin-bottom: 0; }
+        /* body { font-size: 0.9em; } */
+        .disabled { opacity: 0.3; }
+        label { font-weight: inherit; }
+        .hidden { overflow: hidden; }
+        .colborder { margin-bottom: -100%; padding-bottom: 100%; }
+        caption, td, th { padding: 0 0.5em 0 0.5em; }
+        .controls input { width: 100%; }
+        /*table { margin: 0; padding: 0; border-spacing: 0; border-color: lightgray; }
+*/
+        table#resonance-table { width: auto; }
+        table#resonance-table th { padding-right: 2em; }
+        th { vertical-align: baseline; }
+        td { text-align: right; }
+        tbody tr:nth-child(2n) th, tbody tr.even th,
+        tbody tr:nth-child(2n) td, tbody tr.even td,
+        ul li:nth-child(2n), ol li:nth-child(2n) { background: none repeat scroll 0 0 #F3F3F9; }
+
+    </style>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script> 
+
+    <script type="text/javascript">
+        $(document).ready(function() { $("#resonance-table").tablesorter(); }); 
+    </script>
+
+</head>
+<body>
+
+<?php
+  include("/var/www/include/navigation.inc");
+  include("/var/www/include/utility.inc");
+?>
+
+<h3>Isotopes with resonances in the thermal range</h3>
+
+<p>The isotopes listed in this table all have resonances in the thermal neutron range.  The wavelength given in the table is the longest wavelength at which the effect starts to become visible in the coherent scattering cross section. Use the wavelength and natural abundance to decide if you can use the scattering cross sections tabulated at 1.78 &Aring; or if you need to perform extra calculations for your material.</p>
+
+<table id="resonance-table" class="tablesorter">
+<thead>
+<tr><th>Isotope</th><th>Abundance (%)</th><th>Wavelength (&Aring;)</th><th>Energy (meV)</th></tr>
+</thead>
+<tbody>
+<tr><td>Gd-155</td><td>14.800</td><td>6.44</td><td>1.97</td></tr>
+<tr><td>Gd-157</td><td>15.650</td><td>6.18</td><td>2.14</td></tr>
+<tr><td>Sm-149</td><td>13.820</td><td>6.02</td><td>2.26</td></tr>
+<tr><td>Cd-113</td><td>12.220</td><td>5.44</td><td>2.77</td></tr>
+<tr><td>Hf-177</td><td>18.600</td><td>4.03</td><td>5.04</td></tr>
+<tr><td>Sm-152</td><td>26.750</td><td>2.74</td><td>10.93</td></tr>
+<tr><td>Te-123</td><td>0.890</td><td>2.66</td><td>11.55</td></tr>
+<tr><td>Nb-93</td><td>100.000</td><td>1.92</td><td>22.25</td></tr>
+<tr><td>Dy-162</td><td>25.510</td><td>1.80</td><td>25.30</td></tr>
+<tr><td>Lu-176</td><td>2.590</td><td>1.38</td><td>42.65</td></tr>
+<tr><td>Pa-231</td><td>100.000</td><td>0.83</td><td>118.44</td></tr>
+<tr><td>Eu-151</td><td>47.810</td><td>0.75</td><td>145.40</td></tr>
+<tr><td>Ir-191</td><td>37.300</td><td>0.63</td><td>206.11</td></tr>
+<tr><td>U-235</td><td>0.720</td><td>0.56</td><td>262.29</td></tr>
+<tr><td>Er-167</td><td>22.930</td><td>0.51</td><td>319.97</td></tr>
+<tr><td>Ir-193</td><td>62.700</td><td>0.42</td><td>459.49</td></tr>
+<tr><td>In-115</td><td>95.710</td><td>0.38</td><td>570.23</td></tr>
+<tr><td>Dy-163</td><td>24.900</td><td>0.28</td><td>1068.63</td></tr>
+<tr><td>Rh-103</td><td>100.000</td><td>0.28</td><td>1067.26</td></tr>
+<tr><td>Re-185</td><td>37.400</td><td>0.26</td><td>1234.61</td></tr>
+<tr><td>Dy-160</td><td>2.340</td><td>0.26</td><td>1230.06</td></tr>
+<tr><td>Ta-180</td><td>0.012</td><td>0.26</td><td>1195.41</td></tr>
+<tr><td>In-113</td><td>4.290</td><td>0.25</td><td>1351.88</td></tr>
+<tr><td>W-186</td><td>28.430</td><td>0.25</td><td>1332.08</td></tr>
+<tr><td>Eu-153</td><td>52.190</td><td>0.25</td><td>1315.69</td></tr>
+<tr><td>Xe-124</td><td>0.090</td><td>0.24</td><td>1478.69</td></tr>
+<tr><td>Dy-156</td><td>0.060</td><td>0.23</td><td>1582.86</td></tr>
+<tr><td>La-138</td><td>0.090</td><td>0.21</td><td>1908.00</td></tr>
+<tr><td>Lu-175</td><td>97.410</td><td>0.21</td><td>1902.60</td></tr>
+<tr><td>Dy-161</td><td>18.910</td><td>0.21</td><td>1845.16</td></tr>
+<tr><td>Tb-159</td><td>100.000</td><td>0.19</td><td>2385.21</td></tr>
+<tr><td>W-182</td><td>26.500</td><td>0.19</td><td>2191.03</td></tr>
+<tr><td>Sr-87</td><td>7.000</td><td>0.18</td><td>2471.90</td></tr>
+<tr><td>Xe-131</td><td>21.180</td><td>0.18</td><td>2442.61</td></tr>
+<tr><td>Tm-169</td><td>100.000</td><td>0.17</td><td>3004.26</td></tr>
+<tr><td>Sm-147</td><td>14.990</td><td>0.17</td><td>3002.05</td></tr>
+<tr><td>Ho-165</td><td>100.000</td><td>0.17</td><td>2699.16</td></tr>
+<tr><td>Au-197</td><td>100.000</td><td>0.16</td><td>3228.44</td></tr>
+<tr><td>Ag-109</td><td>48.161</td><td>0.16</td><td>3089.88</td></tr>
+<tr><td>U-234</td><td>0.005</td><td>0.16</td><td>3016.30</td></tr>
+<tr><td>Hf-174</td><td>0.160</td><td>0.15</td><td>3806.76</td></tr>
+<tr><td>Nd-145</td><td>8.300</td><td>0.15</td><td>3704.10</td></tr>
+<tr><td>Ta-181</td><td>99.988</td><td>0.15</td><td>3667.05</td></tr>
+<tr><td>Re-187</td><td>62.600</td><td>0.15</td><td>3515.05</td></tr>
+<tr><td>Hf-178</td><td>27.280</td><td>0.14</td><td>4286.98</td></tr>
+<tr><td>Hf-179</td><td>13.620</td><td>0.13</td><td>5173.77</td></tr>
+<tr><td>U-238</td><td>99.275</td><td>0.13</td><td>4954.08</td></tr>
+<tr><td>Cs-133</td><td>100.000</td><td>0.13</td><td>4785.02</td></tr>
+<tr><td>Er-162</td><td>0.140</td><td>0.13</td><td>4526.80</td></tr>
+<tr><td>Sb-121</td><td>57.210</td><td>0.12</td><td>5352.75</td></tr>
+<tr><td>W-183</td><td>14.310</td><td>0.11</td><td>7248.45</td></tr>
+<tr><td>Hf-176</td><td>5.260</td><td>0.11</td><td>6767.69</td></tr>
+<tr><td>Er-164</td><td>1.610</td><td>0.11</td><td>6582.75</td></tr>
+</tbody>
+</table>
+
+<hr>
+<div class="footer">
+  <div style="float:left;"><p>Inquiries or Comments: Paul Kienzle (<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</p></div>
+  <div style="float:right;"><p><?php lastmod(); ?></p></div>
+</div>
+
+</body></html>
