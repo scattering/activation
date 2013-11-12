@@ -440,7 +440,7 @@ python package.
 <div class="example"><div class="entrytext">CaCO3</div> represents the chemical CaCO<sub>3</sub></div>
 </dd>
 
-<dt>complex formula</dt>
+<dt>multi-part formula</dt>
 <dd>Formulas can be built from parts by separating them with "+" or space, with a number before the part representing repeats.  Using parentheses, a formula is treated as if it were a single unit.
 <div class="example"><div class="entrytext">CaCO3+6H20</div>, 
 <div class="entrytext">CaCO3 6H2O</div> and 
@@ -456,12 +456,6 @@ can be used for <sup>2</sup>H and <sup>3</sup>H.
 Isotopes can be mixed within a formula, such as 
 <div class="entrytext">DHO</div> for partially deuterated water.  
 <div class="example"><div class="entrytext">O[18]</div> represents the <sup>18</sup>O</div>
-</dd>
-
-<dt>simple mixtures</dt>
-<dd>Using non-integer quantities, arbitrary concentrations can be
-be constructed.
-<div class="example"><div class="entrytext">H2O[16]0.8O[18]0.2</div> represents water with 80% <sup>16</sup>O and 20% <sup>18</sup>O</div>
 </dd>
 
 <dt>density</dt>
@@ -481,6 +475,12 @@ density, you can add an "i" to the value and it will not be scaled.
 <div class="entrytext">D2O@1.11i</div> both give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </dd>
 
+<dt>mole fractions</dt>
+<dd>Using non-integer quantities, arbitrary concentrations can be
+be constructed.
+<div class="example"><div class="entrytext">H2O[16]8O.2[18]19.8</div> represents water with 80.2% <sup>16</sup>O and 19.8% <sup>18</sup>O</div>
+</dd>
+
 <dt>mass fractions</dt>
 <dd>Formulas can be mixed by mass, with each part starting with a percentage followed by formula followed by "//".  The first part must use "%wt" to indicate that it is a mass fraction.  The final part is the base, and it does not need a percentage since it makes up the rest of the material.
 <div class="example"><div class="entrytext">50%wt Co // Ti</div> 
@@ -496,7 +496,7 @@ pure element.
 <div class="example"><div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1</div>
 is a 10% saline solution by weight mixed 20:80 by volume with 
 D<sub>2</sub>O, which is the same as
-<div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10</div></div>
+<div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10i</div></div>
 </dd>
 </dl>
 </div>
