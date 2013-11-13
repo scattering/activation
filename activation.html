@@ -461,7 +461,8 @@ Isotopes can be mixed within a formula, such as
 <dt>density</dt>
 <dd>Mass density is needed to compute scattering factors for the material.  
 The density can be entered in the density field, or it can be given in 
-the formula by adding @value to the end.  
+the formula by adding @value to the end.  Densities for the pure elements are
+already known.
 <div class="example"><div class="entrytext">H2O@1</div> 
 indicates that water has a density of 1 g/cm<sup>3</sup></div>
 </dd>
@@ -476,23 +477,22 @@ density, you can add an "i" to the value and it will not be scaled.
 </dd>
 
 <dt>mole fractions</dt>
-<dd>Using non-integer quantities, arbitrary concentrations can be
+<dd>Using non-integer quantities, arbitrary concentration ratios can be
 be constructed.
-<div class="example"><div class="entrytext">H2O[16]78.2[18]21.8</div> represents water with 78.2% <sup>16</sup>O and 21.8% <sup>18</sup>O</div>
+<div class="example"><div class="entrytext">78.2H2O[16] + 21.8H2O[18] @1</div> represents water with 78.2% <sup>16</sup>O and 21.8% <sup>18</sup>O</div>
 </dd>
 
 <dt>mass fractions</dt>
 <dd>Formulas can be mixed by mass, with each part starting with a percentage followed by formula followed by "//".  The first part must use "%wt" to indicate that it is a mass fraction.  The final part is the base, and it does not need a percentage since it makes up the rest of the material.
 <div class="example"><div class="entrytext">50%wt Co // Ti</div> 
-is a lot easier to understand than Co<sub>0.552</sub>Ti<sub>0.448</sub></div>
+is more descriptive than Co<sub>0.552</sub>Ti<sub>0.448</sub></div>
 <div class="example"><div class="entrytext">33%wt Co // 33% Fe // Ti</div> 
 builds a 1:1:1 mixture by mass of cobalt-iron-titanium</div>
 </dd>
 
 <dt>volume fractions</dt>
 <dd>Volume fractions are like mass fractions, but they use "%vol" instead.  
-Each component of the volume fraction must have a density, unless it is a
-pure element. 
+Each component of the volume fraction must specify the density.
 <div class="example"><div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1</div>
 is a 10% saline solution by weight mixed 20:80 by volume with 
 D<sub>2</sub>O, which is the same as
