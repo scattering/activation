@@ -8,22 +8,24 @@
         /* body { font-size: 0.9em; } */
         .disabled { opacity: 0.3; }
         label { font-weight: inherit; }
-        .hidden { overflow: hidden; }
-        .colborder { margin-bottom: -100%; padding-bottom: 100%; }
-        caption, td, th { padding: 0 0.5em 0 0.5em; }
         .controls input { width: 100%; }
         table { margin: 0; padding: 0; border-spacing: 0; border-color: lightgray; }
+        caption, td, th { padding: 0 0.5em 0 0.5em; }
         th { vertical-align: baseline; }
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
+
+        /* output markup */
         .error { color: red; }
+        p.disclaimer { color: darkred; font-size:1.2em; }
+
+        /* frame layout */
         #activation-frame { float:left; width:30em; }
-        #help-panel { margin-left:30em; overflow:scroll; }
         div.clear { clear:both; }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
-        p.disclaimer { color: darkred; font-size:1.2em; }
+        #help-panel { margin-left:30em; overflow:scroll; }
         .help { display:none; }
         .help dl { margin-left: 30em; }
         .help dd { margin-left: 1em; }
@@ -39,8 +41,10 @@
         }
         .help div.example:before { content:"Example: "; }
 
+        .panel { border-radius:0.6em; border: 2pt solid gray; margin: 0.5em; padding: 0.5em; }
+        .panel h3 { margin-top: 0em; margin-bottom: 0.5em; }
         .panel { position: relative; }
-        .panel .btn { position:absolute; right: 6em; top: 0em;}
+        .panel .btn { position:absolute; right: 1em; top: 0.5em;}
         /* .panel .btn { position:absolute; top:1em; right:1em; } */
 
         /* Keep constant baseline spacing even with superscript/subscript */
@@ -120,6 +124,7 @@ if(!Object.keys) Object.keys = function(o){
                 density: $('input:text[id=id_density]').val(),
                 thickness: $('input:text[id=id_thickness]').val(),
                 wavelength: $('input:text[id=id_wavelength]').val(),
+                xray: $('input:text[id=id_xray]').val(),
                 exposure: $('input:text[id=id_time_on]').val(),
                 rest: [0,1,24,360,$('input:text[id=id_time_off]').val()],
                 decay: DECAY_LEVEL,
@@ -252,11 +257,11 @@ if(!Object.keys) Object.keys = function(o){
             // Source neutrons
             content += "<p>Source neutrons: "
                 + scat.neutron.wavelength.toFixed(3) + " &Aring;"
-                + " = "+scat.neutron.energy.toFixed(1) + " meV"
+                + " = "+scat.neutron.energy.toFixed(2) + " meV"
                 + " = "+scat.neutron.velocity.toFixed(0) + " m/s<br>";
             content += "Source X-rays: "
                 + xscat.xray.wavelength.toFixed(3) + " &Aring;"
-                + " = " + xscat.xray.energy.toFixed(1) + " keV<br>";
+                + " = " + xscat.xray.energy.toFixed(3) + " keV<br>";
             content += "</p>";
 
             // Neutron scattering
@@ -321,11 +326,8 @@ if(!Object.keys) Object.keys = function(o){
             
             <div class="panel" id="material-panel">
             <h3>Material</h3>
-            <table><tbody><tr>
-              <td>
-               <label for="id_chemical_formula" class="control-label requiredField">Chemical formula</label>
-              </td>
-            </tr><tr>
+            <table><tbody>
+            <tr>
               <td>
                <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" title="chemical formula for the material or mixture" size="76"></div>
               </td>
@@ -386,6 +388,7 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr></tbody></table>
             <input type="submit" name="submit_act" value="Calculate" class="btn btn-primary" id="id_submit_act"> 
+            <p>Inquiries or Comments: Dave Brown &lt;<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>&gt;</p>
             </div>
             
             <div class="panel" id="scattering-panel">
@@ -416,6 +419,7 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr></tbody></table>
             <input type="submit" name="submit_scat" value="Calculate" class="btn btn-primary" id="id_submit_scat"> 
+            <p>Inquiries or Comments: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;</p>
             </div>
 <!--
             <div id="div_id_abundance" class="control-group">
@@ -717,19 +721,13 @@ Emission lines: <a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">http:
 
     </div>
     <div class="clear" />
-    <p>
-    Neutron scattering and activation calculations are performed by the <a href="http://www.reflectometry.org/danse/docs/elements">periodictable</a> package.
-    </p>
+</div>
 
     <div id="results"> </div>
 
 </div> 
 <hr>
 <div class="footer">
-  <div style="float:left;"><p>Inquiries or Comments:
-Dave Brown <em>(<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>)</em> - activation; 
-Paul Kienzle <em>(<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</em> - scattering.
-</p></div>
   <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
 

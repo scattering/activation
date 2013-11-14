@@ -190,6 +190,7 @@ def cgi_call():
             xray_wavelength = elements.symbol(xray_source).K_alpha
         else:
             xray_wavelength = float(xray_source)
+        #print >>sys.stderr,"xray",xray_source,xray_wavelength
     except: errors['xray'] = error()
     try:
         abundance_source = form.getfirst('abundance','IAEA')
