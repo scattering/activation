@@ -65,7 +65,7 @@ if(!Object.keys) Object.keys = function(o){
  for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);  
  return ret;  
 }
-        // Parse environment variables "activation.html?cutoff=...&abundance=..."
+        // Parse environment variables "index.html?cutoff=...&abundance=..."
         function getURLParameter(name) {
             return decodeURIComponent(
                 (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
@@ -527,19 +527,19 @@ scattering calculator uses the NIST atomic weights and isotope composition
 <dt>isotope abundance</dt>
 <dd>
 The NIST database can be selected for isotope abundance using:
-<a href="activation.html?abundance=NIST">activation.html?abundance=NIST</a>
+<a href="index.html?abundance=NIST">index.html?abundance=NIST</a>
 </dd>
 
 <dt>activation cutoff</dt>
 <dd>
 The cutoff values for displaying activation data are set to 0.0001 uCu by default.  The full activation levels
-can be displayed using: <a href="activation.html?cutoff=0">activation.html?cutoff=0</a>
+can be displayed using: <a href="index.html?cutoff=0">index.html?cutoff=0</a>
 </dd>
 
 <dt>decay cutoff</dt>
 <dd>The activation calculator determines the amount of time for the activation to decay to
 the cutoff level, or to 0.0001 uCu if cutoff is 0.  This can be set to a value
-such as 0.1 uCu using: <a href="activation.html?decay=0.1">activation.html?decay=0.1</a>
+such as 0.1 uCu using: <a href="index.html?decay=0.1">index.html?decay=0.1</a>
 </dd>
 </dl>
 </p>
