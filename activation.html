@@ -663,11 +663,23 @@ syntax as the time on beam field.
 The energy of the source neutrons will affect the absorption cross section
 and hence the penetration depth and sample attenuation.  Energy can be
 expressed as wavelength in &Aring;, as energy in meV, or as neutron
-velocity in m/s.  The underlying calculator does not yet compute proper
-cross sections for isotopes with resonances in the thermal neutron range.
+velocity in m/s.
 </p><p>
-For some isotopes there are scattering <a href="resonance.html">resonances</a> in the thermal neutron range.  Check if this is a concern for your material.
+Neutron cross sections are 
+<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">tabulated</a><sup>1</sup> 
+at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for 
+the absorption cross section.  For heavier
+isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;) 
+there are neutron <a href="resonance.html">resonances</a> which are not 
+accounted for in the scattering calculator.  There is also a 1/v dependence for
+single phonon interactions which gives rise to significant inelastic scattering
+for lighter isotopes (H, D) and/or longer wavelengths (above 5&nbsp;&Aring;).  
+This factor is both temperature and material dependent and will not be included 
+in the scattering calculations.
 </p>
+<ol>
+<li>Rauch, H. and Waschkowski, W. (2003) <em>Neutron Scattering Lengths</em> in ILL Neutron Data Booklet (second edition), A.-J. Dianoux, G. Lander, Eds. Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.
+</ol>
 </div>
 
 <div id=help_xray class="help">
@@ -693,7 +705,10 @@ emission line for that element.
 </div> 
 <hr>
 <div class="footer">
-  <div style="float:left;"><p>Inquiries or Comments: Dave Brown (<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>)</p></div>
+  <div style="float:left;"><p>Inquiries or Comments:
+Dave Brown <em>(<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>)</em> - activation; 
+Paul Kienzle <em>(<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>)</em> - scattering.
+</p></div>
   <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
 
