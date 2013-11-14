@@ -545,8 +545,12 @@ such as 0.1 uCu using: <a href="activation.html?decay=0.1">activation.html?decay
 </p>
 
 <ol>
-<li><em>IAEA 273: Handbook on Nuclear Activation Data, 1987</em></li>
-<li><em>Bölke, et al. Isotopic Compositions of the Elements, 2001. J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005</em></li>
+<li><em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em><br>
+<a href="https://www-nds.iaea.org/publications/tecdocs/sti%252Fdoc%252F10%252F0273/">https://www-nds.iaea.org/publications/tecdocs/sti%252Fdoc%252F10%252F0273/</a>
+</li>
+<li><em>Bölke, et al. Isotopic Compositions of the Elements, 2001. J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005</em><br>
+<a href="http://www.nist.gov/pml/data/comp.cfm">http://www.nist.gov/pml/data/comp.cfm</a>
+</li>
 </ol>
 </div>
 
@@ -608,7 +612,7 @@ Leave it at 1 cm if you do not need this information.
 <h3>Thermal flux</h3>
 <p>
 Provide the thermal flux equivalent for the pre-sample beam configuration 
-for the instrument.  This is only need for computing the neutron activation
+for the instrument.  This is only need for computing the neutron activation<sup>1</sup>
 from the experiment, and is not used for computing scattering cross
 sections.
 </p><p>
@@ -616,6 +620,11 @@ Within the NCNR, you can access a list of
 <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
 but this is not available from outside.
 </p>
+<ol>
+<li><em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em><br>
+<a href="https://www-nds.iaea.org/publications/tecdocs/sti%252Fdoc%252F10%252F0273/">https://www-nds.iaea.org/publications/tecdocs/sti%252Fdoc%252F10%252F0273/</a>
+</li>
+</ol>
 </div>
 
 <div id=help_Cd_ratio class="help">
@@ -678,18 +687,30 @@ This factor is both temperature and material dependent and will not be included
 in the scattering calculations.
 </p>
 <ol>
-<li>Rauch, H. and Waschkowski, W. (2003) <em>Neutron Scattering Lengths</em> in ILL Neutron Data Booklet (second edition), A.-J. Dianoux, G. Lander, Eds. Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.
+<li><em>Rauch, H. and Waschkowski, W. (2003) Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition), A.-J. Dianoux, G. Lander, Eds. Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.</em>
 </ol>
 </div>
 
 <div id=help_xray class="help">
 <h3>Source X-rays</h3>
 <p>
-X-ray scattering has similar properties to neutron scattering, and given
-the wavelength, is easy to calculate.  Wavelength can be specified in
-&Aring;, as energy in keV, or using an element name for the K<sub>&alpha;</sub>
-emission line for that element.
+X-ray absorption and scattering are computed from the energy dependent
+atomic scattering factors.<sup>1</sup>  
+Energy can be expressed as wavelength in &Aring;, as energy in keV, or 
+using an element name for the K<sub>&alpha;</sub> emission line for 
+that element.<sup>2</sup>
 </p>
+
+<ol>
+<li><em>B.L. Henke, E.M. Gullikson, and J.C. Davis. X-ray interactions: 
+photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92, 
+Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em><br>
+Scattering factors: <a href="http://henke.lbl.gov/optical_constants/">http://henke.lbl.gov/optical_constants/</a>
+</li>
+<li><em>R. D. Deslattes, E. G. Kessler, Jr., P. Indelicato, L. de Billy, 
+       E. Lindroth, and J. Anton.  Rev. Mod. Phys. 75, 35-99 (2003).</em><br>
+Emission lines: <a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">http://www.nist.gov/pml/data/xraytrans/index.cfm</a>
+</li>
 </div>
 
 <!-- end of help -->
