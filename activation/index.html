@@ -5,6 +5,7 @@
 
     <style type="text/css">
         p { margin-bottom: 0; }
+        .footer p { margin-top: 0; }
         /* body { font-size: 0.9em; } */
         .disabled { opacity: 0.3; }
         label { font-weight: inherit; }
@@ -30,7 +31,7 @@
             padding-right:0.5em; 
             overflow-y:scroll; 
         }
-        #skip-frame { display:block; }
+        #skip-frame { display:block; height: 30em; }
         div.clear { clear:both; }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
@@ -86,7 +87,7 @@
         .panel h3 { margin-top: -1em; margin-bottom: 0.3em; font-size: 1em; }
         .panel h3 .text { background: white; margin-left: 1em; padding: 0 0.3em 0 0.3em; }
         .panel { position: relative; }
-        .panel .btn { position:absolute; right: 1em; top: 0.5em;}
+        .panel .btn { position:absolute; right: 1em; top: 0.75em;}
         /* .panel .btn { position:absolute; top:1em; right:1em; } */
 
         /* Keep constant baseline spacing even with superscript/subscript */
@@ -443,7 +444,6 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr></tbody></table>
             <input type="submit" name="submit_act" value="Calculate" class="btn btn-primary" id="id_submit_act"> 
-            <p>Inquiries or Comments: Dave Brown &lt;<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>&gt;</p>
             </div>
             
             <div class="panel" id="scattering-panel">
@@ -474,7 +474,6 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr></tbody></table>
             <input type="submit" name="submit_scat" value="Calculate" class="btn btn-primary" id="id_submit_scat"> 
-            <p>Inquiries or Comments: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;</p>
             </div>
 <!--
             <div id="div_id_abundance" class="control-group">
@@ -824,6 +823,11 @@ Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
 </div> 
 <hr>
 <div class="footer">
+  <div style="float:left;"><p>
+<em>Questions?</em><br> 
+Neutron activation: Dave Brown &lt;<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>&gt;<br>
+Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
+</p></div>
   <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
 
@@ -835,6 +839,7 @@ ACTIVE_HELP=$("#help_initial");
 $('input').focusin(function(){ 
   if (ACTIVE_HELP) ACTIVE_HELP.hide(); 
   ACTIVE_HELP = $("#help_"+this.id.slice(3));
+  if ($(ACTIVE_HELP).length == 0) ACTIVE_HELP = $("#help_initial");
   ACTIVE_HELP.show();
 });
 $('#help-frame').height($('#activation-frame').height());
