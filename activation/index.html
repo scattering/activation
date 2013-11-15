@@ -21,21 +21,31 @@
         p.disclaimer { color: darkred; font-size:1.2em; }
 
         #id_chemical_formula { width: 30em; }
+
         /* frame layout */
-        #activation-frame { float:left; width:30em; }
+        #activation-frame { position:absolute; width:30em; }
+        #help-frame { 
+            position:absolute; left:31em; 
+            margin-right:0em; 
+            padding-right:0.5em; 
+            overflow-y:scroll; 
+        }
+        #skip-frame { display:block; }
         div.clear { clear:both; }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
-        #help-panel { margin-left:30em; overflow:scroll; }
+        .help#help_initial { display:block; }
         .help { display:none; }
-        .help dl { margin-left: 30em; }
+        /*.help dl { margin-left: 30em; }
+        .help ol { margin-left: 30em; }
+        .help p { margin-left: 30em; }
+        */
+        .help h3 { margin-top: 0.25em; }
         .help dd { margin-left: 1em; }
         .help dt { margin-left: 0em; padding: 0.3em; font-weight: bold; }
-        .help ol { margin-left: 30em; }
         .help ol { list-style-position: inside; padding-left: 0em; }
         .help li { margin-left: 0em; margin-bottom: 1ex; }
         .help div.bold { font-weight: bold; display: inline; }
-        .help p { margin-left: 30em; }
         .help div.entrytext { 
            display:inline;
            font-weight:bold;
@@ -43,8 +53,38 @@
         }
         .help div.example:before { content:"Example: "; }
 
+/* fading horizontal rule
+  modified from http://konigi.com/tools/css-techniques-horizontal-rules 
+*/
+        .help hr { 
+  clear: both; 
+  float: none; 
+  width: 100%; 
+  height: 1px;
+  margin: 2.4em 0;
+  border: none; 
+  background: #ddd;
+  background-image: -webkit-gradient(
+      linear,
+      left bottom,
+      right bottom,
+      color-stop(0, rgb(255,255,255)),
+      color-stop(0.1, rgb(221,221,221)),
+      color-stop(0.9, rgb(221,221,221)),
+      color-stop(1, rgb(255,255,255))
+  );
+  background-image: -moz-linear-gradient(
+      left center,
+      rgb(255,255,255) 0%,
+      rgb(221,221,221) 10%,
+      rgb(221,221,221) 90%,
+      rgb(255,255,255) 100%
+  );
+}
+
         .panel { border-radius:0.6em; border: 2pt solid gray; margin: 0.5em; padding: 0.5em; }
-        .panel h3 { margin-top: 0em; margin-bottom: 0.5em; }
+        .panel h3 { margin-top: -1em; margin-bottom: 0.3em; font-size: 1em; }
+        .panel h3 .text { background: white; margin-left: 1em; padding: 0 0.3em 0 0.3em; }
         .panel { position: relative; }
         .panel .btn { position:absolute; right: 1em; top: 0.5em;}
         /* .panel .btn { position:absolute; top:1em; right:1em; } */
@@ -71,6 +111,7 @@ if(!Object.keys) Object.keys = function(o){
  for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);  
  return ret;  
 }
+        ACTIVE_BUTTON = "activation";
         // Parse environment variables "index.html?cutoff=...&abundance=..."
         function getURLParameter(name) {
             return decodeURIComponent(
@@ -106,6 +147,21 @@ if(!Object.keys) Object.keys = function(o){
             $('#id_submit_scat').removeAttr("disabled");
             $('#id_submit_act').removeAttr("disabled");
             $('a').each(function(){ this.tabIndex = -1; });
+            $('.help').each(function(){ $(this).append("<hr>"); });
+            $('input[type=text]').keydown(function(e) { 
+                if (e.keyCode == 13) { 
+                    e.preventDefault();
+                    submit_query(ACTIVE_BUTTON); 
+                } 
+            });
+            $('input[type=text]').focus(function(e) {
+                var panel = $(this).closest('.panel')[0].id;
+                if (panel == "scattering-panel") {
+                    ACTIVE_BUTTON = "scattering";
+                } else if (panel == "activation-panel") {
+                    ACTIVE_BUTTON = "activation";
+                }
+            } );
 
             //$("#id-activationForm").submit(submit_query);
             $("#id-activationForm").submit(function(event) {event.preventDefault();});
@@ -114,6 +170,7 @@ if(!Object.keys) Object.keys = function(o){
         });
 
     function submit_query(target){
+        ACTIVE_BUTTON = target;
         $.ajax({
             type:"POST",
             url:"/cgi-bin/nact.py",
@@ -320,15 +377,12 @@ if(!Object.keys) Object.keys = function(o){
 
 <div class="container disabled">
 
-
-    <p>Neutron activation and scattering calculator.</p>
-   
     <div id="activation-frame">
 
         <form id="id-activationForm" class="blueForms" method="post">
             
             <div class="panel" id="material-panel">
-            <h3>Material</h3>
+            <h3><span class="text">Material</span></h3>
             <table><tbody>
             <tr>
               <td>
@@ -338,12 +392,10 @@ if(!Object.keys) Object.keys = function(o){
             </div>
             
             <div class="panel" id="activation-panel">
-            <h3>Neutron Activation</h3>
+            <h3><span class="text">Neutron Activation</span></h3>
             <table><tbody><tr>
-              <td rowspan="2">
-               <label for="id_flux" class="control-label requiredField">
-                 Thermal flux<br>(n/cm<sup>2</sup>/s)
-               </label>
+              <td rowspan="2" valign="bottom">
+               <label for="id_flux" class="control-label requiredField">Thermal flux</label>
               </td>
               <td colspan="2" align="center">For rabbit system</td>
             </tr>
@@ -372,11 +424,11 @@ if(!Object.keys) Object.keys = function(o){
 
             <tr>
               <td>
-               <label for="id_mass" class="control-label">Mass<br>(g, kg, mg or ug)</label>
+               <label for="id_mass" class="control-label">Mass</label>
               </td><td>
-               <label for="id_time_on" class="control-label">Time on beam<br>(h m s d w y)</label>
+               <label for="id_time_on" class="control-label">Time on beam</label>
               </td><td>
-               <label for="id_time_off" class="control-label">Time off beam<br>(h m s d w y)</label>
+               <label for="id_time_off" class="control-label">Time off beam</label>
               </td>
             </tr>
 
@@ -395,12 +447,12 @@ if(!Object.keys) Object.keys = function(o){
             </div>
             
             <div class="panel" id="scattering-panel">
-            <h3>Absorption and Scattering</h3>
+            <h3><span class="text">Absorption and Scattering</span></h3>
             <table><tbody><tr>
               <td>
-               <label for="id_density" class="control-label">Density<br> (g/cm<sup>3</sup> or lattice)</label>
+               <label for="id_density" class="control-label">Density</label>
               </td><td>
-               <label for="id_thickness" class="control-label">Thickness<br> (cm)</label>
+               <label for="id_thickness" class="control-label">Thickness</label>
               </td>
             </tr><tr>
               <td>
@@ -410,9 +462,9 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr><tr>
               <td>
-               <label for="id_wavelength" class="control-label">Source neutrons<br>(Ang, meV or m/s)</label>
+               <label for="id_wavelength" class="control-label">Source neutrons</label>
               </td><td>
-               <label for="id_xray" class="control-label">Source X-rays<br>(Ang, keV or Ka)</label>
+               <label for="id_xray" class="control-label">Source X-rays</label>
               </td>
             </tr><tr>
               <td>
@@ -435,7 +487,27 @@ if(!Object.keys) Object.keys = function(o){
         </form>
 
     </div>
-    <div id="help_panel">
+    <div id="help-frame">
+<div id="help_initial" class="help">
+<h3>Neutron activation and scattering calculator</h3>
+<p>
+This calculator uses neutron cross sections to compute activation
+on the sample given the mass in the sample and the time in the beam,
+or to preform scattering calculations for the neutrons which are
+not absorbed by the sample.
+</p>
+<ol>
+<li>Enter the sample formula in the material panel.</li>
+<li>To perform activation calculations, fill in the thermal
+flux, the mass, the time on and off the beam, then press the 
+calculate button in the neutron activation panel.</li>
+<li>To perform scattering calculations, fill in the wavelength
+of the neutron and/or xrays, the thickness and the
+density (if not given in the formula), then press the
+calculate button in the absorption and scattering panel.</li>
+</ol>
+</div>
+
 <!-- help for individual fields -->
 <div id="help_chemical_formula" class="help">
 <h3>Chemical formula</h3>
@@ -514,6 +586,7 @@ D<sub>2</sub>O, which is the same as
 
 <div id="help_mass" class="help">
 <h3>Material mass</h3>
+<p>Units: g, kg, mg or ug</p>
 <p>
 The total neutron activation depends on the mass of the individual
 isotopes in the sample and the total time in the beam.  All activation
@@ -564,12 +637,23 @@ such as 0.1 uCu using: <a href="index.html?decay=0.1">index.html?decay=0.1</a>
 <div id="help_density" class="help">
 
 <h3>Mass density</h3>
+<p>Units: g/cm<sup>3</sup> or A3
 <p>
-Density is required for computing absorption, transmission and scattering. It
-can be given in one of several ways:
+Density is used to compute absorption, transmission and scattering.
 <dl>
-<dt>directly</dt>
-<dd>Enter a number, which will be interpreted as g/cm<sup>3</sup>, or 
+<dt>default from formula</dt>
+<dd>Leave the density field blank and add <div class="entrytext">@</div> plus 
+the density to the end of the formula, where density is in 
+g/cm<sup>3</sup>.  For isotopic density, use <div class="entrytext">@</div> 
+plus density plus <div class="entrytext">i</div>.  Elements have their
+natural density stored in the periodic table, otherwise if no density
+is specified it defaults to 1 g/cm<sup>3</sup>.
+
+<div class="example"><div class="entrytext">D2O@1</div> or 
+<div class="entrytext">D2O@1.11i</div></div>
+</dd>
+<dt>g/cm<sup>3</sup></dt>
+<dd>Enter the density by itself, which will be interpreted as g/cm<sup>3</sup>, or 
 equivalently, kg/L.  No units are needed.  If the value ends with an 'i', 
 then the density used will be the isotopic density, otherwise the natural
 density will be used, and the material density will be computed by
@@ -579,14 +663,14 @@ substituting the isotope ratios given in the formula.
 <div class="entrytext">1.11i</div></div>
 </dd>
 <dt>cell volume</dt>
-<dd>Enter a number in &Aring;<sup>3</sup> followed by A3.  Be sure that your
+<dd>Enter a number followed by A3 for &Aring;<sup>3</sup>.  Be sure that your
 formula contains the correct number of atoms for the unit cell, possibly by
 using n(formula), where n is 6 for hexagonal close packed, 4 for face centered
 cells, 2 for body centered and base centered cells, or 1 for simple cells. 
 <div class="example">4NaCl has a cell volume of
 <div class="entrytext">179.4 A3</div></div>
 </dd>
-<dt>crystal lattice</dt>
+<dt>crystal lattice parameters</dt>
 <dd>Enter lattice parameters "a:n b:n c:n alpha:n beta:n gamma:n"
 where a, b, c are in &Aring; and &alpha;, &beta;, &gamma; are in degrees.
 If not specified, b and c default to a.  Ratios can also be used,
@@ -596,27 +680,22 @@ formula contains the correct number of atoms for the unit cell.
 <div class="example">4NaCl has a lattice of
 <div class="entrytext">a:5.6402</div></div>
 </dd>
-<dt>formula</dt>
-<dd>Add <div class="entrytext">@</div> plus the density to the end of 
-the formula, where density is in 
-g/cm<sup>3</sup>.  For isotopic density, use 
-<div class="entrytext">@</div> plus density plus 
-<div class="entrytext">i</div>.  
-<div class="example"><div class="entrytext">D2O@1</div> or 
-<div class="entrytext">D2O@1.11i</div></div>
-</dd>
 </dl>
 </div>
 
 <div id="help_thickness" class="help">
 <h3>Thickness</h3>
+<p>Units: cm</p>
+<p>
 The material thickness in cm is used to determine sample transmission,
 or how much beam will be absorbed by the sample or scattered incoherently.  
 Leave it at 1 cm if you do not need this information.
+</p>
 </div>
 
 <div id="help_flux" class="help">
 <h3>Thermal flux</h3>
+<p>Units: n/cm<sup>2</sup>/s</p>
 <p>
 Provide the thermal flux equivalent for the pre-sample beam configuration 
 for the instrument.  This is only need for computing the neutron activation<sup>1</sup>
@@ -636,27 +715,35 @@ but this is not available from outside.
 
 <div id=help_Cd_ratio class="help">
 <h3>Cadmium ratio</h3>
+<p>Units: none</p>
+<p>
 Samples in the rabbit tubes can be shielded with cadmium to reduce the thermal
 flux while leaving the epithermal flux mostly unchanged.  The cadmium ratio
 determines the degree of reduction in the scattering cross sections, corresponding
 to the reduced flux.  This value is unitless.  Use a value of 0 for beamline
 experiments.
+</p>
 </div>
 
 <div id=help_fast_ratio class="help">
 <h3>Thermal/fast ratio</h3>
+<p>Units: none</p>
+<p>
 When performing neutron activation analysis in a rabbit tube, the additional
 fast neutron activations need to be determined.  The thermal/fast ratio is
 used to determine the fast neutron flux from the thermal flux equivalent for
 the given rabbit tube.  The resulting fast flux is (thermal flux)/(thermal/fast ratio).
 This value is unitless.  Use a value of 0 for beamline experiments.
+</p>
 </div>
 
 <div id=help_time_on class="help">
 <h3>Time on beam</h3>
+<p>Units: h m s d w y
 <p>
 Time on the beam is the length of the exposure at the given flux.  Activation
-will be accumulated over time.  Time defaults to hours, but can be set to
+will be accumulated over time.  
+Time defaults to hours, but can be set to
 hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
 to the value respectively.
 </p>
@@ -664,17 +751,21 @@ to the value respectively.
 
 <div id=help_time_off class="help">
 <h3>Time off beam</h3>
+<p>Units: h m s d w y
 <p>
 The sample begins to decay immediately, even while it is being activated.
 We compute the activation level when the sample is removed from the beam,
 and at 1 hour, 1 day and 15 days post activation.  The time off beam field
-allows you to specify an additional time after activation, using the same
-syntax as the time on beam field.
+allows you to specify an additional time after activation.
+Time defaults to hours, but can be set to
+hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
+to the value respectively.
 </p>
 </div>
 
 <div id=help_wavelength class="help">
 <h3>Source neutrons</h3>
+<p>Units: Ang, meV or m/s</p>
 <p>
 The energy of the source neutrons will affect the absorption cross section
 and hence the penetration depth and sample attenuation.  Energy can be
@@ -700,6 +791,7 @@ in the scattering calculations.
 
 <div id=help_xray class="help">
 <h3>Source X-rays</h3>
+<p>Units: Ang, keV or Ka</p>
 <p>
 X-ray absorption and scattering are computed from the energy dependent
 atomic scattering factors.<sup>1</sup>
@@ -726,7 +818,8 @@ Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
     <div class="clear" />
 </div>
 
-    <div id="results"> </div>
+    <div id="skip-frame">&nbsp;</div>
+    <div id="results" />
 
 </div> 
 <hr>
@@ -738,10 +831,12 @@ Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
 //$('input').focusin(function(){ $("#help_"+this.id.slice(3)).show();});
 //$('input').focusout(function(){$("#help_"+this.id.slice(3)).hide();});
 // Display help on input
-ACTIVE_HELP=null;
+ACTIVE_HELP=$("#help_initial");
 $('input').focusin(function(){ 
   if (ACTIVE_HELP) ACTIVE_HELP.hide(); 
   ACTIVE_HELP = $("#help_"+this.id.slice(3));
   ACTIVE_HELP.show();
 });
+$('#help-frame').height($('#activation-frame').height());
+$('#skip-frame').height($('#activation-frame').height());
 </script>
