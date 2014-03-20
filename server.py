@@ -15,6 +15,9 @@ handler = CGIHTTPServer.CGIHTTPRequestHandler
 server_address = ("", 8008)
 handler.cgi_directories = ["/cgi-bin"]
  
+host,port = server_address
+if not host: host = "localhost"
+print "serving on http://%s:%d/activation/"%(host,port)
 httpd = server(server_address, handler)
 httpd.serve_forever()
 
