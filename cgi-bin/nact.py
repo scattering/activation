@@ -50,9 +50,11 @@ def parse_density(value_str):
         return 'volume', float(value_str[:-2])*1e-24
     if value_str.endswith('i'):
         return 'isotope', float(value_str[:-1])
+    if value_str.endswith('n'):
+        return 'natural', float(value_str[:-1])
     try:
         value = float(value_str)
-        return ('natural', value) if value > 0 else ('default',0)
+        return ('isotope', value) if value > 0 else ('default',0)
     except ValueError:
         pass
 
