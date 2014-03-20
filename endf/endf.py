@@ -39,6 +39,16 @@ ENDF_PROGRAMS=os.path.join(ROOT, "PREPRO12")
 ENDF_DATA=os.path.join(ROOT,"ENDF-B-VII.1")
 KEEP_INTERMEDIATES=False
 
+ENDF_COLUMNS = {
+    "total": 1,
+    "elastic": 2,
+    "inelastic": 3,
+    "absorption": 27, # fission + disappearance
+    "fission": 18,
+    "disappearance": 101, # sum of capture + reemission
+    "capture": 102,
+}
+
 def _next_step(step, name):
     if KEEP_INTERMEDIATES:
         return "STEP-%d-%s.OUT"%(step,name)
@@ -309,7 +319,7 @@ def select(x,y,lo,hi):
     #print "selected",x[idx]
     return x[idx],y[idx]
 
-def xstable(infile, columns):
+def xs_table(infile, columns):
     """
     Extract the linear interpolation table for an MF=3
     cross section into a file.
@@ -390,7 +400,7 @@ def pyplot(f, table, columns, resonance):
     if p: label += " %.1f%%"%p
     #label += " res: %.2fA"%wavelength(resonance)
     color=colors[LINENUM]
-    for i in (1,): #range(1,table.shape[0]):
+    for i in (2,): #range(1,table.shape[0]):
         pylab.loglog(table[0,:].T*1e3, table[i,:], label=label, 
                      linestyle=lines[i-1], color=color)
         label='_nolegend_'
@@ -423,7 +433,9 @@ def showplot(show=True):
     from matplotlib import transforms as mtransforms
     pylab.grid(True)
     #pylab.axis([5e0,20e3,1e-1,9e3])
-    pylab.axis([1e-2,10e3,1e-1,5e3])
+    #pylab.axis([1e-2,10e3,1e-1,5e3])
+    pylab.xlim(1e1,1e8)
+    pylab.ylim(1e-6,1e2)
     pylab.title('Elastic scattering from ENDF/B-VII.1 nuclear database')
     pylab.xlabel('Energy (meV)')
     #pylab.gca().set_xticklabels([])
@@ -434,8 +446,9 @@ def showplot(show=True):
     ax = pylab.gca()
     trans = mtransforms.blended_transform_factory(
                 ax.transData, ax.transAxes)
-    for E,L in (L20,20),(L6,6),(V2200,1.78),(L0p5,0.5),(L0p1,0.1):
-    #for E,L in (V2200,1.78),(L0p5,0.5),(L0p1,0.1):
+    #for E,L in (L20,20),(L6,6),(V2200,1.78),(L0p5,0.5),(L0p1,0.1):
+    for E,L in (V2200,1.78),(L0p5,0.5),(L0p1,0.1):
+    #if False:
         pylab.axvline(E*1e3)
         pylab.text(E*1e3,0.05,'%g A'%L,transform=trans)
     if show: 
@@ -517,11 +530,11 @@ if __name__ == "__main__":
         for f in sys.argv[2:]: evalplot(f)
     elif sys.argv[1] in ("--table", "--pyplot"):
         for f in sys.argv[2:]: 
-            if abundance(f) == 0: continue
+            if abundance(f) < 0.1: continue
             #columns = [1,2,3,4,102,103,104,105,106,107]
             columns = [2,102]
-            table = xstable(f, columns)
-            save_table(os.path.splitext(f)[0]+".tab", table, range=(1e-6,1e0))
+            table = xs_table(f, columns)
+            #save_table(os.path.splitext(f)[0]+".tab", table, range=(1e0,1e2))
             if table is not None and sys.argv[1] == "--pyplot":
                 #print f
                 res = first_resonance(table)
