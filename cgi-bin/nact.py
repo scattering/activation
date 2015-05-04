@@ -153,7 +153,7 @@ def cgi_call():
         elif mass_str.endswith('ug'):
            mass = 1e-6*float(mass_str[:-2])
         elif mass_str.endswith('g'):
-           mass = 1e-6*float(mass_str[:-1])
+           mass = float(mass_str[:-1])
         else:
            mass = float(mass_str)
     except: errors['mass'] = error()
