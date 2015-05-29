@@ -90,6 +90,13 @@ def parse_density(value_str):
 
 def json_response(result):
     jsonstr = json.dumps(result)
+    # Cross-site scripting (XSS) defense.  There is no reason for the returned JSON
+    # strings to include an unescaped "<" character, so if one slips through from
+    # malicious inputs or from code in an error traceback it will be sanitized here.
+    # Note that this is not true in general; if your web service returns html
+    # strings instead of adding markup in the browser, then you will need to sanitize
+    # the inputs instead of the outputs.
+    jsonstr = cgi.escape(jsonstr)
     #print >>sys.stderr, jsonstr #, result
     print "Content-Type: application/json; charset=UTF-8"
     print "Access-Control-Allow-Origin: *"
@@ -128,6 +135,7 @@ def cgi_call():
     form = cgi.FieldStorage()
     #print >>sys.stderr, form
     #print >>sys.stderr, "sample",form.getfirst('sample')
+    #print >>sys.stderr, "mass",form.getfirst('mass')
     
     # Parse inputs
     errors = {};
