@@ -6,8 +6,42 @@ import json
 from math import exp
 import sys
 import traceback
+import time
+from datetime import datetime, timedelta
+
+from pytz import timezone, utc
 
 from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf, util, xsf
+
+
+ISO8601_RELAXED = re.compile(r"""^ # anchor to start of string
+  (?P<year>[0-9]{4})               # year   YYYY
+  (-(?P<month>[0-9]{1,2})          # month  -M or -MM
+    (-(?P<day>[0-9]{1,2})          # day    -D or -DD
+      (.                           # separator (usually T or space)
+        (?P<hour>[0-9]{1,2})       # hour   H or HH
+        :(?P<minute>[0-9]{2})      # minute :MM
+        (:(?P<second>[0-9]{2})     # second :SS
+          (\.(?P<fraction>[0-9]+)  # fractional second .SSS to arbitrary precision
+          )?                       # .SSS is optional
+        )?                         # SS.SSS is optional
+        (?P<timezone>
+          Z                        # use Z for UTC
+          |
+          (?P<tzprefix>[+-])       # +/- offset
+          (?P<tzhour>[0-9]{1,2})   # hour offset H or HH
+          (:?                      # optional separator for minute offset
+            (?P<tzminute>[0-9]{2}) # minute offset MM
+          )?                       # optional minute offset
+        )?                         # optional time zone
+      )?                           # optional time+time zone
+    )?                             # YYYY-MM only
+  )?                               # YYYY only
+  $                                # anchor to end of the string
+  """, re.VERBOSE)
+
+# Default to the time zone is that for the NCNR.
+default_timezone = timezone('US/Eastern')
 
 #DEBUG=True
 DEBUG=False
@@ -120,16 +154,71 @@ HOUR_SCALE = {
     'y': 365.2425*24,
 }
 
+def parse_rest(s):
+    if '-' in s or ':' in s:
+        timestamp = parse_date(s.strip())
+        delta = utc.localize(datetime.utcnow()) - timestamp
+        hours = (delta.days*24*3600 + delta.seconds)/3600.0
+        if hours < 0:
+            raise ValueError("beam off time is in the future")
+        return hours
+    else:
+        return parse_hours(s)
+
 def parse_hours(s):
+    s = s.strip()
     try:
-        s = s.strip()
         if s[-1] in 'hmsdwy':
             value,units = float(s[:-1]),s[-1]
         else:
             value,units = float(s),'h'
         return value*HOUR_SCALE[units] 
     except:
-        raise ValueError("expected time as value and units (h,m,s,d,w,y)")
+        raise ValueError("expected time as value and units (h,m,s,d,w,y) or beam off date/time")
+
+def parse_date(datestring, default_timezone=default_timezone):
+    """
+    Parses ISO 8601 dates into datetime objects
+
+    The timezone is parsed from the date string. However it is quite common to
+    have dates without a timezone (not strictly correct). In this case the
+    default timezone specified in default_timezone is used. This is UTC by
+    default.
+
+    Raises TypeError if not passed a string.
+    Raises ValueError if the string is not a valid time stamp.
+    """
+    #print("parse_date with",datestring)
+    try:
+        m = ISO8601_RELAXED.match(datestring)
+    except TypeError:
+        # Cruft python 2.x; in 3.x use 'raise TypeError(...) from None'
+        exc = TypeError("parse_date expects a string, not %s"%(str(datestring)))
+        exc.__cause__ = None
+        raise exc
+    if not m:
+        raise ValueError("Unable to parse date string %r" % datestring)
+    groups = m.groupdict()
+    year = int(groups["year"])
+    month = int(groups["month"]) if groups["month"] else 1
+    day = int(groups["day"]) if groups["day"] else 1
+    hour = int(groups["hour"]) if groups["hour"] else 0
+    minute = int(groups["minute"]) if groups["minute"] else 0
+    second = int(groups["second"]) if groups["second"] else 0
+    fraction = int(float("0.%s" % groups["fraction"]) * 1e6) if groups["fraction"] else 0
+    dt = datetime(year,month,day,hour,minute,second,fraction)
+    if groups["timezone"] is None:
+        dt = default_timezone.normalize(default_timezone.localize(dt))
+    elif groups["timezone"]=="Z":
+        dt = utc.localize(dt)
+    else:
+        sign = +1 if groups["tzprefix"]=="+" else -1
+        delta_minutes = (int(groups["tzhour"])*60
+                 + (int(groups["tzminute"]) if groups["tzminute"] else 0))
+        offset = sign*delta_minutes*60
+        dt = utc.localize(dt) - timedelta(0, offset) 
+    return dt
+
 
 def cgi_call():
     form = cgi.FieldStorage()
@@ -169,7 +258,7 @@ def cgi_call():
     except: errors['density'] = error()
     try: 
         #print >>sys.stderr,form.getlist('rest[]')
-        rest_times = [parse_hours(v) for v in form.getlist('rest[]')]
+        rest_times = [parse_rest(v) for v in form.getlist('rest[]')]
         if not rest_times: rest_times = [0,1,24,360]
     except: errors['rest'] = error()
     try: decay_level = float(form.getfirst('decay','0.001'))

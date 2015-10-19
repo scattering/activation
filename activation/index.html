@@ -764,15 +764,25 @@ to the value respectively.
 
 <div id=help_time_off class="help">
 <h3>Time off beam</h3>
-<p>Units: h m s d w y
+<p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss
 <p>
 The sample begins to decay immediately, even while it is being activated.
 We compute the activation level when the sample is removed from the beam,
-and at 1 hour, 1 day and 15 days post activation.  The time off beam field
+and at 1 hour, 1 day and 15 days post activation.
+</p>
+<p>The time off beam field
 allows you to specify an additional time after activation.
 Time defaults to hours, but can be set to
 hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
 to the value respectively.
+</p>
+<p>
+If a time stamp is provide, it indicates the time that the sample was removed
+from the beam, and the current activation level is reported.  Approximate
+times are allowed, such as 2010-03 for March, 2010.  Times are specified 
+in US/Eastern.  Add "Z" after the time of day to indicate universal
+coordinated time (UTC), or add a timezone offset such as "+01" for +1 hours
+in France in winter (no daylight savings time).
 </p>
 </div>
 
