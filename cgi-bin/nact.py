@@ -8,10 +8,12 @@ import sys
 import traceback
 import time
 from datetime import datetime, timedelta
+from calendar import monthrange
 
 from pytz import timezone, utc
 
-from periodictable import elements, activation, formula, neutron_scattering, xray_sld, nsf, util, xsf
+from periodictable import elements, activation, formula, \
+        neutron_scattering, xray_sld, nsf, util, xsf
 
 
 ISO8601_RELAXED = re.compile(r"""^ # anchor to start of string
@@ -160,7 +162,7 @@ def parse_rest(s):
         delta = utc.localize(datetime.utcnow()) - timestamp
         hours = (delta.days*24*3600 + delta.seconds)/3600.0
         if hours < 0:
-            raise ValueError("beam off time is in the future")
+            raise ValueError("time off beam is in the future")
         return hours
     else:
         return parse_hours(s)
@@ -185,6 +187,10 @@ def parse_date(datestring, default_timezone=default_timezone):
     default timezone specified in default_timezone is used. This is UTC by
     default.
 
+    Missing parts are assigned the latest value rather than the earliest value.
+    For example, 2010-03 is returned as 2010-03-31 23:59:59.  This is done
+    so that the activation estimate will be conservative.
+
     Raises TypeError if not passed a string.
     Raises ValueError if the string is not a valid time stamp.
     """
@@ -198,13 +204,16 @@ def parse_date(datestring, default_timezone=default_timezone):
         raise exc
     if not m:
         raise ValueError("Unable to parse date string %r" % datestring)
+
+    # For approximate dates, use latest time rather than earliest time so that
+    # decay is underestimated rather than overestimated.
     groups = m.groupdict()
     year = int(groups["year"])
-    month = int(groups["month"]) if groups["month"] else 1
-    day = int(groups["day"]) if groups["day"] else 1
-    hour = int(groups["hour"]) if groups["hour"] else 0
-    minute = int(groups["minute"]) if groups["minute"] else 0
-    second = int(groups["second"]) if groups["second"] else 0
+    month = int(groups["month"]) if groups["month"] else 12
+    day = int(groups["day"]) if groups["day"] else monthrange(year,month)[1]
+    hour = int(groups["hour"]) if groups["hour"] else 23
+    minute = int(groups["minute"]) if groups["minute"] else 59
+    second = int(groups["second"]) if groups["second"] else 59
     fraction = int(float("0.%s" % groups["fraction"]) * 1e6) if groups["fraction"] else 0
     dt = datetime(year,month,day,hour,minute,second,fraction)
     if groups["timezone"] is None:
@@ -218,7 +227,6 @@ def parse_date(datestring, default_timezone=default_timezone):
         offset = sign*delta_minutes*60
         dt = utc.localize(dt) - timedelta(0, offset) 
     return dt
-
 
 def cgi_call():
     form = cgi.FieldStorage()

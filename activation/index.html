@@ -767,23 +767,42 @@ to the value respectively.
 <p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss
 <p>
 The sample begins to decay immediately, even while it is being activated.
-We compute the activation level when the sample is removed from the beam,
-and at 1 hour, 1 day and 15 days post activation.
-</p>
-<p>The time off beam field
-allows you to specify an additional time after activation.
-Time defaults to hours, but can be set to
+The time off beam field allows you to specify how long since the sample
+was removed from the beam.  The default is hours, but can be set to
 hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
 to the value respectively.
+We always compute the activation level when the sample is removed from the beam,
+and at 1 hour, 1 day and 15 days post activation.
 </p>
 <p>
-If a time stamp is provide, it indicates the time that the sample was removed
-from the beam, and the current activation level is reported.  Approximate
-times are allowed, such as 2010-03 for March, 2010.  Times are specified 
-in US/Eastern.  Add "Z" after the time of day to indicate universal
-coordinated time (UTC), or add a timezone offset such as "+01" for +1 hours
-in France in winter (no daylight savings time).
+Instead of saying how long ago the sample was removed from the beam, you can
+specify when it was removed.  Times are given as
+    year-month-day hour:minute:second.
+Approximate times are allowed, such as 2010-03 for March, 2010.  This is
+equivalent to 2010-03-31 23:59:59, which is the end of March so that the
+activation estimate will be conservative.  That is, this is the most activation
+consistent with the sample being on the beam sometime in March, 2010.
+Times are specified in US/Eastern.  Add "Z" after the time of day to
+indicate universal coordinated time (UTC), or add a timezone offset such
+as "+01" for +1 hours in France in winter, when daylight savings time is
+not in effect.
 </p>
+<h4>Examples</h4>
+<table>
+<tr><th>If you type:</th><th>This is equivalent to:</th></tr>
+<tr><td>2 m</td><td>2 minutes ago</td></tr>
+<tr><td>1</td><td>1 hour ago</td></tr>
+<tr><td>2.5w</td><td>2 and a half weeks ago</td></tr>
+<tr><td>3 y</td><td>3 years ago</td></tr>
+<tr><td>2015-01-02 21:45:00</td><td>January 2, 2015 at 9:45 PM US/Eastern</td></tr>
+<tr><td>2010-03</td><td>March 31, 2010 at 11:59:59 PM US/Eastern</td></tr>
+<tr><td>2010-7-5 12:23</td><td>July 5, 2010 at 12:23:59 PM US/Eastern</td></tr>
+<tr><td>2015-01-02 21:45:00Z</td><td>January 2, 2015 at 9:45 PM UTC</td></tr>
+<tr><td>2015-01-02 21:45:00-0600</td><td>January 2, 2015 at 9:45 PM US/Central</td></tr>
+<tr><td>2015-08-02 21:45:00-0500</td><td>August 2, 2015 at 9:45 PM US/Central</td></tr>
+<tr><td></td><td></td></tr>
+</table>
+
 </div>
 
 <div id=help_wavelength class="help">
