@@ -120,7 +120,7 @@ if(!Object.keys) Object.keys = function(o){
              );
         }
         function format_value(v) {
-            return (v<CUTOFF ? '---' : ''+v.toExponential(4));
+            return (v<CUTOFF ? '---' : v.toExponential(4).replace('-','&ndash;'));
         }
         function nice_number(v) {
             if (Math.abs(Math.round(v)-v) < 0.001) return Math.round(v);
