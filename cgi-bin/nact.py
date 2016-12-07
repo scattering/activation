@@ -134,11 +134,10 @@ def json_response(result):
     # the inputs instead of the outputs.
     jsonstr = cgi.escape(jsonstr)
     #print >>sys.stderr, jsonstr #, result
-    print "Content-Type: application/json; charset=UTF-8"
-    print "Access-Control-Allow-Origin: *"
-    print "Content-Length: %d"%(len(jsonstr)+1)
-    print
-    print jsonstr
+    print("Content-Type: application/json; charset=UTF-8")
+    print("Access-Control-Allow-Origin: *")
+    print("Content-Length: %d\n"%(len(jsonstr)+1))
+    print(jsonstr)
 respond = json_response
 
 def error():
