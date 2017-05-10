@@ -1,5 +1,5 @@
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+
     <title>Neutron Activation Calculator</title>
     <link rel="shortcut icon" href="favicon.ico">
 
@@ -25,11 +25,11 @@
 
         /* frame layout */
         #activation-frame { position:absolute; width:30em; }
-        #help-frame { 
-            position:absolute; left:31em; 
-            margin-right:0em; 
-            padding-right:0.5em; 
-            overflow-y:scroll; 
+        #help-frame {
+            position:absolute; left:31em;
+            margin-right:0em;
+            padding-right:0.5em;
+            overflow-y:scroll;
         }
         #skip-frame { display:block; height: 30em; }
         div.clear { clear:both; }
@@ -47,7 +47,7 @@
         .help ol { list-style-position: inside; padding-left: 0em; }
         .help li { margin-left: 0em; margin-bottom: 1ex; }
         .help div.bold { font-weight: bold; display: inline; }
-        .help div.entrytext { 
+        .help div.entrytext {
            display:inline;
            font-weight:bold;
            font-style:oblique;
@@ -55,15 +55,15 @@
         .help div.example:before { content:"Example: "; }
 
 /* fading horizontal rule
-  modified from http://konigi.com/tools/css-techniques-horizontal-rules 
+  modified from http://konigi.com/tools/css-techniques-horizontal-rules
 */
-        .help hr { 
-  clear: both; 
-  float: none; 
-  width: 100%; 
+        .help hr {
+  clear: both;
+  float: none;
+  width: 100%;
   height: 1px;
   margin: 2.4em 0;
-  border: none; 
+  border: none;
   background: #ddd;
   background-image: -webkit-gradient(
       linear,
@@ -106,11 +106,11 @@
 
     <script type="text/javascript">
 // IE doesn't seem to support keys
-if(!Object.keys) Object.keys = function(o){  
- if (o !== Object(o))  throw new TypeError('Object.keys called on non-object');  
- var ret=[],p;  
- for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);  
- return ret;  
+if(!Object.keys) Object.keys = function(o){
+ if (o !== Object(o))  throw new TypeError('Object.keys called on non-object');
+ var ret=[],p;
+ for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
+ return ret;
 }
         ACTIVE_BUTTON = "activation";
         // Parse environment variables "index.html?cutoff=...&abundance=..."
@@ -150,11 +150,11 @@ if(!Object.keys) Object.keys = function(o){
             $('#id_submit_act').removeAttr("disabled");
             $('a').each(function(){ this.tabIndex = -1; });
             $('.help').each(function(){ $(this).append("<hr>"); });
-            $('input[type=text]').keydown(function(e) { 
-                if (e.keyCode == 13) { 
+            $('input[type=text]').keydown(function(e) {
+                if (e.keyCode == 13) {
                     e.preventDefault();
-                    submit_query(ACTIVE_BUTTON); 
-                } 
+                    submit_query(ACTIVE_BUTTON);
+                }
             });
             $('input[type=text]').focus(function(e) {
                 var panel = $(this).closest('.panel')[0].id;
@@ -193,7 +193,7 @@ if(!Object.keys) Object.keys = function(o){
                 //abundance: $('input:text[id=id_abundance]').val()
                 abundance: ABUNDANCE
             },
-            complete: function (xhr, status) { 
+            complete: function (xhr, status) {
                 //console.log(status);
                 if (status==="parsererror") {
                     process_response({'success':false,'detail':{'JSON response':'parse error in return value---maybe NaN or Inf?'}});
@@ -235,7 +235,7 @@ if(!Object.keys) Object.keys = function(o){
             content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
         } else {
             // Full title
-            content += '<h3>' + sample.mass + 'g of ' + sample.formula 
+            content += '<h3>' + sample.mass + 'g of ' + sample.formula
                             + ' for ' + format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
             var data={}
             //construct headers
@@ -259,7 +259,6 @@ if(!Object.keys) Object.keys = function(o){
 
             // Decay time
             if (act.decay_time > 0) {
-
                 content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+format_time(act.decay_time)+'.</p>\n';
             }
 
@@ -312,7 +311,7 @@ if(!Object.keys) Object.keys = function(o){
             var flux_str = $('input:text[id=id_flux]').val();
             var transmitted_flux = parseFloat(flux_str)*transmission/100.0;
 
-            // Mass density 
+            // Mass density
             var density_str = $('input:text[id=id_density]').val();
             content += "<h3>" + sample.formula + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
             if (density_str.indexOf(':') !== -1) content += " from lattice "+density_str;
@@ -392,7 +391,7 @@ if(!Object.keys) Object.keys = function(o){
     <div id="activation-frame">
 
         <form id="id-activationForm" class="blueForms" method="post">
-            
+
             <div class="panel" id="material-panel">
             <h3><span class="text">Material</span></h3>
             <table><tbody>
@@ -402,7 +401,7 @@ if(!Object.keys) Object.keys = function(o){
               </td>
             </tr></tbody></table>
             </div>
-            
+
             <div class="panel" id="activation-panel">
             <h3><span class="text">Neutron Activation</span></h3>
             <table><tbody><tr>
@@ -454,9 +453,9 @@ if(!Object.keys) Object.keys = function(o){
                <div class="controls"><input id="id_time_off" type="text" class="textinput textInput" name="time_off" value="1 y" title="Time since sample was removed from the beam.  0, 1 hour, 1 day and 15 days are automatically calculated"> </div>
               </td>
             </tr></tbody></table>
-            <input type="submit" name="submit_act" value="Calculate" class="btn btn-primary" id="id_submit_act"> 
+            <input type="submit" name="submit_act" value="Calculate" class="btn btn-primary" id="id_submit_act">
             </div>
-            
+
             <div class="panel" id="scattering-panel">
             <h3><span class="text">Absorption and Scattering</span></h3>
             <table><tbody><tr>
@@ -484,12 +483,12 @@ if(!Object.keys) Object.keys = function(o){
                <div class="controls"><input id="id_xray" type="text" class="textinput textInput" name="xray" value="Cu Ka" title="X-ray source."></div>
               </td>
             </tr></tbody></table>
-            <input type="submit" name="submit_scat" value="Calculate" class="btn btn-primary" id="id_submit_scat"> 
+            <input type="submit" name="submit_scat" value="Calculate" class="btn btn-primary" id="id_submit_scat">
             </div>
 <!--
             <div id="div_id_abundance" class="control-group">
                <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
-               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST" 
+               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST"
                     title="Isotopic abundance for activation calculation uses either IAEA Report 273: Handbook of Nuclear Activation Data, 1987, or NIST Isotopic Composition of the Elements, 2001; sld and absorption calculations use NIST abundance."
                /> </div>
             </div>
@@ -509,7 +508,7 @@ not absorbed by the sample.
 <ol>
 <li>Enter the sample formula in the material panel.</li>
 <li>To perform activation calculations, fill in the thermal
-flux, the mass, the time on and off the beam, then press the 
+flux, the mass, the time on and off the beam, then press the
 calculate button in the neutron activation panel.</li>
 <li>To perform scattering calculations, fill in the wavelength
 of the neutron and/or xrays, the thickness and the
@@ -521,9 +520,9 @@ calculate button in the absorption and scattering panel.</li>
 <!-- help for individual fields -->
 <div id="help_chemical_formula" class="help">
 <h3>Chemical formula</h3>
-<p>The chemical formula parser allows you to specify materials and mixtures.  
-Formulas are parsed with 
-<a href="http://reflectometry.org/danse/docs/elements/guide/formula_grammar.html">periodictable</a> 
+<p>The chemical formula parser allows you to specify materials and mixtures.
+Formulas are parsed with
+<a href="http://reflectometry.org/danse/docs/elements/guide/formula_grammar.html">periodictable</a>
 python package.
 </p>
 
@@ -535,28 +534,28 @@ python package.
 
 <dt>multi-part formula</dt>
 <dd>Formulas can be built from parts by separating them with "+" or space, with a number before the part representing repeats.  Using parentheses, a formula is treated as if it were a single unit.
-<div class="example"><div class="entrytext">CaCO3+6H20</div>, 
-<div class="entrytext">CaCO3 6H2O</div> and 
+<div class="example"><div class="entrytext">CaCO3+6H20</div>,
+<div class="entrytext">CaCO3 6H2O</div> and
 <div class="entrytext">CaCO3(H2O)6</div> all represent ikaite,
 CaCO<sub>3</sub>&middot;6H<sub>2</sub>O</div>
 </dd>
 
 <dt>isotopes</dt>
 <dd>Isotopes are represented by element[nuclide index].
-Special symbols <div class="entrytext">D</div> and 
-<div class="entrytext">T</div> 
+Special symbols <div class="entrytext">D</div> and
+<div class="entrytext">T</div>
 can be used for <sup>2</sup>H and <sup>3</sup>H.
-Isotopes can be mixed within a formula, such as 
-<div class="entrytext">DHO</div> for partially deuterated water.  
+Isotopes can be mixed within a formula, such as
+<div class="entrytext">DHO</div> for partially deuterated water.
 <div class="example"><div class="entrytext">O[18]</div> represents the <sup>18</sup>O</div>
 </dd>
 
 <dt>density</dt>
-<dd>Mass density is needed to compute scattering factors for the material.  
-The density can be entered in the density field, or it can be given in 
+<dd>Mass density is needed to compute scattering factors for the material.
+The density can be entered in the density field, or it can be given in
 the formula by adding @value to the end.  Densities for the pure elements are
 already known.
-<div class="example"><div class="entrytext">H2O@1</div> 
+<div class="example"><div class="entrytext">H2O@1</div>
 indicates that water has a density of 1 g/cm<sup>3</sup></div>
 </dd>
 
@@ -579,17 +578,17 @@ be constructed.
 
 <dt>mass fractions</dt>
 <dd>Formulas can be mixed by mass, with each part starting with a percentage followed by formula followed by "//".  The first part must use "%wt" to indicate that it is a mass fraction.  The final part is the base, and it does not need a percentage since it makes up the rest of the material.
-<div class="example"><div class="entrytext">50%wt Co // Ti</div> 
+<div class="example"><div class="entrytext">50%wt Co // Ti</div>
 is more descriptive than Co<sub>0.552</sub>Ti<sub>0.448</sub></div>
-<div class="example"><div class="entrytext">33%wt Co // 33% Fe // Ti</div> 
+<div class="example"><div class="entrytext">33%wt Co // 33% Fe // Ti</div>
 builds a 1:1:1 mixture by mass of cobalt-iron-titanium</div>
 </dd>
 
 <dt>volume fractions</dt>
-<dd>Volume fractions are like mass fractions, but they use "%vol" instead.  
+<dd>Volume fractions are like mass fractions, but they use "%vol" instead.
 Each component of the volume fraction must specify the density.
 <div class="example"><div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1n</div>
-is a 10% saline solution by weight mixed 20:80 by volume with 
+is a 10% saline solution by weight mixed 20:80 by volume with
 D<sub>2</sub>O, which is the same as
 <div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10i</div></div>
 </dd>
@@ -602,13 +601,13 @@ D<sub>2</sub>O, which is the same as
 <p>
 The total neutron activation depends on the mass of the individual
 isotopes in the sample and the total time in the beam.  All activation
-calculations assume a thin plate sample, with all parts of the sample 
-exposed to full flux during activation, and no self-shielding when 
+calculations assume a thin plate sample, with all parts of the sample
+exposed to full flux during activation, and no self-shielding when
 estimating the activation level outside the beam.
 </p>
 <p>Neutron activation is a function of isotope, not element.  When
 an element is used in a formula, the natural abundance of the individual
-isotopes is used to determine the total activation.  By default, the 
+isotopes is used to determine the total activation.  By default, the
 activation calculator uses values from the IAEA handbook<sup>1</sup>, and the
 scattering calculator uses the NIST atomic weights and isotope composition
 	database.<sup>2</sup>
@@ -654,8 +653,8 @@ such as 0.1&thinsp;&mu;Ci using: <a href="index.html?decay=0.1">index.html?decay
 Density is used to compute absorption, transmission and scattering.
 <dl>
 <dt>default from formula</dt>
-<dd>Leave the density field blank and add <div class="entrytext">@</div> plus 
-the density to the end of the formula, where density is in 
+<dd>Leave the density field blank and add <div class="entrytext">@</div> plus
+the density to the end of the formula, where density is in
 g/cm<sup>3</sup>.  For compounds with specific isotopes, you can use the
 density of the naturally occurring compound as <div class="entrytext">@</div>
 plus density plus <div class="entrytext">n</div> and the isotope specific
@@ -666,11 +665,11 @@ pure elements, the natural density given in the periodic table is used.
 <div class="entrytext">D2O@1.11</div></div>
 </dd>
 <dt>g/cm<sup>3</sup></dt>
-<dd>Enter the density by itself, which will be interpreted as g/cm<sup>3</sup>, or 
-equivalently, kg/L.  No units are needed.  If the value ends with an 'i', 
+<dd>Enter the density by itself, which will be interpreted as g/cm<sup>3</sup>, or
+equivalently, kg/L.  No units are needed.  If the value ends with an 'i',
 then the density used will be the isotopic density, otherwise the natural
 density will be used, and the material density will be computed by
-substituting the isotope ratios given in the formula.  
+substituting the isotope ratios given in the formula.
 <div class="example">D<sub>2</sub>O has a natural density of
 <div class="entrytext">1n</div> and an isotopic density of
 <div class="entrytext">1.11</div></div>
@@ -679,7 +678,7 @@ substituting the isotope ratios given in the formula.
 <dd>Enter a number followed by A3 for &Aring;<sup>3</sup>.  Be sure that your
 formula contains the correct number of atoms for the unit cell, possibly by
 using n(formula), where n is 6 for hexagonal close packed, 4 for face centered
-cells, 2 for body centered and base centered cells, or 1 for simple cells. 
+cells, 2 for body centered and base centered cells, or 1 for simple cells.
 <div class="example">4NaCl has a cell volume of
 <div class="entrytext">179.4 A3</div></div>
 </dd>
@@ -701,7 +700,7 @@ formula contains the correct number of atoms for the unit cell.
 <p>Units: cm</p>
 <p>
 The material thickness in cm is used to determine sample transmission,
-or how much beam will be absorbed by the sample or scattered incoherently.  
+or how much beam will be absorbed by the sample or scattered incoherently.
 Leave it at 1 cm if you do not need this information.
 </p>
 </div>
@@ -710,7 +709,7 @@ Leave it at 1 cm if you do not need this information.
 <h3>Thermal flux</h3>
 <p>Units: n/cm<sup>2</sup>/s</p>
 <p>
-Provide the thermal flux equivalent for the pre-sample beam configuration 
+Provide the thermal flux equivalent for the pre-sample beam configuration
 for the instrument.  This is only need for computing the neutron activation<sup>1</sup>
 from the experiment, and is not used for computing scattering cross
 sections.
@@ -755,7 +754,7 @@ This value is unitless.  Use a value of 0 for beamline experiments.
 <p>Units: h m s d w y
 <p>
 Time on the beam is the length of the exposure at the given flux.  Activation
-will be accumulated over time.  
+will be accumulated over time.
 Time defaults to hours, but can be set to
 hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
 to the value respectively.
@@ -814,16 +813,16 @@ and hence the penetration depth and sample attenuation.  Energy can be
 expressed as wavelength in &Aring;, as energy in meV, or as neutron
 velocity in m/s.
 </p><p>
-Neutron cross sections are 
-<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">tabulated</a><sup>1</sup> 
-at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for 
+Neutron cross sections are
+<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">tabulated</a><sup>1</sup>
+at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for
 the absorption cross section.  For heavier
-isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;) 
-there are neutron <a href="resonance.html">resonances</a> which are not 
+isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;)
+there are neutron <a href="resonance.html">resonances</a> which are not
 accounted for in the scattering calculator.  There is also a 1/v dependence for
 single phonon interactions which gives rise to significant inelastic scattering
-for lighter isotopes (H, D) and/or longer wavelengths (above 5&nbsp;&Aring;).  
-This factor is both temperature and material dependent and will not be included 
+for lighter isotopes (H, D) and/or longer wavelengths (above 5&nbsp;&Aring;).
+This factor is both temperature and material dependent and will not be included
 in the scattering calculations.
 </p>
 <ol>
@@ -837,18 +836,18 @@ in the scattering calculations.
 <p>
 X-ray absorption and scattering are computed from the energy dependent
 atomic scattering factors.<sup>1</sup>
-Energy can be expressed as wavelength in &Aring;, as energy in keV, or 
-using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for 
+Energy can be expressed as wavelength in &Aring;, as energy in keV, or
+using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
 that element.
 </p>
 
 <ol>
-<li><em>B.L. Henke, E.M. Gullikson, and J.C. Davis. X-ray interactions: 
-photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92, 
+<li><em>B.L. Henke, E.M. Gullikson, and J.C. Davis. X-ray interactions:
+photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92,
 Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
 <a href="http://henke.lbl.gov/optical_constants/">http://henke.lbl.gov/optical_constants/</a>
 </li>
-<li><em>R. D. Deslattes, E. G. Kessler, Jr., P. Indelicato, L. de Billy, 
+<li><em>R. D. Deslattes, E. G. Kessler, Jr., P. Indelicato, L. de Billy,
        E. Lindroth, and J. Anton.  Rev. Mod. Phys. 75, 35-99 (2003).</em>
 <a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">http://www.nist.gov/pml/data/xraytrans/index.cfm</a>
 </li>
@@ -863,11 +862,11 @@ Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
     <div id="skip-frame">&nbsp;</div>
     <div id="results" />
 
-</div> 
+</div>
 <hr>
 <div class="footer">
   <div style="float:left;"><p>
-<em>Questions?</em><br> 
+<em>Questions?</em><br>
 Neutron activation: Dave Brown &lt;<a href="mailto:david.brown@nist.gov">david.brown@nist.gov</a>&gt;<br>
 Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
 </p></div>
@@ -879,8 +878,8 @@ Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov"
 //$('input').focusout(function(){$("#help_"+this.id.slice(3)).hide();});
 // Display help on input
 ACTIVE_HELP=$("#help_initial");
-$('input').focusin(function(){ 
-  if (ACTIVE_HELP) ACTIVE_HELP.hide(); 
+$('input').focusin(function(){
+  if (ACTIVE_HELP) ACTIVE_HELP.hide();
   ACTIVE_HELP = $("#help_"+this.id.slice(3));
   if ($(ACTIVE_HELP).length == 0) ACTIVE_HELP = $("#help_initial");
   ACTIVE_HELP.show();

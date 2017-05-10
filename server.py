@@ -1,28 +1,39 @@
 #!/usr/bin/env python
- 
+"""
+Simple server for running the neutron activation calculator.
+
+This is intended for testing.  It has not been assessed for security and is
+not recommended for a public facing server.  The activation calculator
+expects a cgi interface, which should be provided by the web infrastructure
+(apache, nginx, etc.) that you are using on your production server.
+"""
+
+from __future__ import print_function
+
 import sys
 import os
-if sys.version_info[0] >= 3:
+try:
     from http.server import HTTPServer, CGIHTTPRequestHandler
     from socketserver import ThreadingMixIn
-else:
+except ImportError:
     from BaseHTTPServer import HTTPServer
     from SocketServer import ThreadingMixIn
     from CGIHTTPServer import CGIHTTPRequestHandler
-import cgitb; cgitb.enable()  ## This line enables CGI error reporting
- 
+import cgitb
+cgitb.enable()  ## This line enables CGI error reporting
+
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Very simple threaded server"""
     allow_reuse_address = True
     request_queue_size = 50
 
 server = ThreadedHTTPServer
 handler = CGIHTTPRequestHandler
-server_address = ("", 8008)
 handler.cgi_directories = ["/cgi-bin"]
- 
-host,port = server_address
-if not host: host = "localhost"
-print("serving on http://%s:%d/activation/"%(host,port))
+
+host, port = "", 8008
+if not host:
+    host = "localhost"
+print("serving on http://%s:%d/activation/", host, port)
 httpd = server(server_address, handler)
 httpd.serve_forever()
-
