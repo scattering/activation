@@ -32,6 +32,7 @@ handler = CGIHTTPRequestHandler
 handler.cgi_directories = ["/cgi-bin"]
 
 host, port = "", 8008
+host = "p640596.campus.nist.gov"
 if not host:
     host = "localhost"
 print("serving on http://%s:%d/activation/", host, port)

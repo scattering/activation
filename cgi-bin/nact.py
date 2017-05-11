@@ -249,7 +249,8 @@ def cgi_call():
     if calculate not in ('scattering', 'activation', 'all'):
         errors['calculate'] = "calculate should be one of 'scattering', 'activation' or 'all'"
     try:
-        chem = formula(form.getfirst('sample'))
+        sample = form.getfirst('sample')
+        chem = formula(sample)
     except Exception:
         errors['sample'] = error()
     try:
@@ -269,7 +270,7 @@ def cgi_call():
     except Exception:
         errors['exposure'] = error()
     try:
-        mass_str = form.getfirst('mass', '1')
+        mass_str = form.getfirst('mass', '0')
         if mass_str.endswith('kg'):
             mass = 1000*float(mass_str[:-2])
         elif mass_str.endswith('mg'):
@@ -359,8 +360,19 @@ def cgi_call():
     else:
         raise ValueError("unknown density type %r"%density_type)
 
+    if mass == 0:
+        if hasattr(chem, 'total_mass'):
+            mass = chem.total_mass
+        elif hasattr(chem, 'total_volume'):
+            mass = chem.density * chem.total_volume
+        elif hasattr(chem, 'thickness'):
+            mass = chem.density * chem.thickness*100.  # per cm^2
+        else:
+            mass = 1.
+
     result = {'success': True}
     result['sample'] = {
+        'name': sample,
         'formula': str(chem),
         'mass': mass,
         'density': chem.density,

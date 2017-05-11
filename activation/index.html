@@ -4,6 +4,22 @@
     <link rel="shortcut icon" href="favicon.ico">
 
     <style type="text/css">
+        @media print
+        {
+            body { font-size: 10pt !important; }
+            table, caption, th, td {
+                font-size: 10pt !important;
+                /* border: 0.1pt solid lightgray !important; */
+                border: none !important;
+            }
+            .no-print { display: none !important; height: 0; }
+            .no-print *{ display: none !important; height: 0; }
+            .print-only { display: block !important; }
+            .print-only *{ display: block !important; }
+        }
+        .print-only { display: none; }
+        .print-only *{ display: none; }
+
         p { margin-bottom: 0; }
         .footer p { margin-top: 0; }
         /* body { font-size: 0.9em; } */
@@ -22,6 +38,11 @@
         p.disclaimer { color: darkred; font-size:1.2em; }
 
         #id_chemical_formula { width: 30em; }
+
+        div.cutoff { display: block; }
+        div.nocutoff { display: none; }
+        button.activity_button { float: right; }
+
 
         /* frame layout */
         #activation-frame { position:absolute; width:30em; }
@@ -119,12 +140,20 @@ if(!Object.keys) Object.keys = function(o){
                 (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
              );
         }
-        function format_value(v) {
-            return (v<CUTOFF ? '---' : v.toExponential(4));
+        function format_activation_value(v, cutoff) {
+            return (v<cutoff? '---' : v.toExponential(4));
         }
         function nice_number(v) {
             if (Math.abs(Math.round(v)-v) < 0.001) return Math.round(v);
             else return v.toFixed(1);
+        }
+        function format_mass(v) {
+            if (v >= 1000.) return v.toFixed(0)+'&thinsp;g';
+            else if (v >= 1.) return v.toFixed(3)+'&thinsp;g';
+            else if (v >= 1e-3) return (1e3*v).toFixed(3)+'&thinsp;mg';
+            else if (v >= 1e-6) return (1e6*v).toFixed(3)+'&thinsp;ug';
+            else if (v >= 1e-9) return (1e9*v).toFixed(3)+'&thinsp;ng';
+            else return v.toExponential(4)+'&thinsp;ng';
         }
         function format_time(v) {
             if (v >= 365.2425*24) return nice_number(v/365.2425/24)+' yrs';
@@ -205,6 +234,79 @@ if(!Object.keys) Object.keys = function(o){
             success: process_response
         });
     }
+
+    function cssrule(class_name){
+        var ss = document.styleSheets;
+        for (var i=0; i<ss.length; i++) {
+            var ss = document.styleSheets;
+            var rules = ss[i].cssRules || ss[i].rules;
+            for (var j=0; j<rules.length; j++) {
+                if (rules[j].selectorText === class_name) {
+                    return rules[j];
+                }
+            }
+        }
+    }
+    function show_cutoff(state) {
+        if (state) {
+            cssrule('div.cutoff').style.display = 'block';
+            cssrule('div.nocutoff').style.display = 'none';
+        } else {
+            cssrule('div.cutoff').style.display = 'none';
+            cssrule('div.nocutoff').style.display = 'block';
+        }
+    }
+    function activation_table(act, cutoff) {
+        var data = {};
+        var content = "";
+        //construct headers
+        data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", format_time(act.rest[4])]
+        data.rows=[]
+        for (var i=0; i < act.activity.length; i++){
+            var active = false, row=act.activity[i];
+            var columns = [row.isotope, row.reaction, row.product, row.halflife];
+            for (var j=0; j < row.levels.length; j++){
+                active = active || (row.levels[j] >= cutoff);
+                columns.push(row.levels[j])
+            }
+            if (active) data.rows.push(columns);
+        }
+
+        var activity_header, activity_button;
+        if (cutoff>0) {
+            activity_header = 'Activity above ' + cutoff + ' (&mu;Ci)';
+            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);">All</button>';
+        } else {
+            activity_header = 'Activity (&mu;Ci)';
+            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);">&gt;'+CUTOFF+'&thinsp;&mu;Ci</button>';
+        }
+        //add headers to table
+        content += '<table border=1>\n';
+        content += ' <tr class="header"><th colspan="4" /><th colspan="5">'+activity_header+activity_button+'</th></tr>\n';
+        content += ' <tr class="header">';
+        for (var i in data.headers) {
+            content += '<th>' + data.headers[i] + '</th>';
+        }
+        content += '</tr>\n'
+        for (var i in data.rows) {
+            content += ' <tr id="' + i + '">';
+            for (var j=0; j <data.rows[i].length; j++){
+                if (j>=4) {
+                    content += '<td>'+format_activation_value(data.rows[i][j], cutoff)+'</td>';
+                } else {
+                    content += '<td>' + data.rows[i][j] + '</td>';
+                }
+            }
+            content += '</tr>\n';
+        }
+        content += ' <tr class="header"><th colspan="4">total activity</th>';
+        for (var j=0; j < act.total.length; j++) {
+            content += '<td>'+format_activation_value(act.total[j], cutoff)+'</td>';
+        }
+        content += ' </tr>\n';
+        content += '</table>\n';
+        return content;
+    }
     function process_response(ldata) {
         //console.log(ldata);
         if (typeof(ldata)==="string") ldata=$.parseJSON(ldata);
@@ -226,8 +328,6 @@ if(!Object.keys) Object.keys = function(o){
         var xscat = ldata.xray_scattering;
         var content = '<div class="result"><hr>\n';
 
-
-
         if (typeof act == 'undefined') {
             // do nothing if not returned
         } else if ("error" in act) {
@@ -235,62 +335,25 @@ if(!Object.keys) Object.keys = function(o){
             content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
         } else {
             // Full title
-            content += '<h3>' + sample.mass + 'g of ' + sample.formula
-                            + ' for ' + format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
-            var data={}
-            //construct headers
-            data.headers=["element","reaction","product","half life","0 hrs","1 hr", "24 hrs", "15 days", format_time(act.rest[4])]
-            data.rows=[]
-            for (var i=0; i < act.activity.length; i++){
-                var active = false, row=act.activity[i];
-                var columns = [row.isotope, row.reaction, row.product, row.halflife];
-                for (var j=0; j < row.levels.length; j++){
-                    active = active || (row.levels[j] >= CUTOFF);
-                    columns.push(row.levels[j])
-                }
-                if (active) data.rows.push(columns);
-            }
-            var show_total = false;
-            for (var j=0; j < act.total.length; j++) show_total = show_total || (act.total[j] >= CUTOFF);
+            content += '<h3>Activation of ' + sample.name + ' after ' + format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
 
             // Disclaimer
             content += '<p class="disclaimer">Estimated activation only. All samples must be evaluated by NIST Health Physics to determine if and how the sample can be removed from the NCNR.</p>';
 
+            // Atoms
+            content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + sample.formula + '\n';
 
             // Decay time
             if (act.decay_time > 0) {
-                content += '<p>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+format_time(act.decay_time)+'.</p>\n';
+                content += '<br>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+format_time(act.decay_time)+'.\n';
             }
 
             // Activation table
-            if (data.rows.length > 0 || show_total) {
-                //add headers to table
-                content += '<table border=1>\n';
-                content += ' <tr class="header"><th colspan="4" /><th colspan="5">Activity'+(CUTOFF>0?' above '+CUTOFF:'')+' (&mu;Ci)</th></tr>\n';
-                content += ' <tr class="header">';
-                for (var i in data.headers) {
-                    content += '<th>' + data.headers[i] + '</th>';
-                }
-                content += '</tr>\n'
-                for (var i in data.rows) {
-                    content += ' <tr id="' + i + '">';
-                    for (var j=0; j <data.rows[i].length; j++){
-                        if (j>=4) {
-                            content += '<td>'+format_value(data.rows[i][j])+'</td>';
-                        } else {
-                            content += '<td>' + data.rows[i][j] + '</td>';
-                        }
-                    }
-                    content += '</tr>\n';
-                }
-                content += ' <tr class="header"><th colspan="4">total activity</th>';
-                for (var j=0; j < act.total.length; j++) {
-                    content += '<td>'+format_value(act.total[j])+'</td>';
-                }
-                content += ' </tr>\n';
-                content += '</table>\n';
+            if (CUTOFF == 0.) {
+                content += activation_table(act, 0.);
             } else {
-                content += '<p>No activation above '+CUTOFF+' &mu;Ci</p>';
+                content += '<div class="cutoff">\n' + activation_table(act, CUTOFF) + '</div>\n';
+                content += '<div class="nocutoff">\n' + activation_table(act, 0.) + '</div>\n';
             }
         }
 
@@ -313,9 +376,7 @@ if(!Object.keys) Object.keys = function(o){
 
             // Mass density
             var density_str = $('input:text[id=id_density]').val();
-            content += "<h3>" + sample.formula + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
-            if (density_str.indexOf(':') !== -1) content += " from lattice "+density_str;
-            content += "</h3>";
+            content += "<h3>Scattering from " + sample.name + "</h3>";
 
             // Source neutrons
             content += "<p>Source neutrons: "
@@ -325,6 +386,9 @@ if(!Object.keys) Object.keys = function(o){
             content += "Source X-rays: "
                 + xscat.xray.wavelength.toFixed(3) + "&thinsp;&Aring;"
                 + " = " + xscat.xray.energy.toFixed(3) + "&thinsp;keV<br>";
+            // Atoms
+            content += "Sample in beam: " + sample.formula + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
+            if (density_str.indexOf(':') !== -1) content += " from lattice "+density_str;
             content += "</p>";
 
             // Neutron scattering
@@ -388,7 +452,7 @@ if(!Object.keys) Object.keys = function(o){
 
 <div class="container disabled">
 
-    <div id="activation-frame">
+    <div id="activation-frame" class="no-print">
 
         <form id="id-activationForm" class="blueForms" method="post">
 
@@ -446,7 +510,7 @@ if(!Object.keys) Object.keys = function(o){
             <tr>
 
               <td>
-               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="1" title="Sample mass.  Activation scales linearly with mass."></div>
+               <div class="controls"><input id="id_mass" type="text" class="textinput textInput" name="mass" value="" title="Sample mass.  Activation scales linearly with mass."></div>
               </td><td>
                <div class="controls"><input id="id_time_on" type="text" class="textinput textInput" name="time_on" value="10" title="Sample exposure time in hours, minutes, seconds, days, weeks or years."> </div>
               </td><td>
@@ -496,7 +560,7 @@ if(!Object.keys) Object.keys = function(o){
         </form>
 
     </div>
-    <div id="help-frame">
+    <div id="help-frame" class="no-print">
 <div id="help_initial" class="help">
 <h3>Neutron activation and scattering calculator</h3>
 <p>
@@ -533,11 +597,14 @@ python package.
 </dd>
 
 <dt>multi-part formula</dt>
-<dd>Formulas can be built from parts by separating them with "+" or space, with a number before the part representing repeats.  Using parentheses, a formula is treated as if it were a single unit.
-<div class="example"><div class="entrytext">CaCO3+6H20</div>,
-<div class="entrytext">CaCO3 6H2O</div> and
-<div class="entrytext">CaCO3(H2O)6</div> all represent ikaite,
-CaCO<sub>3</sub>&middot;6H<sub>2</sub>O</div>
+<dd>Formulas can be built from parts by separating them with "+" or space,
+    with a number before the part representing repeats.  Using parentheses,
+    a formula is treated as if it were a single unit.
+    <div class="example"><div class="entrytext">CaCO3+6H20</div>,
+    <div class="entrytext">CaCO3 6H2O</div> and
+    <div class="entrytext">CaCO3(H2O)6</div> all represent ikaite,
+        CaCO<sub>3</sub>&middot;6H<sub>2</sub>O
+    </div>
 </dd>
 
 <dt>isotopes</dt>
@@ -572,25 +639,57 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 
 <dt>mole fractions</dt>
 <dd>Using non-integer quantities, arbitrary concentration ratios can be
-be constructed.
-<div class="example"><div class="entrytext">78.2H2O[16] + 21.8H2O[18] @1n</div> represents water with 78.2% <sup>16</sup>O and 21.8% <sup>18</sup>O</div>
+    be constructed.
+    <div class="example"><div class="entrytext">78.2H2O[16] + 21.8H2O[18] @1n</div>
+        represents water with 78.2% <sup>16</sup>O and 21.8% <sup>18</sup>O
+    </div>
 </dd>
 
 <dt>mass fractions</dt>
-<dd>Formulas can be mixed by mass, with each part starting with a percentage followed by formula followed by "//".  The first part must use "%wt" to indicate that it is a mass fraction.  The final part is the base, and it does not need a percentage since it makes up the rest of the material.
-<div class="example"><div class="entrytext">50%wt Co // Ti</div>
-is more descriptive than Co<sub>0.552</sub>Ti<sub>0.448</sub></div>
-<div class="example"><div class="entrytext">33%wt Co // 33% Fe // Ti</div>
-builds a 1:1:1 mixture by mass of cobalt-iron-titanium</div>
+<dd>Formulas can be mixed by mass, with each part starting with a percentage
+    followed by formula followed by "//".  The first part must use "%wt" to
+    indicate that it is a mass fraction.  The final part is the base, and it
+    does not need a percentage since it makes up the rest of the material.
+    <div class="example"><div class="entrytext">50%wt Co // Ti</div>
+    is more descriptive than Co<sub>0.552</sub>Ti<sub>0.448</sub></div>
+    <div class="example"><div class="entrytext">33%wt Co // 33% Fe // Ti</div>
+    builds a 1:1:1 mixture by mass of cobalt-iron-titanium</div>
 </dd>
 
 <dt>volume fractions</dt>
 <dd>Volume fractions are like mass fractions, but they use "%vol" instead.
-Each component of the volume fraction must specify the density.
-<div class="example"><div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1n</div>
-is a 10% saline solution by weight mixed 20:80 by volume with
-D<sub>2</sub>O, which is the same as
-<div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10i</div></div>
+    Each component of the volume fraction must specify the density.
+    <div class="example"><div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1n</div>
+        is a 10% saline solution by weight mixed 20:80 by volume with
+        D<sub>2</sub>O, which is the same as
+        <div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10i</div>
+    </div>
+</dd>
+
+<dt>mass and volume mixtures</dt>
+<dd>Specific amounts of materials can be mixed, with each part giving
+    the quantity of material followed by "//".  Quantities can be masses
+    (kg, g, mg, ug, or ng) or they can be volumes (L, mL, uL, nL).  Density
+    is required for materials given by volume.  For scattering calculations
+    density is required for the materials given by mass as well.
+    <div class="example"><div class="entrytext">5g NaCl // 50mL H2O@1</div>
+        is more descriptive than
+        <div class="entrytext">NaCl(H2O)32.4407</div>
+    </div>
+    <div class="example"><div class="entrytext">5g NaCl@2.16 // 50mL H2O@1</div>
+        computes the density as 1.05 g/cm<sup>3</sup>.  Not useful in this
+        case since 9%wt brine has a density of 1.0633 at ambient temperature.
+    </div>
+    <div class="example"><div class="entrytext">50 mL (45 mL H2O@1 // 5 g NaCl)@1.0707 // 20 mL D2O@1n</div>
+        uses the appropriate density for a 10%wt brine in the mixture.
+</dd>
+
+<dt>layer thickness</dt>
+<dd>Multilayer samples can specified as layer thickness and material separated
+    by "//".  Thicknesses are in length units (cm, mm, um, nm).  The
+    resulting material will compute activation for 1 cm<sup>2</sup> of material.
+    Density is required for each layer.
+    <div class="example"><div class="entrytext">1 cm Si // 5 nm Cr // 10 nm Au</div>
 </dd>
 </dl>
 </div>
@@ -623,7 +722,8 @@ The NIST database can be selected for isotope abundance using:
 
 <dt>activation cutoff</dt>
 <dd>
-The cutoff values for displaying activation data are set to 0.0001&thinsp;&mu;Ci by default.  The full activation levels
+The cutoff values for displaying activation data are set to 0.0001&thinsp;&mu;Ci
+by default.  The full activation levels
 can be displayed using: <a href="index.html?cutoff=0">index.html?cutoff=0</a>
 </dd>
 
@@ -859,7 +959,8 @@ Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
     <div class="clear" />
 </div>
 
-    <div id="skip-frame">&nbsp;</div>
+    <div id="skip-frame" class="no-print">&nbsp;</div>
+    <h3 class="print-only">Activation and Scattering Results</h3>
     <div id="results" />
 
 </div>
