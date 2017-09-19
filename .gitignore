@@ -29,7 +29,17 @@ nosetests.xml
 # Translations
 *.mo
 
-# Mr Developer
+# IDE droppings
 .mr.developer.cfg
 .project
 .pydevproject
+
+# endf generated data
+endf/EVALPLOT.INP
+endf/EVALPLOT.LST
+endf/LINEAR.INP
+endf/LINEAR.LST
+endf/MT.DAT
+endf/PLOT.CHR
+endf/PLOT.SYM
+endf/*.out
