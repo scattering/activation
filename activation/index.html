@@ -32,6 +32,18 @@
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
         ul li:nth-child(2n), ol li:nth-child(2n) { background: inherit; /* background: none repeat scroll 0 0 #F3F3F9; */ }
+        table.tablesorter thead tr .headerSortable {
+            background-image: url(resonance-theme/bg.gif);
+            background-repeat: no-repeat;
+            background-position: center right;
+            padding-right: 2em; /* space for sort arrows */
+        }
+        table.tablesorter thead tr .headerSortUp {
+            background-image: url(resonance-theme/asc.gif);
+        }
+        table.tablesorter thead tr .headerSortDown {
+            background-image: url(resonance-theme/desc.gif);
+        }
 
         /* output markup */
         .error { color: red; }
@@ -124,6 +136,7 @@
     </style>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
 
     <script type="text/javascript">
 // IE doesn't seem to support keys
@@ -162,6 +175,23 @@ if(!Object.keys) Object.keys = function(o){
             else if (v >= 2/60. | v == 1/60.) return nice_number(v*60)+' min';
             else return (v*3600).toPrecision(3)+' sec';
         }
+        function parse_half_life(s) {
+            var units = {y: 365*24*3600, d: 24*3600, h: 3600, m: 60, s: 1};
+            var [value_str, units_str] = s.split(" ");
+            return parseFloat(value_str) * units[units_str];
+        }
+        $.tablesorter.addParser({
+            id: 'half-life',
+            is: function (s) { return /^ *[0-9.+-eE]+ *[smhdy] *$/.test(s); },
+            format: function (s) { return parse_half_life(s); },
+            type: 'numeric'
+        });
+        $.tablesorter.addParser({
+            id: 'float',
+            is: function (s) { return /^ *[0-9.+-eE]+ *$/.test(s); },
+            format: function (s) { return parseFloat(s); },
+            type: 'numeric'
+        });
         $(document).ready(function() {
             CUTOFF = getURLParameter('cutoff');
             if (CUTOFF==='null') CUTOFF = 0.0001;
@@ -281,15 +311,16 @@ if(!Object.keys) Object.keys = function(o){
             activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);">&gt;'+CUTOFF+'&thinsp;&mu;Ci</button>';
         }
         //add headers to table
-        content += '<table border=1>\n';
-        content += ' <tr class="header"><th colspan="4" /><th colspan="5">'+activity_header+activity_button+'</th></tr>\n';
-        content += ' <tr class="header">';
+        content += '<table border=1 class="tablesorter">\n <thead>\n';
+        content += '  <tr class="header {sorter:false}"><th colspan="4" /><th colspan="5" class="{sorter:false}">'+activity_header+activity_button+'</th></tr>\n';
+        content += '  <tr class="header">';
         for (var i in data.headers) {
-            content += '<th>' + data.headers[i] + '</th>';
+            var sorter = (i > 3 ? 'float' : (i == 3 ? 'half-life' : 'text'));
+            content += '<th class="headerSortable {sorter: \'' + sorter + '\')">' + data.headers[i] + '</th>';
         }
-        content += '</tr>\n'
+        content += '</tr>\n </thead>\n <tbody>\n'
         for (var i in data.rows) {
-            content += ' <tr id="' + i + '">';
+            content += '  <tr id="' + i + '">';
             for (var j=0; j <data.rows[i].length; j++){
                 if (j>=4) {
                     content += '<td>'+format_activation_value(data.rows[i][j], cutoff)+'</td>';
@@ -299,12 +330,11 @@ if(!Object.keys) Object.keys = function(o){
             }
             content += '</tr>\n';
         }
-        content += ' <tr class="header"><th colspan="4">total activity</th>';
+        content += ' </tbody>\n <tfoot>\n  <tr class="header"><th colspan="4">total activity</th>';
         for (var j=0; j < act.total.length; j++) {
             content += '<td>'+format_activation_value(act.total[j], cutoff)+'</td>';
         }
-        content += ' </tr>\n';
-        content += '</table>\n';
+        content += '</tr>\n </tfoot>\n </table>\n';
         return content;
     }
     function process_response(ldata) {
@@ -432,6 +462,7 @@ if(!Object.keys) Object.keys = function(o){
         content += '</div>\n';
 
         $(content).prependTo('div[id=results]'); //add to the dom
+        $("table").tablesorter();
     }
     </script>
 

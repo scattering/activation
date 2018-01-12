@@ -35,6 +35,6 @@ host, port = "", 8008
 host = "p640596.campus.nist.gov"
 if not host:
     host = "localhost"
-print("serving on http://%s:%d/activation/", host, port)
+print("serving on http://%s:%d/activation/"%(host, port))
 httpd = server((host, port), handler)
 httpd.serve_forever()
