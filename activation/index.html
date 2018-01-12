@@ -200,7 +200,7 @@ if(!Object.keys) Object.keys = function(o){
         $.tablesorter.addParser({
             id: 'float',
             is: function (s) { return /^ *[0-9.+-eE]+ *$/.test(s); },
-            format: function (s) { return parseFloat(s); },
+            format: function (s) { return s == '---' ? 0. : parseFloat(s); },
             type: 'numeric'
         });
         $(document).ready(function() {
