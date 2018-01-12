@@ -178,11 +178,13 @@ if(!Object.keys) Object.keys = function(o){
         }
         function parse_half_life(s) {
             var units = {y: 365*24*3600, d: 24*3600, h: 3600, m: 60, s: 1};
-            var [value_str, units_str] = s.split(" ");
+            var a = s.split(" ");
+            var value_str = a[0], units_str = a[1];
             return parseFloat(value_str) * units[units_str];
         }
         function parse_isotope(s) {
-            var [element, isotope] = s.split("-");
+            var a = s.split("-");
+            var element = a[0], isotope = a[1];
             return ELEMENTS[element] + parseInt(isotope)/1000;
         }
         $.tablesorter.addParser({
@@ -724,6 +726,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </div>
     <div class="example"><div class="entrytext">50 mL (45 mL H2O@1 // 5 g NaCl)@1.0707 // 20 mL D2O@1n</div>
         uses the appropriate density for a 10%wt brine in the mixture.
+    </div>
 </dd>
 
 <dt>layer thickness</dt>
@@ -732,6 +735,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     resulting material will compute activation for 1 cm<sup>2</sup> of material.
     Density is required for each layer.
     <div class="example"><div class="entrytext">1 cm Si // 5 nm Cr // 10 nm Au</div>
+    </div>
 </dd>
 </dl>
 </div>
@@ -751,7 +755,7 @@ an element is used in a formula, the natural abundance of the individual
 isotopes is used to determine the total activation.  By default, the
 activation calculator uses values from the IAEA handbook<sup>1</sup>, and the
 scattering calculator uses the NIST atomic weights and isotope composition
-	database.<sup>2</sup>
+database.<sup>2</sup>
 </p>
 
 <p>Parameters are controlled by URL:
@@ -790,7 +794,7 @@ such as 0.1&thinsp;&mu;Ci using: <a href="index.html?decay=0.1">index.html?decay
 <div id="help_density" class="help">
 
 <h3>Mass density</h3>
-<p>Units: g/cm<sup>3</sup> or A3
+<p>Units: g/cm<sup>3</sup> or A3</p>
 <p>
 Density is used to compute absorption, transmission and scattering.
 <dl>
@@ -893,7 +897,7 @@ This value is unitless.  Use a value of 0 for beamline experiments.
 
 <div id=help_time_on class="help">
 <h3>Time on beam</h3>
-<p>Units: h m s d w y
+<p>Units: h m s d w y</p>
 <p>
 Time on the beam is the length of the exposure at the given flux.  Activation
 will be accumulated over time.
@@ -905,7 +909,7 @@ to the value respectively.
 
 <div id=help_time_off class="help">
 <h3>Time off beam</h3>
-<p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss
+<p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss</p>
 <p>
 The sample begins to decay immediately, even while it is being activated.
 The time off beam field allows you to specify how long since the sample
