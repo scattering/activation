@@ -209,10 +209,10 @@ if(!Object.keys) Object.keys = function(o){
         });
         $(document).ready(function() {
             CUTOFF = getURLParameter('cutoff');
-            if (CUTOFF==='null') CUTOFF = 0.0001;
+            if (CUTOFF==='null') CUTOFF = 0.0005;
             CUTOFF_Bq = CUTOFF*37000;
             DECAY_LEVEL = getURLParameter('decay');
-            if (DECAY_LEVEL ==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0001;
+            if (DECAY_LEVEL ==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
             ABUNDANCE = getURLParameter('abundance');
             if (ABUNDANCE==='null') ABUNDANCE = "IAEA";
 
@@ -320,7 +320,7 @@ if(!Object.keys) Object.keys = function(o){
 
         var activity_header, activity_button;
         if (cutoff>0) {
-            activity_header = 'Activity above ' + cutoff + ' (&mu;Ci)';
+            activity_header = 'Activity (nCi) above ' + cutoff + ' &mu;Ci';
             activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);">All</button>';
         } else {
             activity_header = 'Activity (&mu;Ci)';
@@ -781,14 +781,14 @@ The NIST database can be selected for isotope abundance using:
 
 <dt>activation cutoff</dt>
 <dd>
-The cutoff values for displaying activation data are set to 0.0001&thinsp;&mu;Ci
+The cutoff values for displaying activation data are set to 0.0005&thinsp;&mu;Ci
 by default.  The full activation levels
 can be displayed using: <a href="index.html?cutoff=0">index.html?cutoff=0</a>
 </dd>
 
 <dt>decay cutoff</dt>
 <dd>The activation calculator determines the amount of time for the activation to decay to
-the cutoff level, or to 0.0001&thinsp;&mu;Ci if cutoff is 0.  This can be set to a value
+the cutoff level, or to 0.0005&thinsp;&mu;Ci if cutoff is 0.  This can be set to a value
 such as 0.1&thinsp;&mu;Ci using: <a href="index.html?decay=0.1">index.html?decay=0.1</a>
 </dd>
 </dl>
