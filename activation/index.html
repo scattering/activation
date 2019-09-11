@@ -868,18 +868,90 @@ Leave it at 1 cm if you do not need this information.
 <p>Units: n/cm<sup>2</sup>/s</p>
 <p>
 Provide the thermal flux equivalent for the pre-sample beam configuration
-for the instrument.  This is only need for computing the neutron activation<sup>1</sup>
+for the instrument.  This is only need for computing the neutron
+activation<sup><a href="#ref_IAEA">1</a></sup>
 from the experiment, and is not used for computing scattering cross
 sections.
 </p><p>
 Within the NCNR, you can access a list of
 <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
 but this is not available from outside.
+</p><p>
+    Activation calculation follows Shleien, et al.<sup><a href="#ref_Shleien">2</a></sup>
+</p><p>
+    Notes:
 </p>
+<ul><li>
+  For some numerical combinations with very large half-lives the numerical
+  precision is inadequate and you get negative results. This can be
+  corrected by reformulation or approximations but has not been done.
+  Remember, the X in EXP(X) is limited to |X|&lt;709
+</li><li>
+  Simplifications have been made as indicated in the comments column in
+  <a href="https://github.com/pkienzle/periodictable/blob/master/periodictable/activation.dat">data table</a>
+</li><li>
+  Typically, for a decay chain where the daughter is also produced (isomers)
+  the s of the parent has been added to that of the daughter when the
+  daughter t1/2 is much longer (true for most cases) and the parent
+  t1/2 is relatively short, e.g. less than 1 day, so that all the daughter
+  will be made relatively promptly.
+</li><li>
+  In cases where the above condition is not met an * is put next to the
+  nuclide name to warn that the daughter production has not been accounted
+  for. In most cases the daughter is in a simple decay equilibrium.
+</li><li>
+  Where the decay product is a new nuclide a line has been added to the
+  database to account for this. This production mode is indicated in
+  the reaction column by 'b'. Where both m and g state contribute to daughter
+  production it is simplified to a single parent, that with the greater
+  cross-section or that with the longer half-life together with the sum
+  of the cross-sections.
+</li><li>
+  In a few cases where the parent nuclide t1/2 is very short all production
+  is assigned to the daughter and no entry is made for the parent, as
+  noted in the comments column.
+</li><li>
+  No correction for neutron burn up has been made.
+</li><li>
+  Most cross-section data is from IAEA 273.
+</li><li>
+  Fast neutron data from NBSIR 85-3151, Compendium of Benchmark Neutron Fields
+  is for reaction above the Cd cutooff, .4eV. Noted in comment column.
+</li><li>
+  Fast neutron reaction data from IAEA 273 has been weighted by a unit fluence
+  fast maxwellian spectrum as described in NBSIR 85-3151, but no further
+  weighting for a 1/v or thermal component has been made. Only selected
+  reactions have been included.
+</li><li>
+   Reaction = b indicates production via decay from an activation produced parent.
+</li><li>
+  Notation on reaction product name:
+  <dl> <dt>m, m1, m2</dt> <dd>
+    indicate metastable states. Decay may be the ground state or another nuclide.
+  </dd> <dt>+</dt> <dd>
+    indicates radioactive daughter production already included in daughter listing
+    several parent t1/2's required to acheive calculated daughter activity.
+    All activations are assigned at end of irradiation.
+    In most cases the added activity to the daughter is small.
+  </dd> <dt>*</dt> <dd>
+    indicates radioactive daughter production NOT calculated, approx
+    secular equilibrium.
+  </dd> <dt>s</dt> <dd>
+    indicates radioactive daughter of this nuclide in secular equilibrium
+    after several daughter t1/2's.
+  </dd> <dt>t</dt> <dd>
+    indicates transient equil via beta decay. Accumulation of that nuclide
+    during irradiation is separately calculated.
+  </dd> </dl>
+</li></ul>
 <ol>
-<li><em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em>
+<li id="ref_IAEA">
+    <em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em>
 <a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf</a>
 </li>
+<li id="ref_Shleien">Shleien, B., Slaback, L.A., Birky, B.K., 1998.
+    <em>Handbook of health physics and radiological health.</em>
+    Williams & Wilkins, Baltimore.</em></li>
 </ol>
 </div>
 
