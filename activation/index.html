@@ -59,15 +59,26 @@
 
 
         /* frame layout */
-        #activation-frame { position:absolute; width:30em; }
+        #content-frame {
+            display:grid;
+        }
+        #activation-frame {
+            width:30em;
+            grid-column:1; grid-row:1;
+            }
         #help-frame {
-            position:absolute; left:31em;
+            grid-column:2; grid-row:1;
+            overflow:hidden;
             margin-right:0em;
+            /* min-width:10em; max-width:40em; */
             padding-right:0.5em;
             overflow-y:scroll;
         }
-        #skip-frame { display:block; height: 30em; }
-        div.clear { clear:both; }
+        #results-frame {
+            grid-column:1/3; grid-row:2;
+            height:auto;
+            overflow-y:scroll;
+        }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
         .help#help_initial { display:block; }
@@ -93,8 +104,6 @@
   modified from http://konigi.com/tools/css-techniques-horizontal-rules
 */
         .help hr {
-  clear: both;
-  float: none;
   width: 100%;
   height: 1px;
   margin: 2.4em 0;
@@ -496,7 +505,7 @@ if(!Object.keys) Object.keys = function(o){
 <h3>Enable javascript to run the activation calculator.</h3><hr />
 </noscript>
 
-<div class="container disabled">
+<div id="content-frame" class="container disabled">
 
     <div id="activation-frame" class="no-print">
 
@@ -633,7 +642,7 @@ calculate button in the absorption and scattering panel.</li>
 <p>The chemical formula parser allows you to specify materials and mixtures.
 Formulas are parsed with
 <a href="https://periodictable.readthedocs.io/en/latest/guide/formula_grammar.html">periodictable</a>
-python package.
+python package (<a class="cite" href="#ref_Kienzle">Kienzle 2008</a>).
 </p>
 
 <dl>
@@ -753,134 +762,51 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </dd>
 </div>
 
-<div id="help_mass" class="help">
-<h3>Material mass</h3>
-<p>Units: g, kg, mg or ug</p>
-<p>
-The total neutron activation depends on the mass of the individual
-isotopes in the sample and the total time in the beam.  All activation
-calculations assume a thin plate sample, with all parts of the sample
-exposed to full flux during activation, and no self-shielding when
-estimating the activation level outside the beam.
-</p>
-<p>Neutron activation is a function of isotope, not element.  When
-an element is used in a formula, the natural abundance of the individual
-isotopes is used to determine the total activation.  By default, the
-activation calculator uses values from the IAEA handbook<sup>1</sup>, and the
-scattering calculator uses the NIST atomic weights and isotope composition
-database.<sup>2</sup>
-</p>
-
-<p>Parameters are controlled by URL:</p>
-<dl>
-<dt>isotope abundance</dt>
-<dd>
-The NIST database can be selected for isotope abundance using:
-<a href="index.html?abundance=NIST">index.html?abundance=NIST</a>
-</dd>
-
-<dt>activation cutoff</dt>
-<dd>
-The cutoff values for displaying activation data are set to 0.0005&thinsp;&mu;Ci
-by default.  The full activation levels
-can be displayed using: <a href="index.html?cutoff=0">index.html?cutoff=0</a>
-</dd>
-
-<dt>decay cutoff</dt>
-<dd>The activation calculator determines the amount of time for the activation to decay to
-the cutoff level, or to 0.0005&thinsp;&mu;Ci if cutoff is 0.  This can be set to a value
-such as 0.1&thinsp;&mu;Ci using: <a href="index.html?decay=0.1">index.html?decay=0.1</a>
-</dd>
-</dl>
-
-<ol>
-<li><em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em>
-<a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf</a>
-</li>
-<li><em>Bölke, et al. Isotopic Compositions of the Elements, 2001. J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005</em>
-<a href="http://www.nist.gov/pml/data/comp.cfm">http://www.nist.gov/pml/data/comp.cfm</a>
-</li>
-</ol>
-</div>
-
-<div id="help_density" class="help">
-
-<h3>Mass density</h3>
-<p>Units: g/cm<sup>3</sup> or A3</p>
-<p>
-Density is used to compute absorption, transmission and scattering.
-<dl>
-<dt>default from formula</dt>
-<dd>Leave the density field blank and add <div class="entrytext">@</div> plus
-the density to the end of the formula, where density is in
-g/cm<sup>3</sup>.  For compounds with specific isotopes, you can use the
-density of the naturally occurring compound as <div class="entrytext">@</div>
-plus density plus <div class="entrytext">n</div> and the isotope specific
-density will be computed.  Density defaults to 1 g/cm<sup>3</sup>, or for
-pure elements, the natural density given in the periodic table is used.
-
-<div class="example"><div class="entrytext">D2O@1n</div> or
-<div class="entrytext">D2O@1.11</div></div>
-</dd>
-<dt>g/cm<sup>3</sup></dt>
-<dd>Enter the density by itself, which will be interpreted as g/cm<sup>3</sup>, or
-equivalently, kg/L.  No units are needed.  If the value ends with an 'i',
-then the density used will be the isotopic density, otherwise the natural
-density will be used, and the material density will be computed by
-substituting the isotope ratios given in the formula.
-<div class="example">D<sub>2</sub>O has a natural density of
-<div class="entrytext">1n</div> and an isotopic density of
-<div class="entrytext">1.11</div></div>
-</dd>
-<dt>cell volume</dt>
-<dd>Enter a number followed by A3 for &Aring;<sup>3</sup>.  Be sure that your
-formula contains the correct number of atoms for the unit cell, possibly by
-using n(formula), where n is 6 for hexagonal close packed, 4 for face centered
-cells, 2 for body centered and base centered cells, or 1 for simple cells.
-<div class="example">4NaCl has a cell volume of
-<div class="entrytext">179.4 A3</div></div>
-</dd>
-<dt>crystal lattice parameters</dt>
-<dd>Enter lattice parameters "a:n b:n c:n alpha:n beta:n gamma:n"
-where a, b, c are in &Aring; and &alpha;, &beta;, &gamma; are in degrees.
-If not specified, b and c default to a.  Ratios can also be used,
-so that "b/a:n" gives b=n*a, and "c/a:n" gives c=n*a.  Angles
-&alpha;, &beta;, and &gamma; default to 90&deg;.  Be sure that the
-formula contains the correct number of atoms for the unit cell.
-<div class="example">4NaCl has a lattice of
-<div class="entrytext">a:5.6402</div></div>
-</dd>
-</dl>
-</div>
-
-<div id="help_thickness" class="help">
-<h3>Thickness</h3>
-<p>Units: cm</p>
-<p>
-The material thickness in cm is used to determine sample transmission,
-or how much beam will be absorbed by the sample or scattered incoherently.
-Leave it at 1 cm if you do not need this information.
-</p>
-</div>
-
 <div id="help_flux" class="help">
 <h3>Thermal flux</h3>
 <p>Units: n/cm<sup>2</sup>/s</p>
 <p>
-Provide the thermal flux equivalent for the pre-sample beam configuration
-for the instrument.  This is only need for computing the neutron
-activation<sup><a href="#ref_IAEA">1</a></sup>
-from the experiment, and is not used for computing scattering cross
-sections.
-</p><p>
-Within the NCNR, you can access a list of
-<a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
-but this is not available from outside.
-</p><p>
-    Activation calculation follows Shleien, et al.<sup><a href="#ref_Shleien">2</a></sup>
-</p><p>
-    Notes:
+    Provide the thermal flux equivalent for the pre-sample beam configuration
+    for the instrument.  This is only need for computing the neutron
+    activation from the experiment, and is not used for computing scattering
+    cross sections. Within the NCNR, you can access a list of
+    <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
+    but this is not available from outside.
 </p>
+<p>
+    The neutron activation calculation follows (<a class="cite" href="#ref_Shleien">Shleien 1998</a>).
+    Activation is a function of isotope, not element.  When
+    an element is used in a formula, the natural abundance of the individual
+    isotopes is used to determine the total activation.  By default, the
+    activation calculator uses values from the IAEA
+    handbook (<a class="cite" href="#ref_IAEA">IAEA 1987</a>), and the
+    scattering calculator uses the NIST atomic weights and isotope composition
+    database (<a class="cite" href="#ref_Bolke">Bölke 2005</a>).
+</p>
+
+<p>Calculation parameters are controlled by URL:</p>
+<dl>
+    <dt>isotope abundance</dt>
+    <dd>
+    The NIST database can be selected for isotope abundance using:
+    <a href="index.html?abundance=NIST">index.html?abundance=NIST</a>
+    </dd>
+
+    <dt>activation cutoff</dt>
+    <dd>
+    The cutoff values for displaying activation data are set to 0.0005&thinsp;&mu;Ci
+    by default.  The full activation levels
+    can be displayed using: <a href="index.html?cutoff=0">index.html?cutoff=0</a>
+    </dd>
+
+    <dt>decay cutoff</dt>
+    <dd>The activation calculator determines the amount of time for the activation to decay to
+    the cutoff level, or to 0.0005&thinsp;&mu;Ci if cutoff is 0.  This can be set to a value
+    such as 0.1&thinsp;&mu;Ci using: <a href="index.html?decay=0.1">index.html?decay=0.1</a>
+    </dd>
+</dl>
+
+<p>Notes on calculation:</p>
 <ul><li>
   For some numerical combinations with very large half-lives the numerical
   precision is inadequate and you get negative results. This can be
@@ -944,155 +870,254 @@ but this is not available from outside.
     during irradiation is separately calculated.
   </dd> </dl>
 </li></ul>
-<ol>
-<li id="ref_IAEA">
-    <em>IAEA (1987) Handbook on Nuclear Activation Data. TR 273 (International Atomic Energy Agency, Vienna, Austria, 1987).</em>
-<a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf</a>
-</li>
-<li id="ref_Shleien">Shleien, B., Slaback, L.A., Birky, B.K., 1998.
-    <em>Handbook of health physics and radiological health.</em>
-    Williams & Wilkins, Baltimore.</em></li>
-</ol>
 </div>
 
 <div id=help_Cd_ratio class="help">
-<h3>Cadmium ratio</h3>
-<p>Units: none</p>
-<p>
-Samples in the rabbit tubes can be shielded with cadmium to reduce the thermal
-flux while leaving the epithermal flux mostly unchanged.  The cadmium ratio
-determines the degree of reduction in the scattering cross sections, corresponding
-to the reduced flux.  This value is unitless.  Use a value of 0 for beamline
-experiments.
-</p>
+    <h3>Cadmium ratio</h3>
+    <p>Units: none</p>
+    <p>
+    Samples in the rabbit tubes can be shielded with cadmium to reduce the thermal
+    flux while leaving the epithermal flux mostly unchanged.  The cadmium ratio
+    determines the degree of reduction in the scattering cross sections, corresponding
+    to the reduced flux.  This value is unitless.  Use a value of 0 for beamline
+    experiments.
+    </p>
 </div>
 
 <div id=help_fast_ratio class="help">
-<h3>Thermal/fast ratio</h3>
-<p>Units: none</p>
-<p>
-When performing neutron activation analysis in a rabbit tube, the additional
-fast neutron activations need to be determined.  The thermal/fast ratio is
-used to determine the fast neutron flux from the thermal flux equivalent for
-the given rabbit tube.  The resulting fast flux is (thermal flux)/(thermal/fast ratio).
-This value is unitless.  Use a value of 0 for beamline experiments.
-</p>
+    <h3>Thermal/fast ratio</h3>
+    <p>Units: none</p>
+    <p>
+    When performing neutron activation analysis in a rabbit tube, the additional
+    fast neutron activations need to be determined.  The thermal/fast ratio is
+    used to determine the fast neutron flux from the thermal flux equivalent for
+    the given rabbit tube.  The resulting fast flux is (thermal flux)/(thermal/fast ratio).
+    This value is unitless.  Use a value of 0 for beamline experiments.
+    </p>
+</div>
+
+<div id="help_mass" class="help">
+    <h3>Material mass</h3>
+    <p>Units: g, kg, mg or ug</p>
+    <p>
+    The total neutron activation depends on the mass of the individual
+    isotopes in the sample and the total time in the beam.  All activation
+    calculations assume a thin plate sample, with all parts of the sample
+    exposed to full flux during activation, and no self-shielding when
+    estimating the activation level outside the beam.
+    </p>
 </div>
 
 <div id=help_time_on class="help">
-<h3>Time on beam</h3>
-<p>Units: h m s d w y</p>
-<p>
-Time on the beam is the length of the exposure at the given flux.  Activation
-will be accumulated over time.
-Time defaults to hours, but can be set to
-hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
-to the value respectively.
-</p>
+    <h3>Time on beam</h3>
+    <p>Units: h m s d w y</p>
+    <p>
+    Time on the beam is the length of the exposure at the given flux.  Activation
+    will be accumulated over time.
+    Time defaults to hours, but can be set to
+    hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
+    to the value respectively.
+    </p>
 </div>
 
 <div id=help_time_off class="help">
-<h3>Time off beam</h3>
-<p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss</p>
-<p>
-The sample begins to decay immediately, even while it is being activated.
-The time off beam field allows you to specify how long since the sample
-was removed from the beam.  The default is hours, but can be set to
-hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
-to the value respectively.
-We always compute the activation level when the sample is removed from the beam,
-and at 1 hour, 1 day and 15 days post activation.
-</p>
-<p>
-Instead of saying how long ago the sample was removed from the beam, you can
-specify when it was removed.  Times are given as
-    year-month-day hour:minute:second.
-Approximate times are allowed, such as 2010-03 for March, 2010.  This is
-equivalent to 2010-03-31 23:59:59, which is the end of March so that the
-activation estimate will be conservative.  That is, this is the most activation
-consistent with the sample being on the beam sometime in March, 2010.
-Times are specified in US/Eastern.  Add "Z" after the time of day to
-indicate universal coordinated time (UTC), or add a timezone offset such
-as "+01" for +1 hours in France in winter, when daylight savings time is
-not in effect.
-</p>
-<h4>Examples</h4>
-<table>
-<tr><th>If you type:</th><th>This is equivalent to:</th></tr>
-<tr><td>2 m</td><td>2 minutes ago</td></tr>
-<tr><td>1</td><td>1 hour ago</td></tr>
-<tr><td>2.5w</td><td>2 and a half weeks ago</td></tr>
-<tr><td>3 y</td><td>3 years ago</td></tr>
-<tr><td>2015-01-02 21:45:00</td><td>January 2, 2015 at 9:45 PM US/Eastern</td></tr>
-<tr><td>2010-03</td><td>March 31, 2010 at 11:59:59 PM US/Eastern</td></tr>
-<tr><td>2010-7-5 12:23</td><td>July 5, 2010 at 12:23:59 PM US/Eastern</td></tr>
-<tr><td>2015-01-02 21:45:00Z</td><td>January 2, 2015 at 9:45 PM UTC</td></tr>
-<tr><td>2015-01-02 21:45:00-0600</td><td>January 2, 2015 at 9:45 PM US/Central</td></tr>
-<tr><td>2015-08-02 21:45:00-0500</td><td>August 2, 2015 at 9:45 PM US/Central</td></tr>
-<tr><td></td><td></td></tr>
-</table>
+    <h3>Time off beam</h3>
+    <p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss</p>
+    <p>
+    The sample begins to decay immediately, even while it is being activated.
+    The time off beam field allows you to specify how long since the sample
+    was removed from the beam.  The default is hours, but can be set to
+    hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
+    to the value respectively.
+    We always compute the activation level when the sample is removed from the beam,
+    and at 1 hour, 1 day and 15 days post activation.
+    </p>
+    <p>
+    Instead of saying how long ago the sample was removed from the beam, you can
+    specify when it was removed.  Times are given as
+        year-month-day hour:minute:second.
+    Approximate times are allowed, such as 2010-03 for March, 2010.  This is
+    equivalent to 2010-03-31 23:59:59, which is the end of March so that the
+    activation estimate will be conservative.  That is, this is the most activation
+    consistent with the sample being on the beam sometime in March, 2010.
+    Times are specified in US/Eastern.  Add "Z" after the time of day to
+    indicate universal coordinated time (UTC), or add a timezone offset such
+    as "+01" for +1 hours in France in winter, when daylight savings time is
+    not in effect.
+    </p>
+    <h4>Examples</h4>
+    <table>
+    <tr><th>If you type:</th><th>This is equivalent to:</th></tr>
+    <tr><td>2 m</td><td>2 minutes ago</td></tr>
+    <tr><td>1</td><td>1 hour ago</td></tr>
+    <tr><td>2.5w</td><td>2 and a half weeks ago</td></tr>
+    <tr><td>3 y</td><td>3 years ago</td></tr>
+    <tr><td>2015-01-02 21:45:00</td><td>January 2, 2015 at 9:45 PM US/Eastern</td></tr>
+    <tr><td>2010-03</td><td>March 31, 2010 at 11:59:59 PM US/Eastern</td></tr>
+    <tr><td>2010-7-5 12:23</td><td>July 5, 2010 at 12:23:59 PM US/Eastern</td></tr>
+    <tr><td>2015-01-02 21:45:00Z</td><td>January 2, 2015 at 9:45 PM UTC</td></tr>
+    <tr><td>2015-01-02 21:45:00-0600</td><td>January 2, 2015 at 9:45 PM US/Central</td></tr>
+    <tr><td>2015-08-02 21:45:00-0500</td><td>August 2, 2015 at 9:45 PM US/Central</td></tr>
+    <tr><td></td><td></td></tr>
+    </table>
+</div>
 
+<div id="help_density" class="help">
+    <h3>Mass density</h3>
+    <p>Units: g/cm<sup>3</sup> or A3</p>
+    <p>
+    Density is used to compute absorption, transmission and scattering.
+    <dl>
+    <dt>from formula</dt>
+    <dd>Leave the density field blank and add
+    <div class="entrytext">@</div> + density
+    to the end of the formula, where density is in g/cm<sup>3</sup>.
+    For compounds with specific isotopes, you can use the density of the
+    naturally occurring compound as
+    <div class="entrytext">@</div> + density + <div class="entrytext">n</div>
+    and the isotope specific density will be computed.  Density defaults to
+    1 g/cm<sup>3</sup>, or for pure elements, the natural density given in
+    the periodic table is used.
+
+    <div class="example"><div class="entrytext">D2O@1n</div> or
+    <div class="entrytext">D2O@1.11</div></div>
+    </dd>
+    <dt>g/cm<sup>3</sup></dt>
+    <dd>Enter the density by itself, which will be interpreted as g/cm<sup>3</sup>, or
+    equivalently, kg/L.  No units are needed.  If the value is
+    density + <div class="entrytext">n</div> then it is density of the the
+    naturally occuring compound and the isotopic density will be computed.
+    <div class="example">D<sub>2</sub>O has a natural density of
+    <div class="entrytext">1n</div> and an isotopic density of
+    <div class="entrytext">1.11</div></div>
+    </dd>
+    <dt>cell volume</dt>
+    <dd>Enter a number followed by A3 for &Aring;<sup>3</sup>.  Be sure that your
+    formula contains the correct number of atoms for the unit cell, possibly by
+    using n(formula), where n is 6 for hexagonal close packed, 4 for face centered
+    cells, 2 for body centered and base centered cells, or 1 for simple cells.
+    <div class="example">4NaCl has a cell volume of
+    <div class="entrytext">179.4 A3</div></div>
+    </dd>
+    <dt>crystal lattice parameters</dt>
+    <dd>Enter lattice parameters "a:n b:n c:n alpha:n beta:n gamma:n"
+    where a, b, c are in &Aring; and &alpha;, &beta;, &gamma; are in degrees.
+    If not specified, b and c default to a.  Ratios can also be used,
+    so that "b/a:n" gives b=n*a, and "c/a:n" gives c=n*a.  Angles
+    &alpha;, &beta;, and &gamma; default to 90&deg;.  Be sure that the
+    formula contains the correct number of atoms for the unit cell.
+    <div class="example">4NaCl has a cubic lattice with
+    <div class="entrytext">a:5.6402</div></div>
+    </dd>
+    </dl>
+</div>
+
+<div id="help_thickness" class="help">
+    <h3>Thickness</h3>
+    <p>Units: cm</p>
+    <p>
+    The material thickness in cm is used to determine sample transmission,
+    or how much beam will be absorbed by the sample or scattered incoherently.
+    Leave it at 1 cm if you do not need this information.
+    </p>
 </div>
 
 <div id=help_wavelength class="help">
-<h3>Source neutrons</h3>
-<p>Units: Ang, meV or m/s</p>
-<p>
-The energy of the source neutrons will affect the absorption cross section
-and hence the penetration depth and sample attenuation.  Energy can be
-expressed as wavelength in &Aring;, as energy in meV, or as neutron
-velocity in m/s.
-</p><p>
-Neutron cross sections are
-<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">tabulated</a><sup>1</sup>
-at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for
-the absorption cross section.  For heavier
-isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;)
-there are neutron <a href="resonance.html">resonances</a> which are not
-accounted for in the scattering calculator.  There is also a 1/v dependence for
-single phonon interactions which gives rise to significant inelastic scattering
-for lighter isotopes (H, D) and/or longer wavelengths (above 5&nbsp;&Aring;).
-This factor is both temperature and material dependent and will not be included
-in the scattering calculations.
-</p>
-<ol>
-<li><em>Rauch, H. and Waschkowski, W. (2003) Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition), A.-J. Dianoux, G. Lander, Eds. Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.</em>
-</ol>
+    <h3>Source neutrons</h3>
+    <p>Units: Ang, meV or m/s</p>
+    <p>
+    The energy of the source neutrons will affect the absorption cross section
+    and hence the penetration depth and sample attenuation.  Energy can be
+    expressed as wavelength in &Aring;, as energy in meV, or as neutron
+    velocity in m/s.
+    </p><p>
+    Neutron cross sections are tabulated
+    at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for
+    the absorption cross section (<a class="cite" href="#ref_Rauch">Rauch 2003</a>).  For heavier
+    isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;)
+    there are neutron <a href="resonance.html">resonances</a> which are not
+    accounted for in the scattering calculator.  There is also a 1/v dependence for
+    single phonon interactions which gives rise to significant inelastic scattering
+    for lighter isotopes (H, D) and/or longer wavelengths (above 5&nbsp;&Aring;).
+    This factor is both temperature and material dependent and will not be included
+    in the scattering calculations.
+    </p>
 </div>
 
 <div id=help_xray class="help">
-<h3>Source X-rays</h3>
-<p>Units: Ang, keV or Ka</p>
-<p>
-X-ray absorption and scattering are computed from the energy dependent
-atomic scattering factors.<sup>1</sup>
-Energy can be expressed as wavelength in &Aring;, as energy in keV, or
-using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
-that element.
-</p>
+    <h3>Source X-rays</h3>
+    <p>Units: Ang, keV or Ka</p>
+    <p>
+    X-ray absorption and scattering are computed from the energy dependent
+    atomic scattering factors (<a class="cite" href="#ref_Henke">Henke 1993</a>).
+    Energy can be expressed as wavelength in &Aring;, as energy in keV, or
+    using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
+    that element (<a class="cite" href="#ref_Deslattes">Deslattes 2003</a>).
+    </p>
 
-<ol>
-<li><em>B.L. Henke, E.M. Gullikson, and J.C. Davis. X-ray interactions:
-photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92,
-Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
-<a href="http://henke.lbl.gov/optical_constants/">http://henke.lbl.gov/optical_constants/</a>
-</li>
-<li><em>R. D. Deslattes, E. G. Kessler, Jr., P. Indelicato, L. de Billy,
-       E. Lindroth, and J. Anton.  Rev. Mod. Phys. 75, 35-99 (2003).</em>
-<a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">http://www.nist.gov/pml/data/xraytrans/index.cfm</a>
-</li>
-</ol>
+</div>
+
+<div id="help_references" class="help">
+    <h3>References</h3>
+    <ol>
+    <li id="ref_Bolke">
+        Bölke, et al. (2005).
+        <em>Isotopic Compositions of the Elements, 2001.</em>
+        J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005
+        [<a href="http://www.nist.gov/pml/data/comp.cfm">abundance data</a>]
+    </li>
+    <li id="ref_Deslattes">
+        Deslattes, R.D.; Kessler, Jr., E.G.; Indelicato, P.; de Billy, L.; Lindroth, E. and Anton, J. (2003).
+        Rev. Mod. Phys. 75, 35-99.
+        [<a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">xray emission lines</a>]
+    </li>
+    <li id="ref_Henke">
+        Henke, B.L.; Gullikson, E.M. and Davis, J.C. (1993).
+        <em>X-ray interactions:
+        photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92,</em>
+        Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342.
+        [<a href="http://henke.lbl.gov/optical_constants/">xray cross sections</a>]
+    </li>
+    <li id="ref_IAEA">
+        IAEA (1987).
+        <em>Handbook on Nuclear Activation Data.</em>
+        TR 273 (International Atomic Energy Agency, Vienna, Austria).
+        [<a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">tech report</a>]
+    </li>
+    <li id="ref_Kienzle">
+        Kienzle, P. A. (2008).
+        <em>Extensible periodic table.</em>
+        Computer Software.
+        <a href="https://periodictable.readthedocs.io">https://periodictable.readthedocs.io</a>.
+        [<a href="https://github.com/pkienzle/periodictable">calculator source</a>,
+        <a href="https://github.com/scattering/activation">web service source</a>]
+    </li>
+    <li id="ref_Rauch">
+        Rauch, H. and Waschkowski, W. (2003).
+        <em>Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition),</em>
+        A.-J. Dianoux, G. Lander, Eds.
+        Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.
+        [<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">neutron cross sections</a>]
+    </li>
+    <li id="ref_Shleien">
+        Shleien, B.; Slaback, L.A. and Birky, B.K. (1998).
+        <em>Handbook of health physics and radiological health.</em>
+        Williams & Wilkins, Baltimore.
+        [<a href="https://github.com/pkienzle/periodictable/blob/master/periodictable/activation.dat">activation data</a>]
+    </li>
+    </ol>
+
 </div>
 
 <!-- end of help -->
 
     </div>
-    <div class="clear"></div>
-</div>
 
-    <div id="skip-frame" class="no-print">&nbsp;</div>
-    <h3 class="print-only">Activation and Scattering Results</h3>
-    <div id="results"></div>
+    <div id="results-frame">
+        <h3 class="print-only">Activation and Scattering Results</h3>
+        <div id="results"></div>
+    </div>
+</div>
 
 <hr>
 <div class="footer">
@@ -1105,16 +1130,37 @@ Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov"
 </div>
 
 <script type="text/javascript">
+$('#help-frame').height($('#activation-frame').height());
+$('#skip-frame').height($('#activation-frame').height());
 //$('input').focusin(function(){ $("#help_"+this.id.slice(3)).show();});
 //$('input').focusout(function(){$("#help_"+this.id.slice(3)).hide();});
 // Display help on input
 ACTIVE_HELP=$("#help_initial");
-$('input').focusin(function(){
+function help_show(){ // show help only for field
   if (ACTIVE_HELP) ACTIVE_HELP.hide();
   ACTIVE_HELP = $("#help_"+this.id.slice(3));
   if ($(ACTIVE_HELP).length == 0) ACTIVE_HELP = $("#help_initial");
   ACTIVE_HELP.show();
+}
+function help_slide(section_name){ // scroll help text to new point
+  var section = document.getElementById(section_name);
+  var frame = document.getElementById('help-frame');
+  $('#help-frame').animate({
+        scrollTop: section.offsetTop - frame.offsetTop
+    }, 200);
+}
+function help_jump(section_name){ // shift help text to new point
+  var section = document.getElementById(section_name);
+  var frame = document.getElementById('help-frame');
+  frame.scrollTop = section.offsetTop - frame.offsetTop;
+}
+//$('input').focusin(help_show);
+$('input').focusin(function(){help_jump("help_"+this.id.slice(3))});
+$('.cite').click(function(event){
+    event.preventDefault();
+    help_slide(this.getAttribute('href').substring(1))
 });
-$('#help-frame').height($('#activation-frame').height());
-$('#skip-frame').height($('#activation-frame').height());
+$('.help').css('display', 'block');
+//help_jump('help_initial');
 </script>
+</body></html>
