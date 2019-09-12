@@ -70,6 +70,7 @@
             grid-column:2; grid-row:1;
             overflow:hidden;
             margin-right:0em;
+            max-width:40em;
             padding-right:0.5em;
             overflow-y:scroll;
         }
@@ -643,7 +644,7 @@ calculate button in the absorption and scattering panel.</li>
 <p>The chemical formula parser allows you to specify materials and mixtures.
 Formulas are parsed with
 <a href="https://periodictable.readthedocs.io/en/latest/guide/formula_grammar.html">periodictable</a>
-python package (<a class="cite" href="#ref_Kienzle">Kienzle, 2008</a>).
+python package (<a class="cite" href="#ref_Kienzle">Kienzle 2008</a>).
 </p>
 
 <dl>
@@ -770,26 +771,22 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     Provide the thermal flux equivalent for the pre-sample beam configuration
     for the instrument.  This is only need for computing the neutron
     activation from the experiment, and is not used for computing scattering
-    cross sections.
-</p>
-    Within the NCNR, you can access a list of
+    cross sections. Within the NCNR, you can access a list of
     <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
     but this is not available from outside.
 </p>
 <p>
-    The neutron activation calculation follows <a class="cite" href="#ref_Shleien">Shleien, 1998</a>.
-</p>
-<p>
-    Neutron activation is a function of isotope, not element.  When
+    The neutron activation calculation follows (<a class="cite" href="#ref_Shleien">Shleien 1998</a>).
+    Activation is a function of isotope, not element.  When
     an element is used in a formula, the natural abundance of the individual
     isotopes is used to determine the total activation.  By default, the
     activation calculator uses values from the IAEA
-    handbook (<a class="cite" href="#ref_IAEA">IAEA, 1987</a>), and the
+    handbook (<a class="cite" href="#ref_IAEA">IAEA 1987</a>), and the
     scattering calculator uses the NIST atomic weights and isotope composition
-    database (<a class="cite" href="#ref_Bolke">Bölke, 2005</a>).
+    database (<a class="cite" href="#ref_Bolke">Bölke 2005</a>).
 </p>
 
-<p>Calculation parameters controlled by URL:</p>
+<p>Calculation parameters are controlled by URL:</p>
 <dl>
     <dt>isotope abundance</dt>
     <dd>
@@ -1037,7 +1034,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </p><p>
     Neutron cross sections are tabulated
     at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for
-    the absorption cross section (<a class="cite" href="#ref_Rauch">Rauch, 2003</a>).  For heavier
+    the absorption cross section (<a class="cite" href="#ref_Rauch">Rauch 2003</a>).  For heavier
     isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;)
     there are neutron <a href="resonance.html">resonances</a> which are not
     accounted for in the scattering calculator.  There is also a 1/v dependence for
@@ -1053,10 +1050,10 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     <p>Units: Ang, keV or Ka</p>
     <p>
     X-ray absorption and scattering are computed from the energy dependent
-    atomic scattering factors (<a class="cite" href="#ref_Henke">Henke, 1993</a>).
+    atomic scattering factors (<a class="cite" href="#ref_Henke">Henke 1993</a>).
     Energy can be expressed as wavelength in &Aring;, as energy in keV, or
     using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
-    that element (<a class="cite" href="#ref_Deslattes">Deslattes, 2003</a>).
+    that element (<a class="cite" href="#ref_Deslattes">Deslattes 2003</a>).
     </p>
 
 </div>
