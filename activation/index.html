@@ -643,7 +643,7 @@ calculate button in the absorption and scattering panel.</li>
 <p>The chemical formula parser allows you to specify materials and mixtures.
 Formulas are parsed with
 <a href="https://periodictable.readthedocs.io/en/latest/guide/formula_grammar.html">periodictable</a>
-python package.
+python package (<a class="cite" href="#ref_Kienzle">Kienzle, 2008</a>).
 </p>
 
 <dl>
@@ -777,17 +777,16 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     but this is not available from outside.
 </p>
 <p>
-    The neutron activation calculation follows
-    Shleien, et al.<sup><a href="#ref_Shleien">1</a></sup>>
+    The neutron activation calculation follows <a class="cite" href="#ref_Shleien">Shleien, 1998</a>.
 </p>
 <p>
     Neutron activation is a function of isotope, not element.  When
     an element is used in a formula, the natural abundance of the individual
     isotopes is used to determine the total activation.  By default, the
     activation calculator uses values from the IAEA
-    handbook<sup><a href="#ref_IAEA">2</a></sup>, and the
+    handbook (<a class="cite" href="#ref_IAEA">IAEA, 1987</a>), and the
     scattering calculator uses the NIST atomic weights and isotope composition
-    database.<sup><a href="#ref_Bolke">3</a></sup>
+    database (<a class="cite" href="#ref_Bolke">Bölke, 2005</a>).
 </p>
 
 <p>Calculation parameters controlled by URL:</p>
@@ -876,25 +875,6 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     during irradiation is separately calculated.
   </dd> </dl>
 </li></ul>
-<ol>
-    <li id="ref_Shleien">
-        Shleien, B., Slaback, L.A., Birky, B.K. (1998).
-        <em>Handbook of health physics and radiological health.</em>
-        Williams & Wilkins, Baltimore.
-    </li>
-    <li id="ref_IAEA">
-        IAEA (1987).
-        <em>Handbook on Nuclear Activation Data.</em>
-        TR 273 (International Atomic Energy Agency, Vienna, Austria).
-        <a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf</a>
-    </li>
-    <li id="ref_Bolke">
-        Bölke, et al. (2005).
-        <em>Isotopic Compositions of the Elements, 2001.</em>
-        J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005
-        <a href="http://www.nist.gov/pml/data/comp.cfm">http://www.nist.gov/pml/data/comp.cfm</a>
-    </li>
-</ol>
 </div>
 
 <div id=help_Cd_ratio class="help">
@@ -1055,10 +1035,9 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     expressed as wavelength in &Aring;, as energy in meV, or as neutron
     velocity in m/s.
     </p><p>
-    Neutron cross sections are
-    <a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">tabulated</a><sup>1</sup>
+    Neutron cross sections are tabulated
     at 1.798&nbsp;&Aring; = 25.3 meV = 2200 m/s, with an assumed 1/v dependence for
-    the absorption cross section.  For heavier
+    the absorption cross section (<a class="cite" href="ref_Rauch">Rauch, 2003</a>).  For heavier
     isotopes (Cd, Hf, rare earths) and/or shorter wavelengths (below 1&nbsp;&Aring;)
     there are neutron <a href="resonance.html">resonances</a> which are not
     accounted for in the scattering calculator.  There is also a 1/v dependence for
@@ -1067,9 +1046,6 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     This factor is both temperature and material dependent and will not be included
     in the scattering calculations.
     </p>
-    <ol>
-    <li><em>Rauch, H. and Waschkowski, W. (2003) Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition), A.-J. Dianoux, G. Lander, Eds. Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.</em>
-    </ol>
 </div>
 
 <div id=help_xray class="help">
@@ -1077,23 +1053,64 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     <p>Units: Ang, keV or Ka</p>
     <p>
     X-ray absorption and scattering are computed from the energy dependent
-    atomic scattering factors.<sup>1</sup>
+    atomic scattering factors (<a class="cite" href="#ref_Henke">Henke, 1993</a>).
     Energy can be expressed as wavelength in &Aring;, as energy in keV, or
     using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
-    that element.
+    that element (<a class="cite" href="#ref_Deslattes">Deslattes, 2003</a>).
     </p>
 
+</div>
+
+<div id="help_references" class="help">
+    <h3>References</h3>
     <ol>
-    <li><em>B.L. Henke, E.M. Gullikson, and J.C. Davis. X-ray interactions:
-    photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92,
-    Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342 (July 1993).</em>
-    <a href="http://henke.lbl.gov/optical_constants/">http://henke.lbl.gov/optical_constants/</a>
+    <li id="ref_Bolke">
+        Bölke, et al. (2005).
+        <em>Isotopic Compositions of the Elements, 2001.</em>
+        J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005
+        [<a href="http://www.nist.gov/pml/data/comp.cfm">abundance data</a>]
     </li>
-    <li><em>R. D. Deslattes, E. G. Kessler, Jr., P. Indelicato, L. de Billy,
-        E. Lindroth, and J. Anton.  Rev. Mod. Phys. 75, 35-99 (2003).</em>
-    <a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">http://www.nist.gov/pml/data/xraytrans/index.cfm</a>
+    <li id="ref_Deslattes">
+        Deslattes, R.D.; Kessler, Jr., E.G.; Indelicato, P.; de Billy, L.; Lindroth, E. and Anton, J. (2003).
+        Rev. Mod. Phys. 75, 35-99.
+        [<a href="http://www.nist.gov/pml/data/xraytrans/index.cfm">xray emission lines</a>]
+    </li>
+    <li id="ref_Henke">
+        Henke, B.L.; Gullikson, E.M. and Davis, J.C. (1993).
+        <em>X-ray interactions:
+        photoabsorption, scattering, transmission, and reflection at E=50-30000 eV, Z=1-92,</em>
+        Atomic Data and Nuclear Data Tables Vol. 54 (no.2), 181-342.
+        [<a href="http://henke.lbl.gov/optical_constants/">xray cross sections</a>]
+    </li>
+    <li id="ref_IAEA">
+        IAEA (1987).
+        <em>Handbook on Nuclear Activation Data.</em>
+        TR 273 (International Atomic Energy Agency, Vienna, Austria).
+        [<a href="http://cds.cern.ch/record/111089/files/IAEA-TR-273.pdf">tech report</a>]
+    </li>
+    <li id="ref_Kienzle">
+        Kienzle, P. A. (2008).
+        <em>Extensible periodic table.</em>
+        Computer Software.
+        [<a href="https://periodictable.readthedocs.io">manual</a>,
+        <a href="https://github.com/pkienzle/periodictable">calculator source</a>,
+        <a href="https://github.com/scattering/activation">web service source</a>]
+    </li>
+    <li id="ref_Rauch">
+        Rauch, H. and Waschkowski, W. (2003).
+        <em>Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition),</em>
+        A.-J. Dianoux, G. Lander, Eds.
+        Old City Publishing, Philidelphia, PA. pp 1.1-1 to 1.1-17.
+        [<a href="http://www.ati.ac.at/~neutropt/scattering/Scattering_lengths_table_20010419.pdf">neutron cross sections</a>]
+    </li>
+    <li id="ref_Shleien">
+        Shleien, B.; Slaback, L.A. and Birky, B.K. (1998).
+        <em>Handbook of health physics and radiological health.</em>
+        Williams & Wilkins, Baltimore.
+        [<a href="https://github.com/pkienzle/periodictable/blob/master/periodictable/activation.dat">activation data</a>]
     </li>
     </ol>
+
 </div>
 
 <!-- end of help -->
@@ -1130,22 +1147,24 @@ function help_show(){ // show help only for field
   ACTIVE_HELP.show();
 }
 function help_slide(section_name){ // scroll help text to new point
-  var section = document.getElementById("help_"+section_name);
+  var section = document.getElementById(section_name);
   var frame = document.getElementById('help-frame');
   $('#help-frame').animate({
         scrollTop: section.offsetTop - frame.offsetTop
     }, 200);
 }
 function help_jump(section_name){ // shift help text to new point
-  var section = document.getElementById("help_"+section_name);
+  var section = document.getElementById(section_name);
   var frame = document.getElementById('help-frame');
   frame.scrollTop = section.offsetTop - frame.offsetTop;
 }
 //$('input').focusin(help_show);
-$('input').focusin(function(){help_slide(this.id.slice(3))});
-//$('input').focusin(function(){help_jump(this.id.slice(3))});
-//$('input').focusin(help_jump);
+$('input').focusin(function(){help_slide("help_"+this.id.slice(3))});
+$('.cite').click(function(event){
+    event.preventDefault();
+    help_slide(this.getAttribute('href').substring(1))
+});
 $('.help').css('display', 'block');
-//help_slide('initial');
+//help_jump('help_initial');
 </script>
 </body></html>
