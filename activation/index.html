@@ -5,6 +5,9 @@
     <title>Neutron Activation and Scattering Calculator</title>
     <link rel="shortcut icon" href="favicon.ico">
 
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+
     <style type="text/css">
         @media print
         {
@@ -73,6 +76,7 @@
             /* min-width:10em; max-width:40em; */
             padding-right:0.5em;
             overflow-y:scroll;
+            height:35ex; /* will be replaced by activation-frame height in js */
         }
         #results-frame {
             grid-column:1/3; grid-row:2;
@@ -81,8 +85,8 @@
         }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
-        .help#help_initial { display:block; }
-        .help { display:none; }
+        /* .help starts display:none so that size is initially zero. */
+        .help { display:block; }
         /*.help dl { margin-left: 30em; }
         .help ol { margin-left: 30em; }
         .help p { margin-left: 30em; }
@@ -100,32 +104,32 @@
         }
         .help div.example:before { content:"Example: "; }
 
-/* fading horizontal rule
-  modified from http://konigi.com/tools/css-techniques-horizontal-rules
-*/
+        /* fading horizontal rule
+        modified from http://konigi.com/tools/css-techniques-horizontal-rules
+        */
         .help hr {
-  width: 100%;
-  height: 1px;
-  margin: 2.4em 0;
-  border: none;
-  background: #ddd;
-  background-image: -webkit-gradient(
-      linear,
-      left bottom,
-      right bottom,
-      color-stop(0, rgb(255,255,255)),
-      color-stop(0.1, rgb(221,221,221)),
-      color-stop(0.9, rgb(221,221,221)),
-      color-stop(1, rgb(255,255,255))
-  );
-  background-image: -moz-linear-gradient(
-      left center,
-      rgb(255,255,255) 0%,
-      rgb(221,221,221) 10%,
-      rgb(221,221,221) 90%,
-      rgb(255,255,255) 100%
-  );
-}
+            width: 100%;
+            height: 1px;
+            margin: 2.4em 0;
+            border: none;
+            background: #ddd;
+            background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                right bottom,
+                color-stop(0, rgb(255,255,255)),
+                color-stop(0.1, rgb(221,221,221)),
+                color-stop(0.9, rgb(221,221,221)),
+                color-stop(1, rgb(255,255,255))
+            );
+            background-image: -moz-linear-gradient(
+                left center,
+                rgb(255,255,255) 0%,
+                rgb(221,221,221) 10%,
+                rgb(221,221,221) 90%,
+                rgb(255,255,255) 100%
+            );
+        }
 
         .panel { border-radius:0.6em; border: 2pt solid gray; margin: 0.5em; padding: 0.5em; }
         .panel h3 { margin-top: -1em; margin-bottom: 0.3em; font-size: 1em; }
@@ -136,123 +140,122 @@
 
         /* Keep constant baseline spacing even with superscript/subscript */
         sup, sub {
-	  height: 0;
-	  line-height: 1;
-	  vertical-align: baseline;
-	  _vertical-align: bottom;
-	  position: relative;
+            height: 0;
+            line-height: 1;
+            vertical-align: baseline;
+            _vertical-align: bottom;
+            position: relative;
         }
         sup { bottom: 1ex; }
         sub { top: .5ex; }
     </style>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+<!--<script type="text/javascript" src="/static/lib/activation.js"></script>-->
+<script type="text/javascript">
+    // IE doesn't seem to support keys
+    if(!Object.keys) Object.keys = function(o){
+        if (o !== Object(o)) throw new TypeError('Object.keys called on non-object');
+        var ret=[],p;
+        for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
+        return ret;
+    }
 
-    <script type="text/javascript">
-// IE doesn't seem to support keys
-if(!Object.keys) Object.keys = function(o){
- if (o !== Object(o))  throw new TypeError('Object.keys called on non-object');
- var ret=[],p;
- for(p in o) if(Object.prototype.hasOwnProperty.call(o,p)) ret.push(p);
- return ret;
-}
-        ELEMENTS = {"n": 0, "H": 1, "He": 2, "Li": 3, "Be": 4, "B": 5, "C": 6, "N": 7, "O": 8, "F": 9, "Ne": 10, "Na": 11, "Mg": 12, "Al": 13, "Si": 14, "P": 15, "S": 16, "Cl": 17, "Ar": 18, "K": 19, "Ca": 20, "Sc": 21, "Ti": 22, "V": 23, "Cr": 24, "Mn": 25, "Fe": 26, "Co": 27, "Ni": 28, "Cu": 29, "Zn": 30, "Ga": 31, "Ge": 32, "As": 33, "Se": 34, "Br": 35, "Kr": 36, "Rb": 37, "Sr": 38, "Y": 39, "Zr": 40, "Nb": 41, "Mo": 42, "Tc": 43, "Ru": 44, "Rh": 45, "Pd": 46, "Ag": 47, "Cd": 48, "In": 49, "Sn": 50, "Sb": 51, "Te": 52, "I": 53, "Xe": 54, "Cs": 55, "Ba": 56, "La": 57, "Ce": 58, "Pr": 59, "Nd": 60, "Pm": 61, "Sm": 62, "Eu": 63, "Gd": 64, "Tb": 65, "Dy": 66, "Ho": 67, "Er": 68, "Tm": 69, "Yb": 70, "Lu": 71, "Hf": 72, "Ta": 73, "W": 74, "Re": 75, "Os": 76, "Ir": 77, "Pt": 78, "Au": 79, "Hg": 80, "Tl": 81, "Pb": 82, "Bi": 83, "Po": 84, "At": 85, "Rn": 86, "Fr": 87, "Ra": 88, "Ac": 89, "Th": 90, "Pa": 91, "U": 92, "Np": 93, "Pu": 94, "Am": 95, "Cm": 96, "Bk": 97, "Cf": 98, "Es": 99, "Fm": 100, "Md": 101, "No": 102, "Lr": 103, "Rf": 104, "Db": 105, "Sg": 106, "Bh": 107, "Hs": 108, "Mt": 109, "Ds": 110, "Rg": 111, "Cn": 112, "Nh": 113, "Fl": 114, "Mc": 115, "Lv": 116, "Ts": 117, "Og": 118};
-        ACTIVE_BUTTON = "activation";
-        // Parse environment variables "index.html?cutoff=...&abundance=..."
-        function getURLParameter(name) {
-            return decodeURIComponent(
-                (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
-             );
-        }
-        function format_activation_value(v, cutoff) {
-            return (v<cutoff? '---' : v.toExponential(4));
-        }
-        function nice_number(v) {
-            if (Math.abs(Math.round(v)-v) < 0.001) return Math.round(v);
-            else return v.toFixed(1);
-        }
-        function format_mass(v) {
-            if (v >= 1000.) return v.toFixed(0)+'&thinsp;g';
-            else if (v >= 1.) return v.toFixed(3)+'&thinsp;g';
-            else if (v >= 1e-3) return (1e3*v).toFixed(3)+'&thinsp;mg';
-            else if (v >= 1e-6) return (1e6*v).toFixed(3)+'&thinsp;ug';
-            else if (v >= 1e-9) return (1e9*v).toFixed(3)+'&thinsp;ng';
-            else return v.toExponential(4)+'&thinsp;ng';
-        }
-        function format_time(v) {
-            if (v >= 365.2425*24) return nice_number(v/365.2425/24)+' yrs';
-            else if (v >= 48 || v == 24) return nice_number(v/24)+' days';
-            else if (v >= 2 || v == 1) return nice_number(v)+' hrs';
-            else if (v >= 2/60. | v == 1/60.) return nice_number(v*60)+' min';
-            else return (v*3600).toPrecision(3)+' sec';
-        }
-        function parse_half_life(s) {
-            var units = {y: 365*24*3600, d: 24*3600, h: 3600, m: 60, s: 1};
-            var a = s.split(" ");
-            var value_str = a[0], units_str = a[1];
-            return parseFloat(value_str) * units[units_str];
-        }
-        function parse_isotope(s) {
-            var a = s.split("-");
-            var element = a[0], isotope = a[1];
-            return ELEMENTS[element] + parseInt(isotope)/1000;
-        }
-        $.tablesorter.addParser({
-            id: 'isotope',
-            is: function (s) { return /^ *[A-Z][a-z]?-[0-9]+[sm+]* *$/.test(s); },
-            format: function (s) { return parse_isotope(s); },
-            type: 'numeric'
-        });
-        $.tablesorter.addParser({
-            id: 'half-life',
-            is: function (s) { return /^ *[0-9.+-eE]+ *[smhdy] *$/.test(s); },
-            format: function (s) { return parse_half_life(s); },
-            type: 'numeric'
-        });
-        $.tablesorter.addParser({
-            id: 'float',
-            is: function (s) { return /^ *[0-9.+-eE]+ *$/.test(s); },
-            format: function (s) { return s == '---' ? 0. : parseFloat(s); },
-            type: 'numeric'
-        });
-        $(document).ready(function() {
-            CUTOFF = getURLParameter('cutoff');
-            if (CUTOFF==='null') CUTOFF = 0.0005;
-            CUTOFF_Bq = CUTOFF*37000;
-            DECAY_LEVEL = getURLParameter('decay');
-            if (DECAY_LEVEL ==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
-            ABUNDANCE = getURLParameter('abundance');
-            if (ABUNDANCE==='null') ABUNDANCE = "IAEA";
+    ELEMENTS = {"n": 0, "H": 1, "He": 2, "Li": 3, "Be": 4, "B": 5, "C": 6, "N": 7, "O": 8, "F": 9, "Ne": 10, "Na": 11, "Mg": 12, "Al": 13, "Si": 14, "P": 15, "S": 16, "Cl": 17, "Ar": 18, "K": 19, "Ca": 20, "Sc": 21, "Ti": 22, "V": 23, "Cr": 24, "Mn": 25, "Fe": 26, "Co": 27, "Ni": 28, "Cu": 29, "Zn": 30, "Ga": 31, "Ge": 32, "As": 33, "Se": 34, "Br": 35, "Kr": 36, "Rb": 37, "Sr": 38, "Y": 39, "Zr": 40, "Nb": 41, "Mo": 42, "Tc": 43, "Ru": 44, "Rh": 45, "Pd": 46, "Ag": 47, "Cd": 48, "In": 49, "Sn": 50, "Sb": 51, "Te": 52, "I": 53, "Xe": 54, "Cs": 55, "Ba": 56, "La": 57, "Ce": 58, "Pr": 59, "Nd": 60, "Pm": 61, "Sm": 62, "Eu": 63, "Gd": 64, "Tb": 65, "Dy": 66, "Ho": 67, "Er": 68, "Tm": 69, "Yb": 70, "Lu": 71, "Hf": 72, "Ta": 73, "W": 74, "Re": 75, "Os": 76, "Ir": 77, "Pt": 78, "Au": 79, "Hg": 80, "Tl": 81, "Pb": 82, "Bi": 83, "Po": 84, "At": 85, "Rn": 86, "Fr": 87, "Ra": 88, "Ac": 89, "Th": 90, "Pa": 91, "U": 92, "Np": 93, "Pu": 94, "Am": 95, "Cm": 96, "Bk": 97, "Cf": 98, "Es": 99, "Fm": 100, "Md": 101, "No": 102, "Lr": 103, "Rf": 104, "Db": 105, "Sg": 106, "Bh": 107, "Hs": 108, "Mt": 109, "Ds": 110, "Rg": 111, "Cn": 112, "Nh": 113, "Fl": 114, "Mc": 115, "Lv": 116, "Ts": 117, "Og": 118};
+    ACTIVE_BUTTON = "activation";
+    // Parse environment variables "index.html?cutoff=...&abundance=..."
+    function getURLParameter(name) {
+        return decodeURIComponent(
+            (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
+            );
+    }
+    function format_activation_value(v, cutoff) {
+        return (v<cutoff? '---' : v.toExponential(4));
+    }
+    function nice_number(v) {
+        if (Math.abs(Math.round(v)-v) < 0.001) return Math.round(v);
+        else return v.toFixed(1);
+    }
+    function format_mass(v) {
+        if (v >= 1000.) return v.toFixed(0)+'&thinsp;g';
+        else if (v >= 1.) return v.toFixed(3)+'&thinsp;g';
+        else if (v >= 1e-3) return (1e3*v).toFixed(3)+'&thinsp;mg';
+        else if (v >= 1e-6) return (1e6*v).toFixed(3)+'&thinsp;ug';
+        else if (v >= 1e-9) return (1e9*v).toFixed(3)+'&thinsp;ng';
+        else return v.toExponential(4)+'&thinsp;ng';
+    }
+    function format_time(v) {
+        if (v >= 365.2425*24) return nice_number(v/365.2425/24)+' yrs';
+        else if (v >= 48 || v == 24) return nice_number(v/24)+' days';
+        else if (v >= 2 || v == 1) return nice_number(v)+' hrs';
+        else if (v >= 2/60. | v == 1/60.) return nice_number(v*60)+' min';
+        else return (v*3600).toPrecision(3)+' sec';
+    }
+    function parse_half_life(s) {
+        var units = {y: 365*24*3600, d: 24*3600, h: 3600, m: 60, s: 1};
+        var a = s.split(" ");
+        var value_str = a[0], units_str = a[1];
+        return parseFloat(value_str) * units[units_str];
+    }
+    function parse_isotope(s) {
+        var a = s.split("-");
+        var element = a[0], isotope = a[1];
+        return ELEMENTS[element] + parseInt(isotope)/1000;
+    }
+    $.tablesorter.addParser({
+        id: 'isotope',
+        is: function (s) { return /^ *[A-Z][a-z]?-[0-9]+[sm+]* *$/.test(s); },
+        format: function (s) { return parse_isotope(s); },
+        type: 'numeric'
+    });
+    $.tablesorter.addParser({
+        id: 'half-life',
+        is: function (s) { return /^ *[0-9.+-eE]+ *[smhdy] *$/.test(s); },
+        format: function (s) { return parse_half_life(s); },
+        type: 'numeric'
+    });
+    $.tablesorter.addParser({
+        id: 'float',
+        is: function (s) { return /^ *[0-9.+-eE]+ *$/.test(s); },
+        format: function (s) { return s == '---' ? 0. : parseFloat(s); },
+        type: 'numeric'
+    });
+    $(document).ready(function() {
+        CUTOFF = getURLParameter('cutoff');
+        if (CUTOFF==='null') CUTOFF = 0.0005;
+        CUTOFF_Bq = CUTOFF*37000;
+        DECAY_LEVEL = getURLParameter('decay');
+        if (DECAY_LEVEL ==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
+        ABUNDANCE = getURLParameter('abundance');
+        if (ABUNDANCE==='null') ABUNDANCE = "IAEA";
 
-            // Enable forms; they are disabled by default so that noscript users
-            // can't do anything.
-            $('.container').removeClass("disabled");
-            $('#id_chemical_formula').removeAttr("disabled");
-            $('#id_submit_scat').removeAttr("disabled");
-            $('#id_submit_act').removeAttr("disabled");
-            $('a').each(function(){ this.tabIndex = -1; });
-            $('.help').each(function(){ $(this).append("<hr>"); });
-            $('input[type=text]').keydown(function(e) {
-                if (e.keyCode == 13) {
-                    e.preventDefault();
-                    submit_query(ACTIVE_BUTTON);
-                }
-            });
-            $('input[type=text]').focus(function(e) {
-                var panel = $(this).closest('.panel')[0].id;
-                if (panel == "scattering-panel") {
-                    ACTIVE_BUTTON = "scattering";
-                } else if (panel == "activation-panel") {
-                    ACTIVE_BUTTON = "activation";
-                }
-            } );
-
-            //$("#id-activationForm").submit(submit_query);
-            $("#id-activationForm").submit(function(event) {event.preventDefault();});
-            $('#id_submit_scat').click(function() { submit_query('scattering'); });
-            $('#id_submit_act').click(function() { submit_query('activation'); });
+        // Enable forms; they are disabled by default so that noscript users
+        // can't do anything.
+        $('.container').removeClass("disabled");
+        $('#id_chemical_formula').removeAttr("disabled");
+        $('#id_submit_scat').removeAttr("disabled");
+        $('#id_submit_act').removeAttr("disabled");
+        $('a').each(function(){ this.tabIndex = -1; });
+        $('.help').each(function(){ $(this).append("<hr>"); });
+        $('input[type=text]').keydown(function(e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                submit_query(ACTIVE_BUTTON);
+            }
         });
+        $('input[type=text]').focus(function(e) {
+            var panel = $(this).closest('.panel')[0].id;
+            if (panel == "scattering-panel") {
+                ACTIVE_BUTTON = "scattering";
+            } else if (panel == "activation-panel") {
+                ACTIVE_BUTTON = "activation";
+            }
+        } );
+
+        //$("#id-activationForm").submit(submit_query);
+        $("#id-activationForm").submit(function(event) {event.preventDefault();});
+        $('#id_submit_scat').click(function() { submit_query('scattering'); });
+        $('#id_submit_act').click(function() { submit_query('activation'); });
+    });
 
     function submit_query(target){
         ACTIVE_BUTTON = target;
@@ -488,10 +491,26 @@ if(!Object.keys) Object.keys = function(o){
         $(content).prependTo('div[id=results]'); //add to the dom
         $("table").tablesorter({sortList: [[8,1]]});
     }
-    </script>
 
-    <!--<script type="text/javascript" src="/static/lib/activation.js"></script>-->
-
+    // Dynamic help support.  Clicking an input field jumps to the
+    // corresponding section of the help.  Input gork uses:
+    //    <input id="id_gork" ...>
+    // and the corresponding help section uses:
+    //    <div class="help" id="help_gork"><h3>Gork Section Title</h3>...</div>
+    function help_jump(section_name){
+        var section = document.getElementById(section_name);
+        var frame = document.getElementById('help-frame');
+        frame.scrollTop = section.offsetTop - frame.offsetTop;
+    }
+    $(document).ready(function () {
+        $('#help-frame').height($('#activation-frame').height());
+        $('input').focusin(function(){help_jump("help_"+this.id.slice(3))});
+        $('.cite').click(function(event){
+            event.preventDefault();
+            help_jump(this.getAttribute('href').substring(1))
+        });
+    });
+</script>
 
 </head>
 <body>
@@ -1129,38 +1148,4 @@ Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov"
   <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
 
-<script type="text/javascript">
-$('#help-frame').height($('#activation-frame').height());
-$('#skip-frame').height($('#activation-frame').height());
-//$('input').focusin(function(){ $("#help_"+this.id.slice(3)).show();});
-//$('input').focusout(function(){$("#help_"+this.id.slice(3)).hide();});
-// Display help on input
-ACTIVE_HELP=$("#help_initial");
-function help_show(){ // show help only for field
-  if (ACTIVE_HELP) ACTIVE_HELP.hide();
-  ACTIVE_HELP = $("#help_"+this.id.slice(3));
-  if ($(ACTIVE_HELP).length == 0) ACTIVE_HELP = $("#help_initial");
-  ACTIVE_HELP.show();
-}
-function help_slide(section_name){ // scroll help text to new point
-  var section = document.getElementById(section_name);
-  var frame = document.getElementById('help-frame');
-  $('#help-frame').animate({
-        scrollTop: section.offsetTop - frame.offsetTop
-    }, 200);
-}
-function help_jump(section_name){ // shift help text to new point
-  var section = document.getElementById(section_name);
-  var frame = document.getElementById('help-frame');
-  frame.scrollTop = section.offsetTop - frame.offsetTop;
-}
-//$('input').focusin(help_show);
-$('input').focusin(function(){help_jump("help_"+this.id.slice(3))});
-$('.cite').click(function(event){
-    event.preventDefault();
-    help_slide(this.getAttribute('href').substring(1))
-});
-$('.help').css('display', 'block');
-//help_jump('help_initial');
-</script>
 </body></html>
