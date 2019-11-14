@@ -332,11 +332,11 @@
 
         var activity_header, activity_button;
         if (cutoff>0) {
-            activity_header = 'Activity (nCi) above ' + cutoff + ' &mu;Ci';
+            activity_header = 'Activity (&mu;Ci) above ' + cutoff.toExponential(4) + ' &mu;Ci';
             activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);">All</button>';
         } else {
             activity_header = 'Activity (&mu;Ci)';
-            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);">&gt;'+CUTOFF+'&thinsp;&mu;Ci</button>';
+            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);">&gt;'+CUTOFF.toExponential(4)+'&thinsp;&mu;Ci</button>';
         }
         //add headers to table
         content += '<table border=1 class="tablesorter">\n <thead>\n';
@@ -402,7 +402,7 @@
 
             // Decay time
             if (act.decay_time > 0) {
-                content += '<br>Time to decay below '+(1000*act.decay_level).toPrecision(3)+' nCi is '+format_time(act.decay_time)+'.\n';
+                content += '<br>Time to decay below '+act.decay_level.toExponential(4)+' &mu;Ci is '+format_time(act.decay_time)+'.\n';
             }
 
             // Activation table
