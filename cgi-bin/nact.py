@@ -6,13 +6,13 @@
 
 from __future__ import print_function
 
+import sys
 import cgi
+import html
 import re
 import json
 from math import exp
-import sys
 import traceback
-import time
 from datetime import datetime, timedelta
 from calendar import monthrange
 
@@ -142,7 +142,7 @@ def json_response(result):
     # be sanitized here. Note that this is not true in general; if your web
     # service returns html strings instead of adding markup in the browser,
     # then you will need to sanitize the inputs instead of the outputs.
-    jsonstr = cgi.escape(jsonstr)
+    jsonstr = html.escape(jsonstr)
     #print >>sys.stderr, jsonstr #, result
     print("Content-Type: application/json; charset=UTF-8")
     print("Access-Control-Allow-Origin: *")
