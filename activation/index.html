@@ -131,6 +131,11 @@
             );
         }
 
+        /* dictionary type: value on same line */
+        dl.inline { display: grid; grid-template-columns: max-content auto; }
+        dl.inline dt { grid-column-start: 1; padding: 0.1em; }
+        dl.inline dd { grid-column-start: 2; padding: 0.1em; margin-left: 0.5em; }
+
         .panel { border-radius:0.6em; border: 2pt solid gray; margin: 0.5em; padding: 0.5em; }
         .panel h3 { margin-top: -1em; margin-bottom: 0.3em; font-size: 1em; }
         .panel h3 .text { background: white; margin-left: 1em; padding: 0 0.3em 0 0.3em; }
@@ -1074,7 +1079,6 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     using an element name for the K<sub>&alpha;</sub> emission line<sup>2</sup> for
     that element (<a class="cite" href="#ref_Deslattes">Deslattes 2003</a>).
     </p>
-
 </div>
 
 <div id="help_references" class="help">
@@ -1135,7 +1139,31 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
         [<a href="https://github.com/pkienzle/periodictable/blob/master/periodictable/activation.dat">activation data</a>]
     </li>
     </ol>
+</div>
 
+<div id="help_history" class="help">
+    <h3>History</h3>
+    <dl class="inline">
+    <dt>2019-11-14</dt><dd>Correct units on activity table: nCi becomes uCi.
+        <br />Elemental carbon density changed to 2.2 to match CXRO, CRC and RSC.
+    </dd>
+    <dt>2019-11-04</dt><dd>Update neutron refs with links to ILL data book and Table for Crystallography.</dd>
+    <dt>2019-09-16</dt><dd>Improve help system: can now scroll between sections.</dd>
+    <dt>2019-09-11</dt><dd>Include notes on activation calculation.</dd>
+    <dt>2019-08-27</dt><dd>Change default cutoff to 0.5 nCi.</dd>
+    <dt>2018-01-12</dt><dd>Make activation table sortable.</dd>
+    <dt>2017-05-11</dt><dd>Improved support for printing tables.
+        <br />Support for biomolecules with labile hydrogen (FASTA format).
+        <br />Mixture by mass and volume, e.g., <code>5 g NaCl // 50 mL H2O@1</code>
+        <br />Multi-layer materials, e.g., <code>5 um Si // 3 nm Cr // 8 nm Au</code>
+        <br />Compute incoherent cross section from coherent and total.
+    </dd>
+    <dt>2016-12-07</dt><dd>Use exponential notation for all activity levels.</dd>
+    <dt>2015-10-20</dt><dd>Allow decay time to be calculated from timestamp..</dd>
+    <dt>2014-03-20</dt><dd>Default to isotopic density.</dd>
+    <dt>2013-11-05</dt><dd>Support for X-ray scattering.</dd>
+    <dt>2013-04-17</dt><dd>Initial release.</dd>
+    </dl>
 </div>
 
 <!-- end of help -->
