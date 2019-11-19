@@ -405,10 +405,16 @@
             // Atoms
             content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + sample.formula + '\n';
 
+            // Rabbit parameters
+            if (act.Cd > 0 || act.fast > 0) {
+                content += '<br>Rabbit system: Cd ratio = ' + act.Cd + ', thermal/fast ratio = ' + act.fast + '\n'
+            }
+
             // Decay time
             if (act.decay_time > 0) {
                 content += '<br>Time to decay below '+act.decay_level.toExponential(4)+' &mu;Ci is '+format_time(act.decay_time)+'.\n';
             }
+            content += '</p>\n'
 
             // Activation table
             if (CUTOFF == 0.) {
