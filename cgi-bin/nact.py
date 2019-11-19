@@ -104,7 +104,7 @@ def parse_density(value_str):
     # between parts. This will allow poor grammar such as "a,1 : c,2"
     parts = re.split(" *[,;=: ] *", value_str.strip())
     #print >>sys.stderr,parts
-    key = [v.lower() for v in parts[::2]]
+    key = [_lattice_key_sub(v) for v in parts[::2]]
     try:
         val = [float(v) for v in parts[1::2]]
     except ValueError:
@@ -133,6 +133,15 @@ def parse_density(value_str):
             kw['gamma'] = kw['alpha']
     #print >>sys.stderr,kw
     return 'volume', util.cell_volume(**kw)*1e-24
+
+def _lattice_key_sub(v):
+    if v == 'α':
+        return 'alpha'
+    if v == 'β':
+        return 'beta'
+    if v == 'γ':
+        return 'gamma'
+    return v.lower()
 
 def json_response(result):
     jsonstr = json.dumps(result)
