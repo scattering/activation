@@ -142,8 +142,8 @@ def json_response(result):
     # be sanitized here. Note that this is not true in general; if your web
     # service returns html strings instead of adding markup in the browser,
     # then you will need to sanitize the inputs instead of the outputs.
-    jsonstr = html.escape(jsonstr)
-    #print >>sys.stderr, jsonstr #, result
+    jsonstr = html.escape(jsonstr, quote=False)
+    #print(jsonstr, file=sys.stderr)
     print("Content-Type: application/json; charset=UTF-8")
     print("Access-Control-Allow-Origin: *")
     print("Content-Length: %d\n"%(len(jsonstr)+1))
