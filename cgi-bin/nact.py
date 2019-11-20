@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# - *- coding: utf- 8 - *-
 
 # Using "except Except" to forward exception traceback to the user, so disable
 # the pylint warnings claiming the exception is too broad.
@@ -8,13 +9,18 @@ from __future__ import print_function
 
 import sys
 import cgi
-import html
 import re
 import json
 from math import exp
 import traceback
 from datetime import datetime, timedelta
 from calendar import monthrange
+
+# CRUFT: python 2 doesn't have html.escape
+try:
+    from html import escape
+except ImportError:
+    from cgi import escape
 
 from pytz import timezone, utc
 
@@ -135,11 +141,11 @@ def parse_density(value_str):
     return 'volume', util.cell_volume(**kw)*1e-24
 
 def _lattice_key_sub(v):
-    if v == 'α':
+    if v == u'α':
         return 'alpha'
-    if v == 'β':
+    if v == u'β':
         return 'beta'
-    if v == 'γ':
+    if v == u'γ':
         return 'gamma'
     return v.lower()
 
@@ -151,7 +157,7 @@ def json_response(result):
     # be sanitized here. Note that this is not true in general; if your web
     # service returns html strings instead of adding markup in the browser,
     # then you will need to sanitize the inputs instead of the outputs.
-    jsonstr = html.escape(jsonstr, quote=False)
+    jsonstr = escape(jsonstr, quote=False)
     #print(jsonstr, file=sys.stderr)
     print("Content-Type: application/json; charset=UTF-8")
     print("Access-Control-Allow-Origin: *")
