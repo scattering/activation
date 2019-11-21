@@ -69,7 +69,6 @@ response = {
             }
             // ...
         ],
-        rows,
         'total': total,
         'decay_level': decay_level,
         'decay_time': decay_time
