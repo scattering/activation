@@ -357,10 +357,10 @@
         var activity_header, activity_button;
         if (cutoff>0) {
             activity_header = 'Activity (&mu;Ci) above ' + cutoff.toExponential(4) + ' &mu;Ci';
-            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);">All</button>';
+            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);event.stopPropagation();">All</button>';
         } else if (CUTOFF>0) {
             activity_header = 'Activity (&mu;Ci)';
-            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);">&gt;'+CUTOFF.toExponential(4)+'&thinsp;&mu;Ci</button>';
+            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);event.stopPropagation();">&gt;'+CUTOFF.toExponential(4)+'&thinsp;&mu;Ci</button>';
         } else {
             activity_header = 'Activity (&mu;Ci)';
             activity_button = '';
