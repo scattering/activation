@@ -61,15 +61,19 @@
         button.activity_button { float: right; }
 
 
+        /* IE requires the -ms- vendor tag for grid attributes. */
         /* frame layout */
         #content-frame {
+            display:-ms-grid;
             display:grid;
         }
         #activation-frame {
-            width:30em;
+            -ms-grid-column:1; -ms-grid-row:1;
             grid-column:1; grid-row:1;
+            width:30em;
             }
         #help-frame {
+            -ms-grid-column:2; -ms-grid-row:1;
             grid-column:2; grid-row:1;
             overflow:hidden;
             margin-right:0em;
@@ -79,6 +83,7 @@
             height:35ex; /* will be replaced by activation-frame height in js */
         }
         #results-frame {
+            -ms-grid-column:1/3; -ms-grid-row:2;
             grid-column:1/3; grid-row:2;
             height:auto;
             overflow-y:scroll;
@@ -132,9 +137,20 @@
         }
 
         /* dictionary type: value on same line */
-        dl.inline { display: grid; grid-template-columns: max-content auto; }
-        dl.inline dt { grid-column-start: 1; padding: 0.1em; }
-        dl.inline dd { grid-column-start: 2; padding: 0.1em; margin-left: 0.5em; }
+        dl.inline {
+            display: -ms-grid; -ms-grid-template-columns: max-content auto;
+            display: grid; grid-template-columns: max-content auto;
+        }
+        dl.inline dt {
+            -ms-grid-column-start: 1;
+            grid-column-start: 1;
+            padding: 0.1em;
+        }
+        dl.inline dd {
+            -ms-grid-column-start: 2;
+            grid-column-start: 2;
+            padding: 0.1em; margin-left: 0.5em;
+        }
 
         .panel { border-radius:0.6em; border: 2pt solid gray; margin: 0.5em; padding: 0.5em; }
         .panel h3 { margin-top: -1em; margin-bottom: 0.3em; font-size: 1em; }
@@ -230,7 +246,7 @@
         var cutoff_par = getURLParameter('cutoff');
         if (cutoff_par==='null') CUTOFF = 0.0005;
         else CUTOFF = Number(cutoff_par);
-        if (Number.isNaN(CUTOFF)) {
+        if (isNaN(CUTOFF)) { // IE doesn't support Number.isNaN
             show_error("<p>cutoff="+cutoff_par+" in URL should be floating point μCi; defaulting to 0.0005.</p>");
             CUTOFF = 0.0005;
         }
@@ -239,7 +255,7 @@
         var decay_par = getURLParameter('decay');
         if (decay_par==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
         else DECAY_LEVEL = Number(decay_par)
-        if (Number.isNaN(DECAY_LEVEL)) {
+        if (isNaN(DECAY_LEVEL)) { // IE doesn't support Number.isNaN
             show_error("<p>decay="+decay_par+" in URL should be floating point μCi; defaulting to cutoff.</p>");
             DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
         }
