@@ -225,14 +225,14 @@
         type: 'numeric'
     });
 
-    $(document).ready(function() {
+    function parse_url_parameters() {
         // Parse URL parameters.
         var cutoff_par = getURLParameter('cutoff');
         if (cutoff_par==='null') CUTOFF = 0.0005;
         else CUTOFF = Number(cutoff_par);
         if (Number.isNaN(CUTOFF)) {
             show_error("<p>cutoff="+cutoff_par+" in URL should be floating point μCi; defaulting to 0.0005.</p>");
-                CUTOFF = 0.0005;
+            CUTOFF = 0.0005;
         }
         CUTOFF_Bq = CUTOFF*37000;
 
@@ -251,7 +251,9 @@
             show_error("<p>abundance="+abundance_par+" in URL should be NIST or IAEA; defaulting to IAEA</p>");
             ABUNDANCE = "IAEA";
         }
+    }
 
+    function enable_forms() {
         // Enable forms; they are disabled by default so that noscript users
         // can't do anything.
         $('.container').removeClass("disabled");
@@ -279,7 +281,7 @@
         $("#id-activationForm").submit(function(event) {event.preventDefault();});
         $('#id_submit_scat').click(function() { submit_query('scattering'); });
         $('#id_submit_act').click(function() { submit_query('activation'); });
-    });
+    }
 
     function submit_query(target){
         ACTIVE_BUTTON = target;
@@ -540,13 +542,20 @@
         var frame = document.getElementById('help-frame');
         frame.scrollTop = section.offsetTop - frame.offsetTop;
     }
-    $(document).ready(function () {
+
+    function setup_help() {
         $('#help-frame').height($('#activation-frame').height());
         $('input').focusin(function(){help_jump("help_"+this.id.slice(3))});
         $('.cite').click(function(event){
             event.preventDefault();
             help_jump(this.getAttribute('href').substring(1))
         });
+    }
+
+    $(document).ready(function () {
+        parse_url_parameters();
+        enable_forms();
+        setup_help();
     });
 </script>
 
