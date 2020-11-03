@@ -254,7 +254,7 @@ def parse_date(datestring, default_timezone=default_timezone):
 
 def cgi_call():
     form = cgi.FieldStorage()
-    #print >>sys.stderr, form
+    #print(form, file=sys.stderr)
     #print >>sys.stderr, "sample",form.getfirst('sample')
     #print >>sys.stderr, "mass",form.getfirst('mass')
 
@@ -435,6 +435,7 @@ def cgi_call():
     if calculate in ('scattering', 'all'):
         try:
             sld, xs, penetration = neutron_scattering(chem, wavelength=wavelength)
+            D2O_fraction, D2O_sld = nsf.D2O_match(chem)
             result['scattering'] = {
                 'neutron': {
                     'wavelength': wavelength,
@@ -445,6 +446,10 @@ def cgi_call():
                 'sld': {'real': sld[0], 'imag': sld[1], 'incoh': sld[2]},
                 'penetration': penetration,
                 'transmission': 100*exp(-thickness/penetration),
+                'contrast_match': {
+                    'D2O_fraction': D2O_fraction,
+                    'sld': D2O_sld,
+                },
             }
         except Exception:
             missing = [str(el) for el in chem.atoms if not el.neutron.has_sld()]
@@ -466,6 +471,7 @@ def cgi_call():
             }
         except Exception:
             result['xray_scattering'] = {'error': error()}
+    #print("result", result, file=sys.stderr)
 
     return result
 

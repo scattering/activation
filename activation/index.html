@@ -537,7 +537,21 @@
                     +' (after absorption and incoherent scattering).\n';
             content += '<br>Transmitted flux is '
                     +transmitted_flux.toPrecision(4)+'&thinsp;n/cm<sup>2</sup>/s'
-                    +' for a '+flux_str+'&thinsp;n/cm<sup>2</sup>/s beam.</p>\n';
+                    +' for a '+flux_str+'&thinsp;n/cm<sup>2</sup>/s beam.\n';
+
+            // Contrast match
+            content += '<br>Contrast match point: ';
+            if (scat.contrast_match.D2O_fraction < 0) {
+                content += '&lt; 0% D<sub>2</sub>O</p>\n';
+            } else if (scat.contrast_match.D2O_fraction > 1) {
+                content += '&gt; 100% D<sub>2</sub>O</p>\n';
+            } else {
+                console.log(scat.sld, scat);
+                content += (scat.contrast_match.D2O_fraction*100).toFixed(1)
+                        + '% D<sub>2</sub>O by volume (real SLD = '
+                        + scat.contrast_match.sld.toFixed(3)
+                        + '&times;10<sup>-6</sup>/&Aring;<sup>2</sup>)</p>\n';
+            }
         }
 
 
@@ -549,14 +563,16 @@
     }
 
     // Dynamic help support.  Clicking an input field jumps to the
-    // corresponding section of the help.  Input gork uses:
+    // corresponding section of the help.  Input "gork" uses:
     //    <input id="id_gork" ...>
     // and the corresponding help section uses:
     //    <div class="help" id="help_gork"><h3>Gork Section Title</h3>...</div>
     function help_jump(section_name){
         var section = document.getElementById(section_name);
         var frame = document.getElementById('help-frame');
-        frame.scrollTop = section.offsetTop - frame.offsetTop;
+        if (!!section) {
+            frame.scrollTop = section.offsetTop - frame.offsetTop;
+        }
     }
 
     function setup_help() {
@@ -638,9 +654,9 @@
               <td>
                <label for="id_mass" class="control-label">Mass</label>
               </td><td>
-               <label for="id_time_on" class="control-label">Time on beam</label>
+               <label for="id_time_on" class="control-label">Exposure</label>
               </td><td>
-               <label for="id_time_off" class="control-label">Time off beam</label>
+               <label for="id_time_off" class="control-label">Decay</label>
               </td>
             </tr>
 
@@ -751,7 +767,11 @@ Special symbols <div class="entrytext">D</div> and
 can be used for <sup>2</sup>H and <sup>3</sup>H.
 Isotopes can be mixed within a formula, such as
 <div class="entrytext">DHO</div> for partially deuterated water.
+Use <div class="entrytext">H[1]</div> in formula for labile hydrogen.
+These will be substituded with H and D in proportion with the D<sub>2</sub>O
+fraction when computing the contrast match point of the sample.
 <div class="example"><div class="entrytext">O[18]</div> represents the <sup>18</sup>O</div>
+<div class="example"><div class="entrytext">C3H4H[1]NO@1.29n</div> represents alanine with one labile hydrogen.
 </dd>
 
 <dt>density</dt>
@@ -837,9 +857,8 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     For <a href="https://en.wikipedia.org/wiki/FASTA_format">FASTA</a> sequences
     use "code:sequence", where code is "aa" for amino acid sequences, "dna" for
     DNA sequences, or "rna" for RNA sequences.  Density is estimated automatically.
-    This calculation uses natural abundance of hydrogen; isotope substitution for
-    labile hydrogen in D2O mixtures is not supported in the online calculator,
-    though it is in the underlying periodictable library.
+    This calculation uses <sup>1</sup>H for labile hydrogen, with substitution
+    by H in natural abundance and pure D when computing contrast match point.
     <div class="example">&beta;-casein amino acid sequence <div class="entrytext">aa:RELEELNVPGEIVESLSSSEESITRINKKIEKFQSEEQQQTEDELQDKIHPFAQTQSLVYPFPGPIPNSLPQNIPPLTQTPVVVPPFLQPEVMGVSKVKEAMAPKHKEMPFPKYPVEPFTESQSLTLTDVENLHLPLPLLQSWMHQPHQPLPPTVMFPPQSVLSLSQSKVLPVPQKAVPYPQRDMPIQAFLLYQEPVLGPVRGPFPIIV</div></div>
 </dd>
 </div>
@@ -991,23 +1010,23 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </div>
 
 <div id=help_time_on class="help">
-    <h3>Time on beam</h3>
+    <h3>Exposure</h3>
     <p>Units: h m s d w y</p>
     <p>
-    Time on the beam is the length of the exposure at the given flux.  Activation
-    will be accumulated over time.
-    Time defaults to hours, but can be set to
+    Exposure is the duration of the exposure at the given flux. Activation
+    will be accumulated over that time, with decay beginning the moment the
+    sample is activated. Time defaults to hours, but can be set to
     hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
     to the value respectively.
     </p>
 </div>
 
 <div id=help_time_off class="help">
-    <h3>Time off beam</h3>
+    <h3>Decay</h3>
     <p>Units: h m s d w y OR yyyy-mm-dd hh:mm:ss</p>
     <p>
     The sample begins to decay immediately, even while it is being activated.
-    The time off beam field allows you to specify how long since the sample
+    The decay field allows you to specify how long since the sample
     was removed from the beam.  The default is hours, but can be set to
     hours, minutes, seconds, days, weeks or years by adding h, m, s, d, w, or y
     to the value respectively.
@@ -1015,12 +1034,12 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     and at 1 hour, 1 day and 15 days post activation.
     </p>
     <p>
-    Instead of saying how long ago the sample was removed from the beam, you can
-    specify when it was removed.  Times are given as
+    Instead of saying how long the sample activation has decayed, you can use
+    the time that the sample was removed from the beam. Times are given as
         year-month-day hour:minute:second.
     Approximate times are allowed, such as 2010-03 for March, 2010.  This is
     equivalent to 2010-03-31 23:59:59, which is the end of March so that the
-    activation estimate will be conservative.  That is, this is the most activation
+    activation estimate will be conservative.  This is the most activation
     consistent with the sample being on the beam sometime in March, 2010.
     Times are specified in US/Eastern.  Add "Z" after the time of day to
     indicate universal coordinated time (UTC), or add a timezone offset such
@@ -1205,6 +1224,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <div id="help_history" class="help">
     <h3>History</h3>
     <dl class="inline">
+    <dt>2020-10-29</dt><dd>Change field labels from 'time on/off beam' to 'exposure/decay duration'.</dd>
     <dt>2020-01-22</dt><dd>Restore support for Internet Explorer 10 and 11.</dd>
     <dt>2019-12-02</dt><dd>Fix cutoff=0 handling in URL.</dd>
     <dt>2019-11-14</dt><dd>Correct units on activity table: nCi becomes uCi.
