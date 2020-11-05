@@ -435,7 +435,11 @@ def cgi_call():
     if calculate in ('scattering', 'all'):
         try:
             sld, xs, penetration = neutron_scattering(chem, wavelength=wavelength)
-            D2O_fraction, D2O_sld = nsf.D2O_match(chem)
+            # CRUFT: periodictable < 1.5.3 does not define D2O_match
+            if hasattr(nsf, 'D2O_match') and False:
+                D2O_fraction, D2O_sld = nsf.D2O_match(chem)
+            else:
+                D2O_fraction, D2O_sld = None, None
             result['scattering'] = {
                 'neutron': {
                     'wavelength': wavelength,

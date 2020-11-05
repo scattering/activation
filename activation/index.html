@@ -540,17 +540,21 @@
                     +' for a '+flux_str+'&thinsp;n/cm<sup>2</sup>/s beam.\n';
 
             // Contrast match
-            content += '<br>Contrast match point: ';
-            if (scat.contrast_match.D2O_fraction < 0) {
-                content += '&lt; 0% D<sub>2</sub>O</p>\n';
-            } else if (scat.contrast_match.D2O_fraction > 1) {
-                content += '&gt; 100% D<sub>2</sub>O</p>\n';
+            if (scat.contrast_match.D2O_fraction === null) {
+                content += "</p>";
             } else {
-                console.log(scat.sld, scat);
-                content += (scat.contrast_match.D2O_fraction*100).toFixed(1)
-                        + '% D<sub>2</sub>O by volume (real SLD = '
-                        + scat.contrast_match.sld.toFixed(3)
-                        + '&times;10<sup>-6</sup>/&Aring;<sup>2</sup>)</p>\n';
+                content += '<br>Contrast match point: ';
+                if (scat.contrast_match.D2O_fraction < 0) {
+                    content += '&lt; 0% D<sub>2</sub>O</p>\n';
+                } else if (scat.contrast_match.D2O_fraction > 1) {
+                    content += '&gt; 100% D<sub>2</sub>O</p>\n';
+                } else {
+                    console.log(scat.sld, scat);
+                    content += (scat.contrast_match.D2O_fraction*100).toFixed(1)
+                            + '% D<sub>2</sub>O by volume (real SLD = '
+                            + scat.contrast_match.sld.toFixed(3)
+                            + '&times;10<sup>-6</sup>/&Aring;<sup>2</sup>)</p>\n';
+                }
             }
         }
 
