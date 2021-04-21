@@ -1142,7 +1142,10 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </p><p>
     For heavier isotopes (Cd, Hf, rare earths) and/or shorter wavelengths
     (below 1&nbsp;&Aring;) there are neutron <a href="resonance.html">resonances</a>
-    which are not accounted for in the scattering calculator.
+    in the thermal range. For rare-earth elements the energy-dependent coherent
+    sld is calculated following scattering length values tabulated
+    in <a class="cite" href="#ref_Lynn1992">Lynn and Seeger 1992</a>. Incoherent
+    scattering will be understimated for these elements. 
     </p><p>
     There is also a wavelength dependence for single phonon interactions which
     gives rise to significant inelastic scattering for lighter isotopes (H, D)
@@ -1201,6 +1204,12 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
         [<a href="https://github.com/pkienzle/periodictable">calculator source</a>,
         <a href="https://github.com/scattering/activation">web service source</a>]
     </li>
+    <li id="ref_Lynn1992">
+        Lynn, J.E. and Seeger, P.A. (1990).
+        <em>Resonance effects in neutron scattering lengths of rare-earth nuclides.</em>
+        Atomic Data and Nuclear Data Tables 44, 191-207.
+        doi:10.1016/0092-640X(90)90013-A
+        [<a href="https://dx.doi.org/10.1016/0092-640X(90)90013-A">rare earth scattering lengths</a>]
     <li id="ref_Rauch">
         Rauch, H. and Waschkowski, W. (2003).
         <em>Neutron Scattering Lengths in ILL Neutron Data Booklet (second edition),</em>
@@ -1213,7 +1222,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
         Sears, V. F. (2006). "Scattering lengths for neutrons" In Prince, E. Ed.
         <em>International Tables for Crystallography Volume C: Mathematical, Physical and Chemical Tables"</em>
         Kluwer Academic Publishers, pp 444-454.
-        DOI: 10.1107/97809553602060000103
+        doi:10.1107/97809553602060000103
         [<a href="https://it.iucr.org/Cb/ch4o4v0001/sec4o4o4/">scattering calculations</a>]
     </li>
     <li id="ref_Shleien">
@@ -1228,6 +1237,11 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <div id="help_history" class="help">
     <h3>History</h3>
     <dl class="inline">
+    <dt>2021-04-21</dt><dd>Support energy-dependent rare earth elements.
+        <br />Use complex scattering length b<sub>c</sub> when computing
+              σ<sub>c</sub> = 4π&thinsp;|b<sub>c</sub>|<sup>2</sup>/100 and
+              σ<sub>i</sub> = σ<sub>s</sub> - σ<sub>c</sub>.
+    </dd>
     <dt>2020-10-29</dt><dd>Change field labels from 'time on/off beam' to 'exposure/decay duration'.</dd>
     <dt>2020-01-22</dt><dd>Restore support for Internet Explorer 10 and 11.</dd>
     <dt>2019-12-02</dt><dd>Fix cutoff=0 handling in URL.</dd>
