@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "build": "esbuild index.js --bundle --outfile=bundle.js --target=es5",
+    "build-min": "esbuild index.js --bundle --outfile=bundle.min.js --target=es5 --minify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "esbuild": "^0.14.23",
-    "jquery": "^1.12.4",
-    "tablesorter": "^2.31.3"
+    "jquery": "^1.12.4"
   }
 }
