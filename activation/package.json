@@ -1,0 +1,17 @@
+{
+  "name": "activation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild index.js --bundle --outfile=bundle.js --target=es5",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.14.23",
+    "jquery": "^1.12.4",
+    "tablesorter": "^2.31.3"
+  }
+}
