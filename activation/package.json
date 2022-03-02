@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild index.js --bundle --outfile=bundle.js --target=es5",
-    "build-min": "esbuild index.js --bundle --outfile=bundle.min.js --target=es5 --minify",
+    "build": "esbuild imports.js --bundle --outfile=import_bundle.js --target=es5",
+    "build-min": "esbuild imports.js --bundle --outfile=import_bundle.min.js --target=es5 --minify",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "esbuild": "^0.14.23",
-    "jquery": "^1.12.4"
+    "jquery": "^1.12.1"
   }
 }
