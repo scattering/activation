@@ -182,6 +182,7 @@
     }
 
     ELEMENTS = {"n": 0, "H": 1, "He": 2, "Li": 3, "Be": 4, "B": 5, "C": 6, "N": 7, "O": 8, "F": 9, "Ne": 10, "Na": 11, "Mg": 12, "Al": 13, "Si": 14, "P": 15, "S": 16, "Cl": 17, "Ar": 18, "K": 19, "Ca": 20, "Sc": 21, "Ti": 22, "V": 23, "Cr": 24, "Mn": 25, "Fe": 26, "Co": 27, "Ni": 28, "Cu": 29, "Zn": 30, "Ga": 31, "Ge": 32, "As": 33, "Se": 34, "Br": 35, "Kr": 36, "Rb": 37, "Sr": 38, "Y": 39, "Zr": 40, "Nb": 41, "Mo": 42, "Tc": 43, "Ru": 44, "Rh": 45, "Pd": 46, "Ag": 47, "Cd": 48, "In": 49, "Sn": 50, "Sb": 51, "Te": 52, "I": 53, "Xe": 54, "Cs": 55, "Ba": 56, "La": 57, "Ce": 58, "Pr": 59, "Nd": 60, "Pm": 61, "Sm": 62, "Eu": 63, "Gd": 64, "Tb": 65, "Dy": 66, "Ho": 67, "Er": 68, "Tm": 69, "Yb": 70, "Lu": 71, "Hf": 72, "Ta": 73, "W": 74, "Re": 75, "Os": 76, "Ir": 77, "Pt": 78, "Au": 79, "Hg": 80, "Tl": 81, "Pb": 82, "Bi": 83, "Po": 84, "At": 85, "Rn": 86, "Fr": 87, "Ra": 88, "Ac": 89, "Th": 90, "Pa": 91, "U": 92, "Np": 93, "Pu": 94, "Am": 95, "Cm": 96, "Bk": 97, "Cf": 98, "Es": 99, "Fm": 100, "Md": 101, "No": 102, "Lr": 103, "Rf": 104, "Db": 105, "Sg": 106, "Bh": 107, "Hs": 108, "Mt": 109, "Ds": 110, "Rg": 111, "Cn": 112, "Nh": 113, "Fl": 114, "Mc": 115, "Lv": 116, "Ts": 117, "Og": 118};
+    //ACTIVE_BUTTON = "material";
     ACTIVE_BUTTON = "activation";
     // Parse environment variables "index.html?cutoff=...&abundance=..."
     function getURLParameter(name) {
@@ -222,9 +223,25 @@
         var element = a[0], isotope = a[1];
         return ELEMENTS[element] + parseInt(isotope)/1000;
     }
+    function parse_element(s) {
+        var a = s.split("-");
+        var element, isotope;
+        if (a.length > 1) {
+            element = a[1], isotope = a[0];
+        } else {
+            element = a[0], isotope = 0;
+        }
+        return ELEMENTS[element] + parseInt(isotope)/1000;
+    }
+    $.tablesorter.addParser({
+        id: 'element',
+        is: function (s) { return /^ *([0-9]+-)?[A-Z][a-z]? *$/.test(s); },
+        format: function (s) { return parse_element(s); },
+        type: 'numeric'
+    });
     $.tablesorter.addParser({
         id: 'isotope',
-        is: function (s) { return /^ *[A-Z][a-z]?-[0-9]+[sm+]* *$/.test(s); },
+        is: function (s) { return /^ *[A-Z][a-z]?-[0-9]+[stm+]* *$/.test(s); },
         format: function (s) { return parse_isotope(s); },
         type: 'numeric'
     });
@@ -274,6 +291,7 @@
         // can't do anything.
         $('.container').removeClass("disabled");
         $('#id_chemical_formula').removeAttr("disabled");
+        //$('#id_submit_frac').removeAttr("disabled");
         $('#id_submit_scat').removeAttr("disabled");
         $('#id_submit_act').removeAttr("disabled");
         $('a').each(function(){ this.tabIndex = -1; });
@@ -290,11 +308,14 @@
                 ACTIVE_BUTTON = "scattering";
             } else if (panel == "activation-panel") {
                 ACTIVE_BUTTON = "activation";
+            //} else if (panel == "material-panel") {
+            //    ACTIVE_BUTTON = "material";
             }
         } );
 
         //$("#id-activationForm").submit(submit_query);
         $("#id-activationForm").submit(function(event) {event.preventDefault();});
+        //$('#id_submit_frac').click(function() { submit_query('material'); });
         $('#id_submit_scat').click(function() { submit_query('scattering'); });
         $('#id_submit_act').click(function() { submit_query('activation'); });
     }
@@ -384,11 +405,11 @@
             activity_button = '';
         }
         //add headers to table
-        content += '<table border=1 class="tablesorter">\n <thead>\n';
+        content += '<table border=1 class="tablesorter activation_table">\n <thead>\n';
         content += '  <tr class="header {sorter:false}"><th colspan="4" /><th colspan="5" class="{sorter:false}">'+activity_header+activity_button+'</th></tr>\n';
         content += '  <tr class="header">';
         for (var i in data.headers) {
-            content += '<th class="headerSortable {sorter: \'' + data.sorters[i] + '\')">' + data.headers[i] + '</th>';
+            content += '<th class="headerSortable {sorter: \'' + data.sorters[i] + '\'}">' + data.headers[i] + '</th>';
         }
         content += '</tr>\n </thead>\n <tbody>\n'
         for (var i in data.rows) {
@@ -407,6 +428,14 @@
             content += '<td>'+format_activation_value(act.total[j], cutoff)+'</td>';
         }
         content += '</tr>\n </tfoot>\n </table>\n';
+        return content;
+    }
+    function fraction_table(massfrac) {
+        var content = ' <table border=1 class="tablesorter material_table"> <thead><tr><th class="headerSortable {sorter: element}">element/isotope</th><th class="headerSortable {sorter: float}">mass fraction</th></tr></thead>\n';
+        for (var element in massfrac) {
+            content += ' <tr><td>'+element+'</td><td>'+massfrac[element]+'</td></tr>\n';
+        }
+        content += '</table>';
         return content;
     }
     function show_error(error_html) {
@@ -556,6 +585,9 @@
                             + '&times;10<sup>-6</sup>/&Aring;<sup>2</sup>)</p>\n';
                 }
             }
+
+            // Add the mass fraction table to the scattering summary.
+            content += fraction_table(sample.mass_fractions);
         }
 
 
@@ -563,7 +595,10 @@
         content += '</div>\n';
 
         $(content).prependTo('div[id=results]'); //add to the dom
-        $("table").tablesorter({sortList: [[8,1]]});
+        // Sort activations in reverse order by target time (column 8, descending)
+        $(".activation_table").tablesorter({sortList: [[8,1]]});
+        // Sort materials in reverse order by mass fraction (column 1, descending)
+        $(".material_table").tablesorter({sortList: [[1,1]]});
     }
 
     // Dynamic help support.  Clicking an input field jumps to the
@@ -621,6 +656,7 @@
                <div class="controls"><input id="id_chemical_formula" type="text" class="textinput textInput" name="chemical_formula" value="Co" title="chemical formula for the material or mixture" ></div>
               </td>
             </tr></tbody></table>
+            <!-- <input type="submit" name="submit_frac" value="Fraction" class="btn btn-primary" id="id_submit_frac"> -->
             </div>
 
             <div class="panel" id="activation-panel">
