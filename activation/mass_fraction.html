@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mass Fraction Calculator</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <style type="text/css">
+        /* .help starts display:none so that size is initially zero. */
+        .help { display:block; }
+        /*.help dl { margin-left: 30em; }
+        .help ol { margin-left: 30em; }
+        .help p { margin-left: 30em; }
+        */
+        .help h3 { margin-top: 0.25em; }
+        .help dd { margin-left: 1em; }
+        .help dt { margin-left: 0em; padding: 0.3em; font-weight: bold; }
+        .help ol { list-style-position: inside; padding-left: 0em; }
+        .help li { margin-left: 0em; margin-bottom: 1ex; }
+        .help div.bold { font-weight: bold; display: inline; }
+        .help div.entrytext {
+           display:inline;
+           font-weight:bold;
+           font-style:oblique;
+        }
+        .help div.example:before { content:"Example: "; }
+
+        /* fading horizontal rule
+        modified from http://konigi.com/tools/css-techniques-horizontal-rules
+        */
+        .help hr {
+            width: 100%;
+            height: 1px;
+            margin: 2.4em 0;
+            border: none;
+            background: #ddd;
+            background-image: -webkit-gradient(
+                linear,
+                left bottom,
+                right bottom,
+                color-stop(0, rgb(255,255,255)),
+                color-stop(0.1, rgb(221,221,221)),
+                color-stop(0.9, rgb(221,221,221)),
+                color-stop(1, rgb(255,255,255))
+            );
+            background-image: -moz-linear-gradient(
+                left center,
+                rgb(255,255,255) 0%,
+                rgb(221,221,221) 10%,
+                rgb(221,221,221) 90%,
+                rgb(255,255,255) 100%
+            );
+        }
+
+        /* dictionary type: value on same line */
+        dl.inline {
+            display: -ms-grid; -ms-grid-template-columns: max-content auto;
+            display: grid; grid-template-columns: max-content auto;
+        }
+        dl.inline dt {
+            -ms-grid-column-start: 1;
+            grid-column-start: 1;
+            padding: 0.1em;
+        }
+        dl.inline dd {
+            -ms-grid-column-start: 2;
+            grid-column-start: 2;
+            padding: 0.1em; margin-left: 0.5em;
+        }
+    </style>
+    <style type="text/css">
+        table, td, th {
+            border: 1px solid grey;
+        }
+    </style>
+</head>
+
+<body>
+    <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <script language="JavaScript" id="_fed_an_js_tag" src="/js/federated-analytics.all.min.js?agency=NIST&subagency=ncnr&pua=UA-37115410-15&yt=true"></script>
+
+
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+ <tr align="center" valign="bottom">
+  <td background="/images/ncnr_banner_tile_2.png">
+   <table width="90%" border="0" cellpadding="0" cellspacing="0" height="66">
+    <tr valign="middle">
+     <td align="left">
+<a href="#MainContent"><img src="/Hidden.gif" width="1" height="1" alt="skip to main content" align="left" border="0"></a>
+      <img src="/images/ncnr_banner_title_2.gif" alt="NIST Center for Neutron Research" ISMAP border="0" usemap="#ncnrmap">
+      <map name="ncnrmap">
+       <area shape=rect coords="0,19,355,40"
+             href="http://www.ncnr.nist.gov/"
+             alt="NIST Center for Neutron Research">
+      </map>
+     </td>
+     <td align="right">
+      <a href="http://www.nist.gov/">
+       <img src="/images/ncnr_banner_nist_name.gif" alt="National Institute of Standards and Technology" border="0">
+      </a>
+     </td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+</table>
+
+
+<table width="100%" cellpadding=0 cellspacing=0 border=0>
+  <tr align="center">
+
+
+   
+   <td  bgcolor="#ccccff">
+        <a href="https://nist.gov/ncnr">
+        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Home
+        </b></font></a></td>
+ 
+      
+   <td  bgcolor="#ccccff">
+        <a href="https://www.ncnr.nist.gov/ipeek">
+        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Live Data
+        </b></font></a></td>
+ 
+      
+   <td  bgcolor="#ccccff">
+        <a href="https://nist.gov/ncnr/neutron-instruments">
+        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Instruments
+        </b></font></a></td>
+ 
+      
+   <td  bgcolor="#ccccff">
+        <a href="https://nist.gov/ncnr/chrns">
+        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>CHRNS
+        </b></font></a></td>
+ 
+      
+   <td  bgcolor="#ccccff">
+        <a href="https://nist.gov/ncnr/call-proposals">
+        <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Proposals
+        </b></font></a></td>
+ 
+      
+   </tr>
+
+</table>
+<a name="MainContent"></a>
+   
+    <noscript>
+        <h3>Enable javascript to run the mass-fraction calculator.</h3>
+        <hr />
+    </noscript>
+
+    <h2>Mass Fraction Calculator</h2>
+    <p>
+        Enter a chemical formula in the box below, then click "submit" to show mass fractions table.
+    </p>
+    <div>
+        <label>
+            Chemical formula 
+            <input type="text" placeholder="e.g. CoPt3" width=20 id="formula_text" />
+        </label>
+        <button id="submit_formula">Submit</button>
+    </div>
+
+    <hr/>
+
+    <div id="mass_fractions">
+        <h3>Mass Fractions:</h3>
+        <label id="chem"></label>
+        <table>
+            <thead>
+                <tr>
+                    <th>element/isotope</th>
+                    <th>mass_fraction</th>
+                </tr>
+            </thead>
+            <tbody id="table_body"></tbody>
+        </table>
+    </div>
+
+    <hr/>
+
+    <details>
+        <summary>
+            <h3 style="display:inline-block">Chemical formula</h3>
+            <em>(click to expand help)</em>
+            The chemical formula parser allows you to specify materials and mixtures.
+            Formulas are parsed with
+            <a href="https://periodictable.readthedocs.io/en/latest/guide/formula_grammar.html">periodictable</a>
+            python package (<a class="cite" href="#ref_Kienzle">Kienzle 2008</a>).
+        </summary>
+        <div id="help_chemical_formula" class="help">
+
+
+            <dl>
+                <dt>simple formula</dt>
+                <dd>A basic formula consists of elements and their quantities.
+                    <div class="example">
+                        <div class="entrytext">CaCO3</div> represents the chemical CaCO<sub>3</sub>
+                    </div>
+                </dd>
+
+                <dt>multi-part formula</dt>
+                <dd>Formulas can be built from parts by separating them with "+" or space,
+                    with a number before the part representing repeats. Using parentheses,
+                    a formula is treated as if it were a single unit.
+                    <div class="example">
+                        <div class="entrytext">CaCO3+6H20</div>,
+                        <div class="entrytext">CaCO3 6H2O</div> and
+                        <div class="entrytext">CaCO3(H2O)6</div> all represent ikaite,
+                        CaCO<sub>3</sub>&middot;6H<sub>2</sub>O
+                    </div>
+                </dd>
+
+                <dt>isotopes</dt>
+                <dd>Isotopes are represented by element[nuclide index].
+                    Special symbols <div class="entrytext">D</div> and
+                    <div class="entrytext">T</div>
+                    can be used for <sup>2</sup>H and <sup>3</sup>H.
+                    Isotopes can be mixed within a formula, such as
+                    <div class="entrytext">DHO</div> for partially deuterated water.
+                    Use <div class="entrytext">H[1]</div> in formula for labile hydrogen.
+                    These will be substituded with H and D in proportion with the D<sub>2</sub>O
+                    fraction when computing the contrast match point of the sample.
+                    <div class="example">
+                        <div class="entrytext">O[18]</div> represents the <sup>18</sup>O
+                    </div>
+                    <div class="example">
+                        <div class="entrytext">C3H4H[1]NO@1.29n</div> represents alanine with one labile hydrogen.
+                </dd>
+
+                <dt>density</dt>
+                <dd>Mass density is needed to compute scattering factors for the material.
+                    The density can be entered in the density field, or it can be given in
+                    the formula by adding @value to the end. Densities for the pure elements are
+                    already known.
+                    <div class="example">
+                        <div class="entrytext">H2O@1</div>
+                        indicates that water has a density of 1 g/cm<sup>3</sup>
+                    </div>
+                </dd>
+
+                <dt>isotopic density</dt>
+                <dd>If the formula uses a mixture of isotopes, you can still use the density
+                    of the material assuming natural abundance, but add an "n" to the value
+                    to scale it to the isotope specific density. If you already know the
+                    isotopic density, use the value by itself and it will not be scaled.
+                    <div class="example">
+                        <div class="entrytext">D2O@1n</div>,
+                        <div class="entrytext">D2O@1.11</div>, and
+                        <div class="entrytext">D2O@1.11i</div>
+                        all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup>
+                    </div>
+                </dd>
+
+                <dt>mole fractions</dt>
+                <dd>Using non-integer quantities, arbitrary concentration ratios can be
+                    be constructed.
+                    <div class="example">
+                        <div class="entrytext">78.2H2O[16] + 21.8H2O[18] @1n</div>
+                        represents water with 78.2% <sup>16</sup>O and 21.8% <sup>18</sup>O
+                    </div>
+                </dd>
+
+                <dt>mass fractions</dt>
+                <dd>Formulas can be mixed by mass, with each part starting with a percentage
+                    followed by formula followed by "//". The first part must use "%wt" to
+                    indicate that it is a mass fraction. The final part is the base, and it
+                    does not need a percentage since it makes up the rest of the material.
+                    <div class="example">
+                        <div class="entrytext">50%wt Co // Ti</div>
+                        is more descriptive than Co<sub>0.552</sub>Ti<sub>0.448</sub>
+                    </div>
+                    <div class="example">
+                        <div class="entrytext">33%wt Co // 33% Fe // Ti</div>
+                        builds a 1:1:1 mixture by mass of cobalt-iron-titanium
+                    </div>
+                </dd>
+
+                <dt>volume fractions</dt>
+                <dd>Volume fractions are like mass fractions, but they use "%vol" instead.
+                    Each component of the volume fraction must specify the density.
+                    <div class="example">
+                        <div class="entrytext">20%vol (10%wt NaCl@2.16 // H2O@1) // D2O@1n</div>
+                        is a 10% saline solution by weight mixed 20:80 by volume with
+                        D<sub>2</sub>O, which is the same as
+                        <div class="entrytext">NaCl(H2O)29.1966(D2O)122.794@1.10i</div>
+                    </div>
+                </dd>
+
+                <dt>mass and volume mixtures</dt>
+                <dd>Specific amounts of materials can be mixed, with each part giving
+                    the quantity of material followed by "//". Quantities can be masses
+                    (kg, g, mg, ug, or ng) or they can be volumes (L, mL, uL, nL). Density
+                    is required for materials given by volume. For scattering calculations
+                    density is required for the materials given by mass as well.
+                    <div class="example">
+                        <div class="entrytext">5g NaCl // 50mL H2O@1</div>
+                        is more descriptive than
+                        <div class="entrytext">NaCl(H2O)32.4407</div>
+                    </div>
+                    <div class="example">
+                        <div class="entrytext">5g NaCl@2.16 // 50mL H2O@1</div>
+                        computes the density as 1.05 g/cm<sup>3</sup>. Not useful in this
+                        case since 9%wt brine has a density of 1.0633 at ambient temperature.
+                    </div>
+                    <div class="example">
+                        <div class="entrytext">50 mL (45 mL H2O@1 // 5 g NaCl)@1.0707 // 20 mL D2O@1n</div>
+                        uses the appropriate density for a 10%wt brine in the mixture.
+                    </div>
+                </dd>
+
+                <dt>layer thickness</dt>
+                <dd>Multilayer samples can specified as layer thickness and material separated
+                    by "//". Thicknesses are in length units (cm, mm, um, nm). The
+                    resulting material will compute activation for 1 cm<sup>2</sup> of material.
+                    Density is required for each layer.
+                    <div class="example">
+                        <div class="entrytext">1 cm Si // 5 nm Cr // 10 nm Au</div>
+                    </div>
+                </dd>
+            </dl>
+
+            <dt>biomolecules</dt>
+            <dd>
+                For <a href="https://en.wikipedia.org/wiki/FASTA_format">FASTA</a> sequences
+                use "code:sequence", where code is "aa" for amino acid sequences, "dna" for
+                DNA sequences, or "rna" for RNA sequences. Density is estimated automatically.
+                This calculation uses <sup>1</sup>H for labile hydrogen, with substitution
+                by H in natural abundance and pure D when computing contrast match point.
+                <div class="example">&beta;-casein amino acid sequence <div class="entrytext">
+                        aa:RELEELNVPGEIVESLSSSEESITRINKKIEKFQSEEQQQTEDELQDKIHPFAQTQSLVYPFPGPIPNSLPQNIPPLTQTPVVVPPFLQPEVMGVSKVKEAMAPKHKEMPFPKYPVEPFTESQSLTLTDVENLHLPLPLLQSWMHQPHQPLPPTVMFPPQSVLSLSQSKVLPVPQKAVPYPQRDMPIQAFLLYQEPVLGPVRGPFPIIV
+                    </div>
+                </div>
+            </dd>
+        </div>
+        <div id="help_references" class="help">
+            <h3>References</h3>
+            <ol>
+            <!-- TODO: query activation server for periodictable version number -->
+            <li id="ref_Kienzle">
+                Kienzle, P. A. (2008-2019).
+                <em>Extensible periodic table (v1.5.2).</em>
+                Computer Software.
+                <a href="https://periodictable.readthedocs.io">https://periodictable.readthedocs.io</a>.
+                [<a href="https://github.com/pkienzle/periodictable">calculator source</a>,
+                <a href="https://github.com/scattering/activation">web service source</a>]
+            </li>
+            </ol>
+        </div>
+    </details>
+        <script>
+        function submit() {
+            var formula_text = document.getElementById("formula_text").value;
+            var formBody = "sample=" + encodeURIComponent(formula_text);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", '/cgi-bin/massfrac.py', true);
+
+            //Send the proper header information along with the request
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function () { // Call a function when the state changes.
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    // Request finished. Do processing here.
+                    console.log(this.response);
+                    var json_response = JSON.parse(this.response);
+                    if (json_response && json_response.mass_fractions) {
+                        set_table(json_response.mass_fractions);
+                        document.getElementById("chem").innerText = formula_text;
+                    }
+                }
+            }
+            xhr.send(formBody);
+        }
+
+        function set_table(result) {
+            var table_body = document.getElementById("table_body");
+            table_body.innerHTML = "";
+            for (var element in result) {
+                var row = document.createElement("tr");
+                var el_name = document.createElement("td");
+                el_name.innerText = element;
+                var mass_frac = document.createElement("td");
+                mass_frac.innerText = result[element];
+                row.appendChild(el_name);
+                row.appendChild(mass_frac);
+                table_body.appendChild(row);
+            }
+        }
+        window.onload = function () {
+            document.getElementById("submit_formula").onclick = submit;
+            document.getElementById("formula_text").addEventListener('keydown', function(e) {
+                if (e.keyCode == 13) {
+                    submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
