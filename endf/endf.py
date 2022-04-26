@@ -26,6 +26,7 @@ otherwise it is "STEP-0.OUT" or "STEP-1.OUT" alternating.
 
 Run using::
 
+    ./fetch_endf.sh
     mkdir interp
     cd interp
     python ../endf.py ../ENDF-B-VII.1/*.zip
@@ -60,14 +61,22 @@ ENDF_PROGRAMS=os.path.join(ROOT, "MAC")
 ENDF_DATA=os.path.join(ROOT,"ENDF-B-VII.1")
 KEEP_INTERMEDIATES=False
 
+# See sec 3.4 and Appendix B of the ENDF manual
+# https://www.oecd-nea.org/dbdata/data/endf102.htm#LinkTarget_11914
+# https://www.oecd-nea.org/dbdata/data/endf102.htm#LinkTarget_42352
 ENDF_COLUMNS = {
-    "total": 1,
+    "total": 1, # = 2 + 3
     "elastic": 2,
-    "inelastic": 3,
-    "absorption": 27, # fission + disappearance
-    "fission": 18,
-    "disappearance": 101, # sum of capture + reemission
-    "capture": 102,
+    "nonelastic": 3, # = 4 + a bunch of other stuff
+    "inelastic": 4, # = sum (51 to 91)
+    "absorption": 27, # = 18 + sum(102 to 117); rarely provided
+    "fission": 18, # =19+20+21+38 [first, second, third, fourth-chance fission]
+    "disappearance": 101, # = sum(102 to 117); rarely provided
+    # Capture products: 102 to 117
+    # gamma, H, D, T, He3, He, 2He 3He - 2H H+He T+2He D+2He H+D H+T D+He
+    "gamma": 102, # (n, gamma)
+    "alpha": 107, # (n, a)
+    "2alpha": 108, # (n, 2a)
 }
 
 def _next_step(step, name):
@@ -327,6 +336,7 @@ def endf_load(infile, columns):
         while True:
             line = fid.readline()
             if line == "": break
+            # TODO: if asking for 101, then add 102 through 117
             #ns = int(line[75:80])) # sequence number
             if line[70:75] in columns:
                 mat = int(line[66:70]) #material code
@@ -453,10 +463,11 @@ def showplot(show=True):
     import pylab
     from matplotlib import transforms as mtransforms
     pylab.grid(True)
+    # Axis limits, or none for auto range
     #pylab.axis([5e0,20e3,1e-1,9e3]) # For resonances.html
     #pylab.axis([1e-2,10e3,1e-1,5e3])
     #pylab.axis([1e1,1e8,1e-6,1e2]) # For epithermal
-    pylab.axis([5e0,1e8,1e-1,9e3]) # For full range
+    #pylab.axis([5e0,1e8,1e-1,9e3]) # For full range
     pylab.title('Elastic scattering from ENDF/B-VII.1 nuclear database')
     pylab.xlabel('Energy (meV)')
     #pylab.gca().set_xticklabels([])
@@ -554,8 +565,11 @@ if __name__ == "__main__":
             #if abundance(f) < 0.1: continue
             if abundance(f) <= 0: continue # For resonances.html
             #columns = [1,2,3,4,102,103,104,105,106,107]
-            #columns = [2,102]
-            columns = [2] # For resonances.html
+            #columns = [1,2,102,107]
+            columns = [1] # total cross section
+            #columns = [2] # elastic    # For resonances.html
+            #columns = [102] # (n,gamma)  # absorption to gamma
+            #columns = [107] # (n,alpha) # absorption to alpha
             table = xs_table(f, columns)
             #save_table(os.path.splitext(f)[0]+".tab", table, range=(1e0,1e2))
             if table is not None and sys.argv[1] == "--pyplot":
