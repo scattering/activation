@@ -65,7 +65,7 @@ def _run(prog, files):
     if not KEEP_INTERMEDIATES:
         for f in files:
             if os.path.exists(f): os.unlink(f)
-    print >>sys.stderr, ":======== Done %s ========"%prog
+    print(f":======== Done {prog} ========", file=sys.stderr)
 
 def linear(infile, step, MTs=None):
     """
@@ -409,7 +409,7 @@ def pyplot(f, table, columns, resonance):
     # Table of relative total cross section
     if False: 
       if first:
-        print " "*(8*table.shape[0])+"%7s %7s %7s %7s"%("0.5A","6A","15A","20A")
+        print(" "*(8*table.shape[0])+"%7s %7s %7s %7s"%("0.5A","6A","15A","20A"))
       TARGET=V2200
       y0 = [np.interp(TARGET,table[0,:],table[i,:]) 
           for i in range(1,table.shape[0])]
@@ -417,13 +417,13 @@ def pyplot(f, table, columns, resonance):
       b_cL = np.sqrt(np.interp([L0p1,L0p2,L0p5,L6,L15,L20],table[0,:],table[1,:])/(0.01*4*np.pi))
       delta = (b_cL-b_c)/b_c*100
       #y0[0] = np.sqrt(y0[0]/(4*np.pi))
-      print "%7s"%name," ".join("%7.3f"%vi for vi in y0)," ".join("%6.1f%%"%vi for vi in delta)
+      print("%7s"%name," ".join("%7.3f"%vi for vi in y0)," ".join("%6.1f%%"%vi for vi in delta))
     else:
         if first:
-            print "%7s %7s %15s"%("name","%","res. onset Ang/meV") 
-        print "%7s %7s %7.2f %9.2f"%(
+            print("%7s %7s %15s"%("name","%","res. onset Ang/meV"))
+        print("%7s %7s %7.2f %9.2f"%(
             name, ("%.3f"%p if p else "-"), 
-            wavelength(resonance), resonance*1e3)
+            wavelength(resonance), resonance*1e3))
 
 def wavelength(eV):
     return np.sqrt(81.80420235572412/(eV*1e3))
