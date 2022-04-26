@@ -23,6 +23,26 @@ returning outfile and step+1.  The outfile name is constructed
 by _next_step from the step number and the step name.  If
 KEEP_INTERMEDIATES is True, then the name is "STEP-#-name.OUT"
 otherwise it is "STEP-0.OUT" or "STEP-1.OUT" alternating.
+
+Run using::
+
+    mkdir interp
+    cd interp
+    python ../endf.py ../ENDF-B-VII.1/*.zip
+
+This produces a set of "*.out" files containing the interpolated data.
+You can plot individual resonances using, e.g.:
+
+    python ../endf.py --pyplot *Sm-144*.out
+
+The plotter is set to plot the elastic cross section (column 2) and the
+capture cross section (column 102). See *ENDF_COLUMNS* for the column names.
+
+To generate the images used on the web modify the code, uncommenting the
+lines labeled "For resonance.html". Then run with all interpolated data::
+
+    python ../endf.py --pyplot *
+
 """
 
 import sys
@@ -35,7 +55,8 @@ import numpy as np
 from numpy import NaN
 
 ROOT=os.path.abspath(os.path.dirname(__file__))
-ENDF_PROGRAMS=os.path.join(ROOT, "PREPRO12")
+#ENDF_PROGRAMS=os.path.join(ROOT, "PREPRO12")
+ENDF_PROGRAMS=os.path.join(ROOT, "MAC")
 ENDF_DATA=os.path.join(ROOT,"ENDF-B-VII.1")
 KEEP_INTERMEDIATES=False
 
@@ -329,7 +350,7 @@ def xs_table(infile, columns):
     data = dict((k[2],v) for k,v in data.items())
     if not data: return None
     #print infile,[v[0].shape for v in data.values()]
-    x = np.unique(np.hstack(v[0] for v in data.values()))
+    x = np.unique(np.hstack(tuple(v[0] for v in data.values())))
     #print "x",x
     ypairs = [(data[c] if c in data and len(data[c][0])>0 else ((x.min(),x.max()),(NaN, NaN)))
               for c in columns]
@@ -400,9 +421,9 @@ def pyplot(f, table, columns, resonance):
     if p: label += " %.1f%%"%p
     #label += " res: %.2fA"%wavelength(resonance)
     color=colors[LINENUM]
-    for i in (2,): #range(1,table.shape[0]):
+    for i in range(1,table.shape[0]):
         pylab.loglog(table[0,:].T*1e3, table[i,:], label=label, 
-                     linestyle=lines[i-1], color=color)
+                     linestyle=lines[(i-1)%len(lines)], color=color)
         label='_nolegend_'
 
 
@@ -432,10 +453,10 @@ def showplot(show=True):
     import pylab
     from matplotlib import transforms as mtransforms
     pylab.grid(True)
-    #pylab.axis([5e0,20e3,1e-1,9e3])
+    #pylab.axis([5e0,20e3,1e-1,9e3]) # For resonances.html
     #pylab.axis([1e-2,10e3,1e-1,5e3])
-    pylab.xlim(1e1,1e8)
-    pylab.ylim(1e-6,1e2)
+    #pylab.axis([1e1,1e8,1e-6,1e2]) # For epithermal
+    pylab.axis([5e0,1e8,1e-1,9e3]) # For full range
     pylab.title('Elastic scattering from ENDF/B-VII.1 nuclear database')
     pylab.xlabel('Energy (meV)')
     #pylab.gca().set_xticklabels([])
@@ -530,15 +551,17 @@ if __name__ == "__main__":
         for f in sys.argv[2:]: evalplot(f)
     elif sys.argv[1] in ("--table", "--pyplot"):
         for f in sys.argv[2:]: 
-            if abundance(f) < 0.1: continue
+            #if abundance(f) < 0.1: continue
+            if abundance(f) <= 0: continue # For resonances.html
             #columns = [1,2,3,4,102,103,104,105,106,107]
-            columns = [2,102]
+            #columns = [2,102]
+            columns = [2] # For resonances.html
             table = xs_table(f, columns)
             #save_table(os.path.splitext(f)[0]+".tab", table, range=(1e0,1e2))
             if table is not None and sys.argv[1] == "--pyplot":
                 #print f
                 res = first_resonance(table)
-                #if res > L0p1: continue
+                #if res > L0p1: continue # For resonances.html
                 pyplot(f,table,columns,res)
         if sys.argv[1] == "--pyplot": showplot()
     else:
