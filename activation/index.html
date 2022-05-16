@@ -185,9 +185,15 @@
     ACTIVE_BUTTON = "activation";
     // Parse environment variables "index.html?cutoff=...&abundance=..."
     function getURLParameter(name) {
-        return decodeURIComponent(
+        var value = decodeURIComponent(
             (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
             );
+        return value;
+    }
+    // From Doron Grinzaig (2017-11-21)
+    // https://stackoverflow.com/questions/14129953/how-to-encode-a-string-in-javascript-for-displaying-in-html
+    function sanitize(html) {
+        return $('<div>').text(html).html();
     }
     function format_activation_value(v, cutoff) {
         return (v<cutoff? '---' : v.toExponential(4));
@@ -247,7 +253,7 @@
         if (cutoff_par==='null') CUTOFF = 0.0005;
         else CUTOFF = Number(cutoff_par);
         if (isNaN(CUTOFF)) { // IE doesn't support Number.isNaN
-            show_error("<p>cutoff="+cutoff_par+" in URL should be floating point μCi; defaulting to 0.0005.</p>");
+            show_error("<p>cutoff="+sanitize(cutoff_par)+" in URL should be floating point μCi; default is 0.0005.</p>");
             CUTOFF = 0.0005;
         }
         CUTOFF_Bq = CUTOFF*37000;
@@ -256,7 +262,7 @@
         if (decay_par==='null') DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
         else DECAY_LEVEL = Number(decay_par)
         if (isNaN(DECAY_LEVEL)) { // IE doesn't support Number.isNaN
-            show_error("<p>decay="+decay_par+" in URL should be floating point μCi; defaulting to cutoff.</p>");
+            show_error("<p>decay="+sanitize(decay_par)+" in URL should be floating point μCi; default is cutoff.</p>");
             DECAY_LEVEL = CUTOFF>0?CUTOFF:0.0005;
         }
 
@@ -264,7 +270,7 @@
         if (abundance_par==='null') ABUNDANCE = "IAEA";
         else ABUNDANCE = abundance_par;
         if (ABUNDANCE!=="NIST" && ABUNDANCE!=="IAEA") {
-            show_error("<p>abundance="+abundance_par+" in URL should be NIST or IAEA; defaulting to IAEA</p>");
+            show_error("<p>abundance="+sanitize(abundance_par)+" in URL should be NIST or IAEA; default is IAEA</p>");
             ABUNDANCE = "IAEA";
         }
     }
@@ -423,7 +429,7 @@
             var keys = Object.keys(ldata.detail);
             keys.sort();
             for (i = keys.length-1; i >= 0; i--) {
-                error_html += '<pre class="error">Error ' +keys[i]+': '+ldata.detail[keys[i]]+'</pre>\n';
+                error_html += '<pre class="error">Error ' +sanitize(keys[i])+': '+sanitize(ldata.detail[keys[i]])+'</pre>\n';
             }
             show_error(error_html);
             return;
@@ -439,7 +445,7 @@
             // do nothing if not returned
         } else if ("error" in act) {
             // Restricted title
-            content += '<p>activation calculation failed with</p><pre>\n'+act.error+'</pre>\n';
+            content += '<p>activation calculation failed with</p><pre>\n'+sanitize(act.error)+'</pre>\n';
         } else {
             // Full title
             content += '<h3>Activation of ' + sample.name + ' after ' + format_time(act.exposure)+' at '+act.flux.toPrecision(3)+' n/cm<sup>2</sup>/s</h3>\n';
@@ -448,7 +454,7 @@
             content += '<p class="disclaimer">Estimated activation only. All samples must be evaluated by NIST Health Physics to determine if and how the sample can be removed from the NCNR.</p>';
 
             // Atoms
-            content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + sample.formula + '\n';
+            content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + sanitize(sample.formula) + '\n';
 
             // Rabbit parameters
             if (act.Cd > 0 || act.fast > 0) {
@@ -474,9 +480,9 @@
         if (typeof scat == 'undefined') {
             // do nothing if not returned
         } else if ("error" in scat) {
-            content += '<p>neutron scattering calculation failed with</p><pre>\n'+scat.error+'</pre>\n';
+            content += '<p>neutron scattering calculation failed with</p><pre>\n'+sanitize(scat.error)+'</pre>\n';
         } else if ("error" in xscat) {
-            content += '<p>X-ray scattering calculation failed with</p><pre>\n'+xscat.error+'</pre>\n';
+            content += '<p>X-ray scattering calculation failed with</p><pre>\n'+sanitize(xscat.error)+'</pre>\n';
         } else {
             // Drop coherent cross section from penetration depth calculation.
             // An alternative formulation, based on total scattering b, would be
@@ -489,7 +495,7 @@
 
             // Mass density
             var density_str = $('input:text[id=id_density]').val();
-            content += "<h3>Scattering from " + sample.name + "</h3>";
+            content += "<h3>Scattering from " + sanitize(sample.name) + "</h3>";
 
             // Source neutrons
             content += "<p>Source neutrons: "
@@ -500,8 +506,8 @@
                 + xscat.xray.wavelength.toFixed(3) + "&thinsp;&Aring;"
                 + " = " + xscat.xray.energy.toFixed(3) + "&thinsp;keV<br>";
             // Atoms
-            content += "Sample in beam: " + sample.formula + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
-            if (density_str.indexOf(':') !== -1) content += " from lattice "+density_str;
+            content += "Sample in beam: " + sanitize(sample.formula) + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
+            if (density_str.indexOf(':') !== -1) content += " from lattice "+sanitize(density_str);
             content += "</p>";
 
             // Neutron scattering
@@ -537,7 +543,7 @@
                     +' (after absorption and incoherent scattering).\n';
             content += '<br>Transmitted flux is '
                     +transmitted_flux.toPrecision(4)+'&thinsp;n/cm<sup>2</sup>/s'
-                    +' for a '+flux_str+'&thinsp;n/cm<sup>2</sup>/s beam.\n';
+                    +' for a '+sanitize(flux_str)+'&thinsp;n/cm<sup>2</sup>/s beam.\n';
 
             // Contrast match
             if (scat.contrast_match.D2O_fraction === null) {
