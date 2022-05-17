@@ -34,8 +34,10 @@
             }
             .no-print { display: none !important; height: 0; }
             .no-print *{ display: none !important; height: 0; }
+            /* TODO: {display: block} causes bugs for tags like <span> */
             .print-only { display: block !important; }
             .print-only *{ display: block !important; }
+            .print-only span { display: inline !important; }
         }
         .print-only { display: none; }
         .print-only *{ display: none; }
@@ -593,6 +595,8 @@
         $(content).prependTo('div[id=results]'); //add to the dom
         $("table").tablesorter({sortList: [[8,1]]});
         scroll_to_result();
+        // Add a timestamp for the most recent calculation.
+        document.getElementById('timestamp').innerHTML = new Date();
     }
 
     function scroll_to_result(){
@@ -1311,13 +1315,17 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </div>
 
 <hr>
-<div id="footer">
-  <div style="float:left;"><p>
-<em>Questions?</em><br>
-Neutron activation: NCNR Health Physics &lt;<a href="mailto:hp@nist.gov">hp@nist.gov</a>&gt;<br>
-Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
-</p></div>
-  <div style="float:right;"><p><?php lastmod(); ?></p></div>
+<div id="footer" class="no-print">
+    <div style="float:left;"><p>
+        <em>Questions?</em><br>
+        Neutron activation: NCNR Health Physics &lt;<a href="mailto:hp@nist.gov">hp@nist.gov</a>&gt;<br>
+        Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
+        </p></div>
+    <div style="float:right;"><p><?php lastmod(); ?></p></div>
 </div>
+<p class="print-only">
+    Calculation date: <span id="timestamp"></span><br>
+    Program date: <?php lastmod(); ?>
+</p>
 
 </body></html>
