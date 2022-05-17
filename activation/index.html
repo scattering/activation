@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--- Setting viewport makes for a much worse experience on iPhone SE
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    -->
     <title>Neutron Activation and Scattering Calculator</title>
     <link rel="shortcut icon" href="favicon.ico">
 
@@ -9,6 +12,12 @@
     <script type="text/javascript" src="jquery.tablesorter-2.0.5b.min.js"></script>
 
     <style type="text/css">
+        body { position: absolute; }
+        /*body { font-size: 16pt; }*/
+        input, select, textarea, button {
+            font-family: inherit;
+            font-size: inherit;
+        }
         @media print
         {
             body { font-size: 10pt !important; }
@@ -26,13 +35,14 @@
         .print-only *{ display: none; }
 
         p { margin-bottom: 0; }
-        .footer p { margin-top: 0; }
+        #footer p { margin-top: 0; }
+        #footer div { width: 100%; }
         /* body { font-size: 0.9em; } */
         .disabled { opacity: 0.3; }
         label { font-weight: inherit; }
         .controls input { width: 100%; }
         table { margin: 0; padding: 0; border-spacing: 0; border-color: lightgray; }
-        caption, td, th { padding: 0 0.5em 0 0.5em; }
+        caption, td, th { padding: 0.2ex 0.5em 0.2ex 0.5em; }
         th { vertical-align: baseline; }
         tbody tr:nth-child(2n) th, tbody tr.even th,
         tbody tr:nth-child(2n) td, tbody tr.even td,
@@ -50,11 +60,17 @@
             background-image: url(resonance-theme/desc.gif);
         }
 
+        /* Cleaner time help table when space is limited. */
+        #help_time_off th { text-align: left; }
+        #help_time_off caption, td, th { padding: 0.2ex 0.5em 0.2ex 0.0em; }
+        #help_time_off .timecol { min-width: 9.1em; }
+
         /* output markup */
         .error { color: red; }
         p.disclaimer { color: darkred; font-size:1.2em; }
 
-        #id_chemical_formula { width: 30em; }
+        /* Make the formula box expand to the available width. */
+        #material-panel table { display: table; width: 100%; }
 
         div.cutoff { display: block; }
         div.nocutoff { display: none; }
@@ -76,8 +92,9 @@
             -ms-grid-column:2; -ms-grid-row:1;
             grid-column:2; grid-row:1;
             overflow:hidden;
+            margin-left:0.5em;
             margin-right:0em;
-            /* min-width:10em; max-width:40em; */
+            min-width:16em; max-width:40em;
             padding-right:0.5em;
             overflow-y:scroll;
             height:35ex; /* will be replaced by activation-frame height in js */
@@ -564,14 +581,18 @@
             }
         }
 
-
         // End of div
         content += '</div>\n';
 
         $(content).prependTo('div[id=results]'); //add to the dom
         $("table").tablesorter({sortList: [[8,1]]});
+        scroll_to_result();
     }
 
+    function scroll_to_result(){
+        var opt = {behavior: "smooth", block: "nearest"};
+        document.getElementById("results").firstChild.scrollIntoView(opt);
+    }
     // Dynamic help support.  Clicking an input field jumps to the
     // corresponding section of the help.  Input "gork" uses:
     //    <input id="id_gork" ...>
@@ -686,11 +707,11 @@
             <div class="panel" id="scattering-panel">
             <h3><span class="text">Absorption and Scattering</span></h3>
             <table><tbody><tr>
-              <td>
+              <td width="40%">
                <label for="id_density" class="control-label">Density</label>
-              </td><td>
+              </td><td width="40%">
                <label for="id_thickness" class="control-label">Thickness</label>
-              </td>
+              </td><td width="20%"></td>
             </tr><tr>
               <td>
                <div class="controls"><input id="id_density" type="text" class="textinput textInput" name="density" value="" title="Mass density as val or a:val b:val c:val (Å) alpha:val beta:val gamma:val (°)."></div>
@@ -1056,19 +1077,19 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     as "+01" for +1 hours in France in winter, when daylight savings time is
     not in effect.
     </p>
-    <h4>Examples</h4>
+    <p />
     <table>
-    <tr><th>If you type:</th><th>This is equivalent to:</th></tr>
-    <tr><td>2 m</td><td>2 minutes ago</td></tr>
-    <tr><td>1</td><td>1 hour ago</td></tr>
-    <tr><td>2.5w</td><td>2 and a half weeks ago</td></tr>
-    <tr><td>3 y</td><td>3 years ago</td></tr>
-    <tr><td>2015-01-02 21:45:00</td><td>January 2, 2015 at 9:45 PM US/Eastern</td></tr>
-    <tr><td>2010-03</td><td>March 31, 2010 at 11:59:59 PM US/Eastern</td></tr>
-    <tr><td>2010-7-5 12:23</td><td>July 5, 2010 at 12:23:59 PM US/Eastern</td></tr>
-    <tr><td>2015-01-02 21:45:00Z</td><td>January 2, 2015 at 9:45 PM UTC</td></tr>
-    <tr><td>2015-01-02 21:45:00-0600</td><td>January 2, 2015 at 9:45 PM US/Central</td></tr>
-    <tr><td>2015-08-02 21:45:00-0500</td><td>August 2, 2015 at 9:45 PM US/Central</td></tr>
+    <tr><th class="timecol">If you type:</th><th>This is equivalent to:</th></tr>
+    <tr><td class="timecol">2 m</td><td>2 minutes ago</td></tr>
+    <tr><td class="timecol">1</td><td>1 hour ago</td></tr>
+    <tr><td class="timecol">2.5w</td><td>2 and a half weeks ago</td></tr>
+    <tr><td class="timecol">3 y</td><td>3 years ago</td></tr>
+    <tr><td class="timecol">2015-01-02&nbsp;21:45:00</td><td>January 2, 2015 at 9:45 PM US/Eastern</td></tr>
+    <tr><td class="timecol">2010-03</td><td>March 31, 2010 at 11:59:59 PM US/Eastern</td></tr>
+    <tr><td class="timecol">2010-7-5&nbsp;12:23</td><td>July 5, 2010 at 12:23:59 PM US/Eastern</td></tr>
+    <tr><td class="timecol">2015-01-02&nbsp;21:45:00Z</td><td>January 2, 2015 at 9:45 PM UTC</td></tr>
+    <tr><td class="timecol">2015-01-02&nbsp;21:45:00-0600</td><td>January 2, 2015 at 9:45 PM US/Central</td></tr>
+    <tr><td class="timecol">2015-08-02&nbsp;21:45:00-0500</td><td>August 2, 2015 at 9:45 PM US/Central</td></tr>
     <tr><td></td><td></td></tr>
     </table>
 </div>
@@ -1284,7 +1305,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </div>
 
 <hr>
-<div class="footer">
+<div id="footer">
   <div style="float:left;"><p>
 <em>Questions?</em><br>
 Neutron activation: NCNR Health Physics &lt;<a href="mailto:hp@nist.gov">hp@nist.gov</a>&gt;<br>
