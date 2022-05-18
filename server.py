@@ -36,8 +36,6 @@ handler = CGIHTTPRequestHandler
 handler.cgi_directories = ["/cgi-bin"]
 
 host, port = "", 8008
-#host = "p640596.campus.nist.gov"
-#host = "192.168.1.191"
 if len(sys.argv) > 1:
     host, *rest = sys.argv[1].split(':', 1)
     if rest:

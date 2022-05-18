@@ -32,19 +32,22 @@
                 /* border: 0.1pt solid lightgray !important; */
                 border: none !important;
             }
-            .no-print { display: none !important; height: 0; }
-            .no-print *{ display: none !important; height: 0; }
-            /* TODO: {display: block} causes bugs for tags like <span> */
-            .print-only { display: block !important; }
-            .print-only *{ display: block !important; }
-            .print-only span { display: inline !important; }
+            /* Suppress screen-only when printing */
+            .screen-only { display: none !important; height: 0; }
+            .screen-only *{ display: none !important; height: 0; }
         }
-        .print-only { display: none; }
-        .print-only *{ display: none; }
+        @media screen
+        {
+            /* Suppress print-only when displaying on screen */
+            .print-only { display: none; }
+            .print-only *{ display: none; }
+        }
 
         p { margin-bottom: 0; }
         #footer p { margin-top: 0; }
-        #footer div { width: 100%; }
+        #footer { width: 100%; }
+        #footer-left { float: left; }
+        #footer-right { float: right; }
         /* body { font-size: 0.9em; } */
         .disabled { opacity: 0.3; }
         label { font-weight: inherit; }
@@ -406,10 +409,10 @@
         var activity_header, activity_button;
         if (cutoff>0) {
             activity_header = 'Activity (&mu;Ci) above ' + cutoff.toExponential(4) + ' &mu;Ci';
-            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(false);event.stopPropagation();">All</button>';
+            activity_button = '<button class="activity_button screen-only" onClick="show_cutoff(false);event.stopPropagation();">All</button>';
         } else if (CUTOFF>0) {
             activity_header = 'Activity (&mu;Ci)';
-            activity_button = '<button class="activity_button no-print" onClick="show_cutoff(true);event.stopPropagation();">&gt;'+CUTOFF.toExponential(4)+'&thinsp;&mu;Ci</button>';
+            activity_button = '<button class="activity_button screen-only" onClick="show_cutoff(true);event.stopPropagation();">&gt;'+CUTOFF.toExponential(4)+'&thinsp;&mu;Ci</button>';
         } else {
             activity_header = 'Activity (&mu;Ci)';
             activity_button = '';
@@ -596,7 +599,8 @@
         $("table").tablesorter({sortList: [[8,1]]});
         scroll_to_result();
         // Add a timestamp for the most recent calculation.
-        document.getElementById('timestamp').innerHTML = new Date();
+        var timestamp = (new Date().toLocaleString());
+        document.getElementById('calculation-timestamp').innerHTML = timestamp;
     }
 
     function scroll_to_result(){
@@ -629,6 +633,8 @@
         parse_url_parameters();
         enable_forms();
         setup_help();
+        var timestamp = (new Date(Date.parse(document.lastModified))).toLocaleDateString();
+        document.getElementById("lastmod-timestamp").innerHTML = timestamp;
     });
 </script>
 
@@ -646,7 +652,7 @@
 
 <div id="content-frame" class="container disabled">
 
-    <div id="activation-frame" class="no-print">
+    <div id="activation-frame" class="screen-only">
 
         <form id="id-activationForm" class="blueForms" method="post">
 
@@ -754,7 +760,7 @@
         </form>
 
     </div>
-    <div id="help-frame" class="no-print">
+    <div id="help-frame" class="screen-only">
 <div id="help_initial" class="help">
 <h3>Neutron activation and scattering calculator</h3>
 <p>
@@ -1315,17 +1321,20 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 </div>
 
 <hr>
-<div id="footer" class="no-print">
-    <div style="float:left;"><p>
+<div id="footer">
+    <div id="footer-left"><p>
         <em>Questions?</em><br>
         Neutron activation: NCNR Health Physics &lt;<a href="mailto:hp@nist.gov">hp@nist.gov</a>&gt;<br>
         Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
         </p></div>
-    <div style="float:right;"><p><?php lastmod(); ?></p></div>
+    <!-- <div id="footer-right"><p><?php lastmod(); ?></p></div> -->
+    <div id="footer-right">
+        <p>Last modified <span id="lastmod-timestamp"></span> by website owner: NCNR
+        <span class="print-only">
+            <br>Calculation time: <span id="calculation-timestamp"></span>
+        </span>
+        </p>
+    </div>
 </div>
-<p class="print-only">
-    Calculation date: <span id="timestamp"></span><br>
-    Program date: <?php lastmod(); ?>
-</p>
 
 </body></html>
