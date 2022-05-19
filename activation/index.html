@@ -238,8 +238,10 @@
         else if (v >= 1e-9) return (1e9*v).toFixed(3)+'&thinsp;ng';
         else return v.toExponential(4)+'&thinsp;ng';
     }
+    // standard year for activation calculations is 365, not 365.2425
+    var HOURS_PER_YEAR = 365*24; // = 365.2425*24;
     function format_time(v) {
-        if (v >= 365.2425*24) return nice_number(v/365.2425/24)+' yrs';
+        if (v >= HOURS_PER_YEAR) return nice_number(v/HOURS_PER_YEAR)+' yrs';
         else if (v >= 48 || v == 24) return nice_number(v/24)+' days';
         else if (v >= 2 || v == 1) return nice_number(v)+' hrs';
         else if (v >= 2/60. | v == 1/60.) return nice_number(v*60)+' min';
@@ -491,7 +493,34 @@
 
             // Decay time
             if (act.decay_time > 0) {
-                content += '<br>Time to decay below '+act.decay_level.toExponential(4)+' &mu;Ci is '+format_time(act.decay_time)+'.\n';
+                content += '<br>Time to decay below '+act.decay_level.toExponential(4)+' &mu;Ci is '+format_time(act.decay_time);
+                /* TODO: show cool-off date.
+                The implementation below will confuse users since cool-off date is relative
+                to the time off beam rather than the current time. This is okay when the
+                "Decay" field is set for an existing sample, but the common case is to
+                estimate activation for a sample you are planning to put on the beam not
+                one that you have already measured and removed. We could tweak the interface
+                so that we only display the cool-off date when decay time is negative or
+                decay time is a time stamp, or we could just live with the confusion.
+                I'm going to punt on this for now.
+                // Add the "cool" date/time as the current time minus off beam time plus decay time.
+                var decay_delta = act.decay_time - act.rest[4]; // in hours
+                if (decay_delta < 0) {
+                    // Already past, print nothing.
+                } else if (decay_delta < 7*24) {
+                    // Cool within one week: print date and time
+                    var decay_date = new Date(Date.now() + 1000*3600*decay_delta); // js timestamp is in ms
+                    content += ' [date: ' + decay_date.toLocaleString() + ']';
+                } else if (decay_delta < HOURS_PER_YEAR*100) {
+                    // Cool within one century, print date
+                    decay_delta += 26; // Force anything after 6AM into the next day
+                    var decay_date = new Date(Date.now() + 1000*3600*decay_delta); // js timestamp is in ms
+                    content += ' [date: ' + decay_date.toLocaleDateString() + ']';
+                } else {
+                    // More than a century in the future; print nothing.
+                }
+                */
+                content += "\n";
             }
             content += '</p>\n'
 
@@ -598,9 +627,6 @@
         $(content).prependTo('div[id=results]'); //add to the dom
         $("table").tablesorter({sortList: [[8,1]]});
         scroll_to_result();
-        // Add a timestamp for the most recent calculation.
-        var timestamp = (new Date().toLocaleString());
-        document.getElementById('calculation-timestamp').innerHTML = timestamp;
     }
 
     function scroll_to_result(){
@@ -641,10 +667,62 @@
 </head>
 <body>
 
+<div class="screen-only">
 <?php
   include("/var/www/include/navigation.inc");
   include("/var/www/include/utility.inc");
 ?>
+<!-- Snapshot of navigation.inc and utility.inc from 2022-05-18. Move the
+    ENDCOMMENT line above the table to show the banner from the local server.
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tbody><tr align="center" valign="bottom">
+     <td background="https://www.ncnr.nist.gov/images/ncnr_banner_tile_2.png">
+      <table width="90%" border="0" cellpadding="0" cellspacing="0" height="66">
+       <tbody><tr valign="middle">
+        <td align="left">
+   <a href="#MainContent" tabindex="-1"><img src="https://www.ncnr.nist.gov/Hidden.gif" width="1" height="1" alt="skip to main content" align="left" border="0"></a>
+         <img src="https://www.ncnr.nist.gov/images/ncnr_banner_title_2.gif" alt="NIST Center for Neutron Research" ismap="" border="0" usemap="#ncnrmap">
+         <map name="ncnrmap">
+          <area shape="rect" coords="0,19,355,40" href="http://www.ncnr.nist.gov/" alt="NIST Center for Neutron Research">
+         </map>
+        </td>
+        <td align="right">
+         <a href="http://www.nist.gov/" tabindex="-1">
+          <img src="https://www.ncnr.nist.gov/images/ncnr_banner_nist_name.gif" alt="National Institute of Standards and Technology" border="0">
+         </a>
+        </td>
+       </tr>
+      </tbody></table>
+     </td>
+    </tr>
+   </tbody></table>
+   <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tbody><tr align="center">
+     <td bgcolor="#ccccff">
+          <a href="https://nist.gov/ncnr" tabindex="-1">
+          <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Home
+          </b></font></a></td>
+     <td bgcolor="#ccccff">
+          <a href="https://www.ncnr.nist.gov/ipeek" tabindex="-1">
+          <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Live Data
+          </b></font></a></td>
+     <td bgcolor="#ccccff">
+          <a href="https://nist.gov/ncnr/neutron-instruments" tabindex="-1">
+          <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Instruments
+          </b></font></a></td>
+     <td bgcolor="#ccccff">
+          <a href="https://nist.gov/ncnr/chrns" tabindex="-1">
+          <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>CHRNS
+          </b></font></a></td>
+     <td bgcolor="#ccccff">
+          <a href="https://nist.gov/ncnr/call-proposals" tabindex="-1">
+          <font face="arial, helvetica, sans-serif" color="#663399" size="3"><b>Proposals
+          </b></font></a></td>
+     </tr>
+  </tbody></table>
+ENDCOMMENT -->
+<!-- end snapshot -->
+</div>
 
 <noscript>
 <h3>Enable javascript to run the activation calculator.</h3><hr />
@@ -1280,6 +1358,11 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <div id="help_history" class="help">
     <h3>History</h3>
     <dl class="inline">
+    <dt>2022-05-18</dt><dd>Fix decay time calculation for long-lived isotopes and activation calculation for Eu.
+        <br />Use standard year as 365 days when reporting activation times.
+        <br />Improve style sheets for mobile and print.
+        <br />Remove possible cross-site scripting attack vector.
+    </dd>
     <dt>2021-04-21</dt><dd>Support energy-dependent rare earth elements.
         <br />Use complex scattering length b<sub>c</sub> when computing
               σ<sub>c</sub> = 4π&thinsp;|b<sub>c</sub>|<sup>2</sup>/100 and
@@ -1329,11 +1412,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
         </p></div>
     <!-- <div id="footer-right"><p><?php lastmod(); ?></p></div> -->
     <div id="footer-right">
-        <p>Last modified <span id="lastmod-timestamp"></span> by website owner: NCNR
-        <span class="print-only">
-            <br>Calculation time: <span id="calculation-timestamp"></span>
-        </span>
-        </p>
+        <p>Last modified <span id="lastmod-timestamp"></span> by website owner: NCNR</p>
     </div>
 </div>
 
