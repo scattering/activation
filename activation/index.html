@@ -112,10 +112,12 @@
         }
         #results-frame {
             -ms-grid-column:1/3; -ms-grid-row:2;
+            -ms-overflow-style: none; /* hide vertical scrollbar in IE */
             grid-column:1/3; grid-row:2;
             height:auto;
             overflow-y:scroll;
         }
+        #results-frame::-webkit-scrollbar { width: 0 !important }
         div.control-group { margin-left: 0.5em; vertical-align: bottom; }
         /* div.control-group { height: 3ex; width: 15em; } */
         /* .help starts display:none so that size is initially zero. */
