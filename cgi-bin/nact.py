@@ -24,6 +24,7 @@ except ImportError:
 
 from pytz import timezone, utc
 
+import periodictable
 from periodictable import elements, activation, formula, \
         neutron_scattering, xray_sld, nsf, util, xsf
 
@@ -385,10 +386,18 @@ def cgi_call():
         else:
             mass = 1.
 
-    result = {'success': True}
+    result = {
+        'success': True,
+        'version': periodictable.__version__,
+        }
     result['sample'] = {
         'name': sample,
         'formula': str(chem),
+        # Use latex output with "$_{count}" rather than html "<sub>count</sub>"
+        # because html translates "<" to "&lt;" and then to "&amp;lt". Instead
+        # use sample.formula_latex.replace(/\$_{([^}]*)}\$/g, '<sub>$1</sub>')
+        # to render subscripts in the web interface.
+        'formula_latex': periodictable.formulas.pretty(chem, 'latex'),
         'mass': mass,
         'density': chem.density,
         'thickness': thickness,
@@ -485,8 +494,9 @@ if __name__ == "__main__":
         response = cgi_call()
     except Exception:
         response = {
-            'success':False,
+            'success': False,
+            'version': periodictable.__version__,
+            'detail': {'query': error()},
             'error': 'unexpected exception',
-            'detail':{'query': error()},
         }
     respond(response)

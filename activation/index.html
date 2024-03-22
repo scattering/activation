@@ -454,7 +454,9 @@
             content += '<p class="disclaimer">Estimated activation only. All samples must be evaluated by NIST Health Physics to determine if and how the sample can be removed from the NCNR.</p>';
 
             // Atoms
-            content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + sanitize(sample.formula) + '\n';
+            //var formula = sample.formula;
+            var formula = sample.formula_latex.replace(/\$_{([^}]*)}\$/g, '<sub>$1</sub>');
+            content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + formula + '\n';
 
             // Rabbit parameters
             if (act.Cd > 0 || act.fast > 0) {
@@ -1243,23 +1245,30 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <div id="help_history" class="help">
     <h3>History</h3>
     <dl class="inline">
-    <dt>2021-04-21</dt><dd>Support energy-dependent rare earth elements.
+    <dt>2024-03-22 v1.7.0</dt><dd>Mixture formulas allow wt% and vol%.
+        <br />Formulas allow unicode subscripts such as H₂O.
+        <br />FASTA sequences (aa/rna/dna:seq) allowed as mixture components.
+        <br />FASTA calculations updated.
+        <br />Use correct halflife for Tm-171, Ho-163 and W-188 activation products.
+        <br />Improve numerical precision of activation calculations.
+    </dd>
+    <dt>2021-04-21 v1.6.0</dt><dd>Support energy-dependent rare earth elements.
         <br />Use complex scattering length b<sub>c</sub> when computing
               σ<sub>c</sub> = 4π&thinsp;|b<sub>c</sub>|<sup>2</sup>/100 and
               σ<sub>i</sub> = σ<sub>s</sub> - σ<sub>c</sub>.
     </dd>
-    <dt>2020-10-29</dt><dd>Change field labels from 'time on/off beam' to 'exposure/decay duration'.</dd>
+    <dt>2020-10-29 v1.5.3</dt><dd>Change field labels from 'time on/off beam' to 'exposure/decay duration'.</dd>
     <dt>2020-01-22</dt><dd>Restore support for Internet Explorer 10 and 11.</dd>
     <dt>2019-12-02</dt><dd>Fix cutoff=0 handling in URL.</dd>
-    <dt>2019-11-14</dt><dd>Correct units on activity table: nCi becomes uCi.
+    <dt>2019-11-14 v1.5.2</dt><dd>Correct units on activity table: nCi becomes uCi.
         <br />Elemental carbon density changed to 2.2 to match CXRO, CRC and RSC.
     </dd>
     <dt>2019-11-04</dt><dd>Update neutron refs with links to ILL data book and Table for Crystallography.</dd>
     <dt>2019-09-16</dt><dd>Improve help system: can now scroll between sections.</dd>
-    <dt>2019-09-11</dt><dd>Include notes on activation calculation.</dd>
+    <dt>2019-09-11 v1.5.1</dt><dd>Include notes on activation calculation.</dd>
     <dt>2019-08-27</dt><dd>Change default cutoff to 0.5 nCi.</dd>
     <dt>2018-01-12</dt><dd>Make activation table sortable.</dd>
-    <dt>2017-05-11</dt><dd>Improved support for printing tables.
+    <dt>2017-05-11 v1.5.0</dt><dd>Improved support for printing tables.
         <br />Support for biomolecules with labile hydrogen (FASTA format).
         <br />Mixture by mass and volume, e.g., <code>5 g NaCl // 50 mL H2O@1</code>
         <br />Multi-layer materials, e.g., <code>5 um Si // 3 nm Cr // 8 nm Au</code>
@@ -1267,9 +1276,9 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </dd>
     <dt>2016-12-07</dt><dd>Use exponential notation for all activity levels.</dd>
     <dt>2015-10-20</dt><dd>Allow decay time to be calculated from timestamp..</dd>
-    <dt>2014-03-20</dt><dd>Default to isotopic density.</dd>
+    <dt>2014-03-20 v1.4.1</dt><dd>Default to isotopic density.</dd>
     <dt>2013-11-05</dt><dd>Support for X-ray scattering.</dd>
-    <dt>2013-04-17</dt><dd>Initial release.</dd>
+    <dt>2013-04-17 v1.3.8</dt><dd>Initial release.</dd>
     </dl>
 </div>
 
@@ -1290,7 +1299,9 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 Neutron activation: NCNR Health Physics &lt;<a href="mailto:hp@nist.gov">hp@nist.gov</a>&gt;<br>
 Scattering calculations: Paul Kienzle &lt;<a href="mailto:paul.kienzle@nist.gov">paul.kienzle@nist.gov</a>&gt;
 </p></div>
-  <div style="float:right;"><p><?php lastmod(); ?></p></div>
+  <div style="float:right;">
+    <p><?php lastmod(); ?><br>Using <a href="https://periodictable.readthedocs.io">periodictable v1.7.0<a></p>
+  </div>
 </div>
 
 </body></html>
