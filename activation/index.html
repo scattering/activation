@@ -455,7 +455,7 @@
 
             // Atoms
             //var formula = sample.formula;
-            var formula = sample.formula_latex.replace(/\$_{([^}]*)}\$/g, '<sub>$1</sub>');
+            var formula = sanitize(sample.formula_latex).replace(/\$_{([^}]*)}\$/g, '<sub>$1</sub>');
             content += '<p>Sample in beam: ' + format_mass(sample.mass) + ' of ' + formula + '\n';
 
             // Rabbit parameters
@@ -508,7 +508,9 @@
                 + xscat.xray.wavelength.toFixed(3) + "&thinsp;&Aring;"
                 + " = " + xscat.xray.energy.toFixed(3) + "&thinsp;keV<br>";
             // Atoms
-            content += "Sample in beam: " + sanitize(sample.formula) + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
+            //var formula = sample.formula;
+            var formula = sanitize(sample.formula_latex).replace(/\$_{([^}]*)}\$/g, '<sub>$1</sub>');
+            content += "Sample in beam: " + formula + " at " + sample.density.toFixed(2) + "&thinsp;g/cm<sup>3</sup>";
             if (density_str.indexOf(':') !== -1) content += " from lattice "+sanitize(density_str);
             content += "</p>";
 
