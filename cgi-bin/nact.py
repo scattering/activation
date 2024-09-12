@@ -262,8 +262,8 @@ def cgi_call():
     # Parse inputs
     errors = {}
     calculate = form.getfirst('calculate', 'all')
-    if calculate not in ('scattering', 'activation', 'all'):
-        errors['calculate'] = "calculate should be one of 'scattering', 'activation' or 'all'"
+    if calculate not in ('scattering', 'activation', 'material', 'all'):
+        errors['calculate'] = "calculate should be one of {scattering, activation, material, all}."
     try:
         sample = form.getfirst('sample')
         chem = formula(sample)
@@ -402,6 +402,7 @@ def cgi_call():
         'density': chem.density,
         'thickness': thickness,
         'natural_density': chem.natural_density,
+        'mass_fractions': {str(k): v for k, v in chem.mass_fraction.items()},
         }
 
     # Run calculations
