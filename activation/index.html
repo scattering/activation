@@ -732,9 +732,9 @@
 <h3>Neutron activation and scattering calculator</h3>
 <p>
 This calculator uses neutron cross sections to compute activation
-on the sample given the mass in the sample and the time in the beam,
-or to perform scattering calculations for the neutrons which are
-not absorbed by the sample.
+of the sample given the mass in the sample and the time in the beam,
+and to perform absorption and scattering calculations for samples on
+slow neutron beamlines (energy below 325 meV, wavelength above 0.05 nm).
 </p>
 <ol>
 <li>Enter the sample formula in the material panel.</li>
@@ -1152,10 +1152,11 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </p><p>
     For heavier isotopes (Cd, Hf, rare earths) and/or shorter wavelengths
     (below 1&nbsp;&Aring;) there are neutron <a href="resonance.html">resonances</a>
-    in the thermal range. For rare-earth elements the energy-dependent coherent
-    sld is calculated following scattering length values tabulated
-    in <a class="cite" href="#ref_Lynn1992">Lynn and Seeger 1992</a>. Incoherent
-    scattering will be understimated for these elements. 
+    in the thermal range. For common rare-earth isotopes the energy-dependent
+    coherent and absorption cross sections tabulated in
+    <a class="cite" href="#ref_Lynn1992">Lynn and Seeger 1992</a> are used.
+    Incoherent scattering will be understimated for these elements.
+    Resonances for <sup>113</sup>Cd and <sup>180</sup>Ta are ignored.
     </p><p>
     There is also a wavelength dependence for single phonon interactions which
     gives rise to significant inelastic scattering for lighter isotopes (H, D)
@@ -1207,9 +1208,9 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     </li>
     <!-- TODO: query activation server for periodictable version number -->
     <li id="ref_Kienzle">
-        Kienzle, P. A. (2008-2019).
-        <em>Extensible periodic table (v1.5.2).</em>
-        Computer Software.
+        Kienzle, P. A. (2008).
+        <em>Extensible periodic table</em>
+        [Computer Software].
         <a href="https://periodictable.readthedocs.io">https://periodictable.readthedocs.io</a>.
         [<a href="https://github.com/pkienzle/periodictable">calculator source</a>,
         <a href="https://github.com/scattering/activation">web service source</a>]
