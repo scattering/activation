@@ -44,6 +44,8 @@ lines labeled "For resonance.html". Then run with all interpolated data::
 
     python ../endf.py --pyplot *
 
+To examine activation cross sections, uncomment "For activation".
+
 Note: ENDF data only roughly corresponds to activation data from calculator.
 Even for thermal activation, some reactions in ENDF do not appear in
 the activation data table and some reactions in the activation data table do
@@ -463,7 +465,7 @@ def iso_color(f):
     return ISO_COLOR[f]
 
 _first_row = True
-def pyplot(f, table, columns, resonance):
+def pyplot(f, table, columns, resonance, E_cutoff=None, active_only=False):
     import matplotlib.pyplot as plt
     first = LINENUM < 0
 
@@ -475,13 +477,14 @@ def pyplot(f, table, columns, resonance):
     if p: label += " %.1f%%"%p
     #label += " res: %.2fA"%wavelength(resonance)
     x = table[0, :]
-    index = slice(None) # all energy
-    #index = x < 1 # thermal energy plus some epithermal
+    index = slice(None) if E_cutoff is None else (x < E_cutoff)
     for k, ck in enumerate(columns):
         y = table[k+1, :]
         capture_abundance = abundance(f, ck)
         if not (y[index] > 1e-9).any(): continue  # Skip empty cross sections
-        #if capture_abundance > 0: continue # Skip stable daughter products
+        if active_only and capture_abundance > 0:
+            #print("skipping", ck)
+            continue # Skip stable daughter products
         plt.loglog(
             x, y,
             label=f"{label} {ENDF_LABELS[ck]}",
@@ -645,21 +648,25 @@ if __name__ == "__main__":
                 print(f"no data for {f}")
                 continue
             #if abundance(f) < 0.1: continue # only common isotopes
-            #if abundance(f) <= 0: continue # For resonances.html, only naturally occurring isotopes
+            if abundance(f) <= 0: continue # For resonances.html activation only naturally occurring isotopes
             #columns = [1,2,3,4,102,103,104,105,106,107]
             #columns = [1,2,102,107] # total coh act n,a
             #columns = [1] # total cross section
-            columns = [2] # For resonances.html, show elastic cross sections
-            #columns = [102] # act
+            #columns = [2] # For resonances.html, show elastic cross sections
+            #columns = [102] #    act
             #columns = [107] # n,a
-            #columns = [16, 102, 103, 107] # n,2n act n,p n,a
+            columns = [16, 102, 103, 107] # For activation: n,2n act n,p n,a
             table = xs_table(f, columns)
             #save_table(os.path.splitext(f)[0]+".tab", table, range=(1e0,1e2))
             if table is not None and sys.argv[1] == "--pyplot":
                 #print f
                 res = first_resonance(table)
-                if res > L0p1: continue # For resonances.html, only consider thermal resonances
-                pyplot(f,table,columns,res)
+                #if res > L0p1: continue # For resonances.html, only consider thermal resonances
+                E_cutoff = None # show all curves with significant XS
+                E_cutoff = 1 # [eV] For resonance.html and activation show curves with significant XS below E
+                active_only = True # For activation
+                #active_only = False # For resonances.html, show all cross sections
+                pyplot(f,table,columns,res,E_cutoff=E_cutoff, active_only=active_only)
         if sys.argv[1] == "--pyplot":
             showplot()
     else:

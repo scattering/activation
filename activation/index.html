@@ -882,11 +882,12 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <p>Units: n/cm<sup>2</sup>/s</p>
 <p>
     Provide the thermal flux equivalent for the pre-sample beam configuration
-    for the instrument.  This is only need for computing the neutron
-    activation from the experiment, and is not used for computing scattering
-    cross sections. Within the NCNR, you can access a list of
-    <a href="http://www-i.ncnr.nist.gov/beamline_operations/instrument_fluxes.html">instrument fluxes</a>,
-    but this is not available from outside.
+    for the instrument. Because neutron capture cross sections are linear
+    above 0.5 Å for most isotopes, simply scale the flux by λ/1.798 Å, where
+    λ is the average wavelength at the sample weighted by spectral intensity.
+    For non-linear isotopes activation may be underestimated
+    (<sup>176</sup>Lu &lt; 1.8 Å; <sup>151</sup>Eu &lt; 0.8 Å)
+    or overestimated (<sup>33</sup>S &lt; 11 Å; <sup>204</sup>Hg &lt; 20 Å).
 </p>
 <p>
     The neutron activation calculation follows (<a class="cite" href="#ref_Shleien">Shleien 1998</a>).
