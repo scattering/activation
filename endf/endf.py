@@ -67,6 +67,12 @@ import warnings
 import numpy as np
 from numpy import nan as NaN
 
+try:
+    import periodictable as pt
+except ImportError:
+    pt = None
+    warnings.warn(f"periodictable not available so no abundance values")
+
 ROOT=os.path.abspath(os.path.dirname(__file__))
 #ENDF_PROGRAMS=os.path.join(ROOT, "PREPRO12")
 ENDF_PROGRAMS=os.path.join(ROOT, "MAC")
@@ -90,7 +96,7 @@ ENDF_COLUMNS = {
     "disappearance": 101, # = sum(102 to 117); rarely provided
     # Capture products: 102 to 117
     # gamma, H, D, T, He3, He, 2He 3He - 2H H+He T+2He D+2He H+D H+T D+He
-    "act": 102, # (n, gamma)
+    "capture": 102, # (n, gamma)
     "n,p": 103, # (n, p)
     "n,d": 104,
     "n,t": 105,
@@ -465,7 +471,9 @@ def iso_color(f):
     return ISO_COLOR[f]
 
 _first_row = True
-def pyplot(f, table, columns, resonance, E_cutoff=None, active_only=False):
+def pyplot(
+        f, table, columns, resonance, E_cutoff=None, active_only=False,
+        x_data="energy", y_data="cross section"):
     import matplotlib.pyplot as plt
     first = LINENUM < 0
 
@@ -474,7 +482,8 @@ def pyplot(f, table, columns, resonance, E_cutoff=None, active_only=False):
     if '-' in name: name = "-".join(name.split('-')[1:])
     label=name
     p = abundance(f)
-    if p: label += " %.1f%%"%p
+    if p and pt is not None:
+        label += " (%.1f%%)"%p
     #label += " res: %.2fA"%wavelength(resonance)
     x = table[0, :]
     index = slice(None) if E_cutoff is None else (x < E_cutoff)
@@ -485,8 +494,12 @@ def pyplot(f, table, columns, resonance, E_cutoff=None, active_only=False):
         if active_only and capture_abundance > 0:
             #print("skipping", ck)
             continue # Skip stable daughter products
+        # Transform x, y if desired
+        if y_data == "scattering length":
+            y = np.sqrt(100*y/(4*np.pi)) if ENDF_LABELS[ck] == "elastic" else (y / (2000*wavelength(x)))    
+        xp = x if x_data == "energy" else wavelength(x)
         plt.loglog(
-            x, y,
+            xp, y,
             label=f"{label} {ENDF_LABELS[ck]}",
             linestyle=lines[k%len(lines)],
             color=iso_color(f),
@@ -517,7 +530,7 @@ def pyplot(f, table, columns, resonance, E_cutoff=None, active_only=False):
 def wavelength(eV):
     return np.sqrt(81.80420235572412/(eV*1e3))
 
-def showplot(show=True):
+def showplot(x_data="energy", y_data="cross section", show=True):
     import pylab
     from matplotlib import transforms as mtransforms
     pylab.grid(True)
@@ -527,20 +540,25 @@ def showplot(show=True):
     #pylab.axis([1e1,1e8,1e-6,1e2]) # For epithermal
     #pylab.axis([5e0,1e8,1e-1,9e3]) # For full range
     pylab.title('Elastic scattering from ENDF/B-VII.1 nuclear database')
-    pylab.xlabel('Energy (eV)')
+    xlabel = 'Energy (eV)' if x_data == "energy" else 'Wavelength (Å)'
+    ylabel = 'Cross section (barns)' if y_data == "cross section" else 'Scattering length (fm)'
+    pylab.xlabel(xlabel)
     #pylab.gca().set_xticklabels([])
-    pylab.ylabel('Cross section (barns)')
+    pylab.ylabel(ylabel)
     #pylab.xscale('linear')
     #pylab.yscale('linear')
     pylab.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     ax = pylab.gca()
     trans = mtransforms.blended_transform_factory(
         ax.transData, ax.transAxes)
+    #pylab.xscale('linear')
+    #pylab.yscale('linear')
     for E,L in (L20,20),(L6,6),(V2200,1.78),(L0p5,0.5),(L0p1,0.1):
     #for E,L in (V2200,1.78),(L0p5,0.5),(L0p1,0.1):
     #if False:
-        pylab.axvline(E)
-        pylab.text(E,0.05,'%g A'%L,transform=trans)
+        xp = E if x_data == "energy" else L
+        pylab.axvline(xp)
+        pylab.text(xp,0.05,'%g A'%L,transform=trans)
     if show:
         FIGURES.append(pylab.gcf())
         #for i,h in enumerate(FIGURES): h.savefig('figure_%d.png'%(i+1))
@@ -605,11 +623,6 @@ def abundance(filename, xs=-1):
     of the element after neutron capture. For example, xs=102 is for n,g
     neutron capture. See ENDF_COLUMNS for the cross section numbers.
     """
-    try:
-        import periodictable as pt
-    except:
-        warnings.warn(f"periodictable not available so no abundance values")
-        return 1
 
     # Parse filename into element,isotope
     # n_6152_61-Pm-148.out
@@ -636,6 +649,10 @@ def abundance(filename, xs=-1):
 
 if __name__ == "__main__":
     import sys
+    x_data = "energy"
+    y_data = "cross section"
+    #x_data = "wavelength"
+    #y_data = "scattering length"
     if sys.argv[1] == "--plot":
         # plot using endf program
         #KEEP_INTERMEDIATES = True
@@ -655,7 +672,8 @@ if __name__ == "__main__":
             #columns = [2] # For resonances.html, show elastic cross sections
             #columns = [102] #    act
             #columns = [107] # n,a
-            columns = [16, 102, 103, 107] # For activation: n,2n act n,p n,a
+            #columns = [16, 102, 103, 107] # For activation: n,2n act n,p n,a
+            columns = [2, 102, 103, 107, 16] # coh act n,p n,a n,2n
             table = xs_table(f, columns)
             #save_table(os.path.splitext(f)[0]+".tab", table, range=(1e0,1e2))
             if table is not None and sys.argv[1] == "--pyplot":
@@ -665,10 +683,12 @@ if __name__ == "__main__":
                 E_cutoff = None # show all curves with significant XS
                 E_cutoff = 1 # [eV] For resonance.html and activation show curves with significant XS below E
                 active_only = True # For activation
-                #active_only = False # For resonances.html, show all cross sections
-                pyplot(f,table,columns,res,E_cutoff=E_cutoff, active_only=active_only)
+                active_only = False # For resonances.html, show all cross sections
+                pyplot(
+                    f,table,columns,res,E_cutoff=E_cutoff, 
+                    active_only=active_only, x_data=x_data, y_data=y_data)
         if sys.argv[1] == "--pyplot":
-            showplot()
+            showplot(x_data, y_data)
     else:
         # convert endf data to plottable columns
         for f in sys.argv[1:]:
