@@ -348,12 +348,15 @@ def cgi_call():
         errors['xray'] = error()
     try:
         abundance_source = form.getfirst('abundance', 'IAEA')
-        if abundance_source == "NIST":
-            abundance = activation.NIST2001_isotopic_abundance
+        if abundance_source == "IUPAC":
+            abundance = activation.table_abundance
+        # CRUFT: periodictable no longer uses NIST 2001 data for abundance
+        elif abundance_source == "NIST":
+            abundance = activation.table_abundance
         elif abundance_source == "IAEA":
             abundance = activation.IAEA1987_isotopic_abundance
         else:
-            raise ValueError("abundance should be NIST or IAEA")
+            raise ValueError("abundance should be IUPAC or IAEA")
     except Exception:
         errors['abundance'] = error()
 

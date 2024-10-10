@@ -268,9 +268,11 @@
 
         var abundance_par = getURLParameter('abundance');
         if (abundance_par==='null') ABUNDANCE = "IAEA";
+        // CRUFT: periodictable no longer uses NIST 2001 data for abundance
+        else if (abundance_par==='NIST') ABUNDANCE = "IUPAC";
         else ABUNDANCE = abundance_par;
-        if (ABUNDANCE!=="NIST" && ABUNDANCE!=="IAEA") {
-            show_error("<p>abundance="+sanitize(abundance_par)+" in URL should be NIST or IAEA; default is IAEA</p>");
+        if (ABUNDANCE!=="IUPAC" && ABUNDANCE!=="IAEA") {
+            show_error("<p>abundance="+sanitize(abundance_par)+" in URL should be IUPAC or IAEA; default is IAEA</p>");
             ABUNDANCE = "IAEA";
         }
     }
@@ -718,9 +720,9 @@
             </div>
 <!--
             <div id="div_id_abundance" class="control-group">
-               <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or NIST)</label>
-               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="NIST"
-                    title="Isotopic abundance for activation calculation uses either IAEA Report 273: Handbook of Nuclear Activation Data, 1987, or NIST Isotopic Composition of the Elements, 2001; sld and absorption calculations use NIST abundance."
+               <label for="id_abundance" class="control-label requiredField">Abundance (IAEA or IUPAC)</label>
+               <div class="controls"><input id="id_abundance" type="text" class="textinput textInput" name="abundance" value="IUPAC"
+                    title="Isotopic abundance for activation calculation uses either IAEA Report 273: Handbook of Nuclear Activation Data, 1987, or IUPAC 2021 values; sld and absorption calculations use IUPAC 2021 abundance."
                /> </div>
             </div>
 -->
@@ -896,16 +898,16 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     isotopes is used to determine the total activation.  By default, the
     activation calculator uses values from the IAEA
     handbook (<a class="cite" href="#ref_IAEA">IAEA 1987</a>), and the
-    scattering calculator uses the NIST atomic weights and isotope composition
-    database (<a class="cite" href="#ref_Bolke">Bölke 2005</a>).
+    scattering calculator uses the IUPAC 2021 atomic weights and isotope composition
+    database (<a class="cite" href="#ref_CIAAW">CIAAW 2021</a>).
 </p>
 
 <p>Calculation parameters are controlled by URL:</p>
 <dl>
     <dt>isotope abundance</dt>
     <dd>
-    The NIST database can be selected for isotope abundance using:
-    <a href="index.html?abundance=NIST">index.html?abundance=NIST</a>
+    Use the following to select IUPAC 2021 isotopic abundance data rather than the IAEA 1987 data:
+    <a href="index.html?abundance=IUPAC">index.html?abundance=IUPAC</a>
     </dd>
 
     <dt>activation cutoff</dt>
@@ -1183,11 +1185,12 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
 <div id="help_references" class="help">
     <h3>References</h3>
     <ol>
-    <li id="ref_Bolke">
+    <li id="ref_CIAAW">
+        CIAAW. <em>Isotopic compositions of the elements 2021.</em> Available online
+        at <a href="https://www.ciaaw.org">www.ciaaw.org</a>
         Bölke, et al. (2005).
-        <em>Isotopic Compositions of the Elements, 2001.</em>
-        J. Phys. Chem. Ref. Data, Vol. 34, No. 1, 2005
-        [<a href="http://www.nist.gov/pml/data/comp.cfm">abundance data</a>]
+        [<a href="https://www.ciaaw.org/atomic-weights.htm">atomic weights</a>,
+        <a href="https://www.ciaaw.org/isotopic-abundances.htm">isotopic abundance</a>]
     </li>
     <li id="ref_Deslattes">
         Deslattes, R.D.; Kessler, Jr., E.G.; Indelicato, P.; de Billy, L.; Lindroth, E. and Anton, J. (2003).
