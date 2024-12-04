@@ -53,6 +53,8 @@
         /* output markup */
         .error { color: red; }
         p.disclaimer { color: darkred; font-size:1.2em; }
+        .activity_unusual { background-color:wheat; }
+        /* .activity_normal { background-color: lightred; } */
 
         #id_chemical_formula { width: 30em; }
 
@@ -399,8 +401,21 @@
             content += '<th class="headerSortable {sorter: \'' + data.sorters[i] + '\')">' + data.headers[i] + '</th>';
         }
         content += '</tr>\n </thead>\n <tbody>\n'
+        var some_unusual = false;
         for (var i in data.rows) {
-            content += '  <tr id="' + i + '">';
+            var row_style = '';
+            if (data.rows[i][1] === 'b') {
+                some_unusual = true;
+                row_style = 'activity_unusual';
+            } else if (data.rows[i][2].slice(-1) === 't') {
+                some_unusual = true;
+                row_style = 'activity_unusual';
+            //} else if (data.rows[i][2].slice(-1) === 's') {
+            //    row_style = 'activity_normal';
+            } else {
+                row_style = 'activity_normal';
+            }
+            content += `  <tr id="${i}" class="${row_style}">`;
             for (var j=0; j <data.rows[i].length; j++){
                 if (j>=4) {
                     content += '<td>'+format_activation_value(data.rows[i][j], cutoff)+'</td>';
@@ -414,7 +429,11 @@
         for (var j=0; j < act.total.length; j++) {
             content += '<td>'+format_activation_value(act.total[j], cutoff)+'</td>';
         }
-        content += '</tr>\n </tfoot>\n </table>\n';
+        content += '</tr>\n';
+        if (some_unusual) {
+            content += ' <tr class="activity_unusual"><td colspan="9">b mode equilibrium activity does not include decay of transients after removal from beam.</td></tr>\n';
+        }
+        content += ' </tfoot> \n</table>\n';
         return content;
     }
     function show_error(error_html) {
@@ -900,6 +919,13 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     handbook (<a class="cite" href="#ref_IAEA">IAEA 1987</a>), and the
     scattering calculator uses the IUPAC 2021 atomic weights and isotope composition
     database (<a class="cite" href="#ref_CIAAW">CIAAW 2021</a>).
+</p>
+<p>
+    For very high fluences, e.g., more than 10<sup>16</sup> n/cm2, the activation
+    equations give erroneous results because of the precision limitations.
+    If there is doubt simply do the calculation at a lower flux and
+    proportion the result. This will not work for the cascade reactions,
+    i.e., two neutron additions.
 </p>
 
 <p>Calculation parameters are controlled by URL:</p>
