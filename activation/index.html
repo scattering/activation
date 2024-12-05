@@ -431,7 +431,7 @@
         }
         content += '</tr>\n';
         if (some_unusual) {
-            content += ' <tr class="activity_unusual"><td colspan="9">b reaction activity is underestimated; it does not include decay of transients after removal from beam.</td></tr>\n';
+            content += ' <tr class="activity_unusual"><td colspan="9">b reaction activity is slightly underestimated; it does not include decay of transients after removal from beam.</td></tr>\n';
         }
         content += ' </tfoot> \n</table>\n';
         return content;
@@ -594,7 +594,7 @@
         content += '</div>\n';
 
         $(content).prependTo('div[id=results]'); //add to the dom
-        $("table").tablesorter({sortList: [[8,1]]});
+        //$("table").tablesorter({sortList: [[8,1]]});
     }
 
     // Dynamic help support.  Clicking an input field jumps to the
@@ -927,6 +927,14 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     proportion the result. This will not work for the cascade reactions,
     i.e., two neutron additions.
 </p>
+<p>
+    Reaction = b  : This is the beta produced daughter of an activated parent.
+    This is calculated only for the cases where the daughter is long lived
+    relative to the parent. The calculated activity is through the end of
+    exposure only. Contributions from the added decay of the parent after the
+    end of irradiation are left for the user to determine, but are usually
+    negligible for irradiations that are long relative to the parent halflife.
+</p>
 
 <p>Calculation parameters are controlled by URL:</p>
 <dl>
@@ -1010,7 +1018,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
     indicates radioactive daughter of this nuclide in secular equilibrium
     after several daughter t1/2's.
   </dd> <dt>t</dt> <dd>
-    indicates transient equil via beta decay. Accumulation of that nuclide
+    indicates transient equilibrium via beta decay. Accumulation of that nuclide
     during irradiation is separately calculated.
   </dd> </dl>
 </li></ul>
