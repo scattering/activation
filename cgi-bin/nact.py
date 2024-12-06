@@ -421,7 +421,7 @@ def cgi_call():
             decay_time = sample.decay_time(decay_level)
             total = [0]*len(sample.rest_times)
             rows = []
-            for el, activity_el in activation.sorted_activity(sample.activity.items()):
+            for el, activity_el in sample.activity.items():
                 total = [t+a for t, a in zip(total, activity_el)]
                 rows.append({
                     'isotope': el.isotope, 'reaction': el.reaction,
@@ -439,7 +439,6 @@ def cgi_call():
                 'decay_level': decay_level,
                 'decay_time': decay_time,
             }
-            #print >>sys.stderr,result
         except Exception:
             result['activation'] = {"error": error()}
 

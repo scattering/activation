@@ -594,7 +594,10 @@
         content += '</div>\n';
 
         $(content).prependTo('div[id=results]'); //add to the dom
-        //$("table").tablesorter({sortList: [[8,1]]});
+        // Start table unsorted so that b reactions follow transients as they
+        // do in the activation table. Note that there is no way to get back
+        // the original order.
+        $("table").tablesorter();
     }
 
     // Dynamic help support.  Clicking an input field jumps to the
@@ -1278,7 +1281,7 @@ all give the density of D<sub>2</sub>O as 1.11 g/cm<sup>3</sup></div>
         Shleien, B.; Slaback, L.A. and Birky, B.K. (1998).
         <em>Handbook of health physics and radiological health.</em>
         Williams & Wilkins, Baltimore.
-        [<a href="https://github.com/pkienzle/periodictable/blob/master/periodictable/activation.dat">activation data</a>]
+        [<a href="https://github.com/python-periodictable/periodictable/blob/master/periodictable/activation.dat">activation data</a>]
     </li>
     </ol>
 </div>
